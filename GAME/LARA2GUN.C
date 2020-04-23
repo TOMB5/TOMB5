@@ -112,7 +112,7 @@ void draw_pistols(int weapon_type)// (F)
 	else if (ani == p->Draw2Anim)
 	{
 		draw_pistol_meshes(weapon_type);
-		SoundEffect(SFX_LARA_HOLSTER_DRAW, &lara_item->pos, 0);
+		SoundEffect(SFX_LARA_HOLSTER_DRAW, &lara_item->pos, SFX_DEFAULT);
 	}
 	else if (ani == p->RecoilAnim - 1)
 	{

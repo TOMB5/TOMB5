@@ -20,11 +20,13 @@
 #include "EFFECTS.H"
 #include "EFFECT2.H"
 #if PC_VERSION
+#include "DISPLAY.H"
 	#include "GAME.H"
 	#include "FILE.H"
 #include "GLOBAL.H"
 #include "SPECIFIC.H"
 #include "INPUT.H"
+#include "INCLUDE.H"
 #endif
 #include "GAMEFLOW.H"
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
@@ -168,114 +170,121 @@ short ZSoff2;
 short los_rooms[20];
 char globoncuttrig;
 short ItemNewRooms[256][2];
+
+#if PC_VERSION
+#define CDEF(u, v, w, h, yo, ts, bs) { (u) / 255.0f, (v) / 255.0f, w, h, yo, ts, bs }
+#else
+#define CDEF(u, v, w, h, yo, ts, bs) { u, v, w, h, yo, ts, bs }
+#endif
+
 struct CHARDEF CharDef[106] =
 {
-	{ -0x52, 0x34, 4, 0xD, -0xB, 0, 0xB },
-	{ 0x62, 0x3A, 7, 5, -0xA, 1, 5 },
-	{ 0x52, 0x1A, 0xE, 0xC, -0xA, 1, 0xB },
-	{ 0x4E, 0x26, 0xA, 0xE, -0xA, 1, 0xD },
-	{ -0x2A, 0xD, 0xF, 0xC, -9, 2, 0xC },
-	{ 0x28, 0x1A, 0xE, 0xC, -0xA, 1, 0xB },
-	{ -0x62, 0x39, 5, 5, -0xB, 0, 4 },
-	{ -0x34, 0x27, 6, 0x10, -0xC, 0, 0xD },
-	{ 0x22, 0x28, 6, 0x10, -0xB, 0, 0xE },
-	{ -0x48, 0x3B, 5, 5, -0xB, 0, 4 },
-	{ 0x16, 0x28, 0xB, 0xB, -9, 2, 0xB },
-	{ -0x4E, 0x3B, 5, 5, -2, 8, 0xC },
-	{ 0x6A, 0x3C, 8, 3, -4, 6, 9 },
-	{ 0x72, 0x3C, 5, 4, -2, 8, 0xB },
-	{ -0x2C, 0x26, 9, 0xF, -0xC, 0, 0xC },
-	{ 0x58, 0x31, 0xA, 0xA, -8, 3, 0xB },
-	{ -0x38, 0x37, 6, 0xA, -8, 3, 0xB },
-	{ 0x2E, 0x34, 9, 0xA, -8, 3, 0xB },
-	{ 0x58, 0x26, 8, 0xB, -8, 3, 0xC },
-	{ 0x3E, 0x28, 0xB, 0xB, -8, 3, 0xC },
-	{ -0x72, 0x30, 9, 0xC, -9, 2, 0xC },
-	{ -0x18, 0x32, 9, 0xB, -9, 2, 0xB },
-	{ 0x78, 0x2F, 9, 0xC, -9, 2, 0xC },
-	{ 0x16, 0x33, 9, 0xB, -9, 2, 0xB },
-	{ 0x6E, 0x31, 9, 0xB, -8, 3, 0xC },
-	{ -0x68, 0x39, 5, 9, -7, 4, 0xB },
-	{ -0x78, 0x39, 5, 0xA, -7, 4, 0xC },
-	{ -0x4E, 0x28, 0xC, 0xA, -8, 3, 0xB },
-	{ -0x2E, 0x35, 0xB, 7, -7, 4, 9 },
-	{ -0x10, 0x28, 0xC, 0xA, -8, 3, 0xB },
-	{ 0xC, 0x27, 0xA, 0xD, -0xB, 0, 0xB },
-	{ 0x42, 0xD, 0x10, 0xE, -0xA, 1, 0xD },
-	{ -0x7E, 0xD, 0xE, 0xD, -0xB, 0, 0xB },
-	{ -0x2A, 0x19, 0xD, 0xD, -0xB, 0, 0xB },
-	{ -0x7C, 0x23, 0xB, 0xD, -0xB, 0, 0xB },
-	{ 0, 0x1A, 0xD, 0xD, -0xB, 0, 0xB },
-	{ 0xE, 0x1A, 0xD, 0xD, -0xB, 0, 0xB },
-	{ 0x42, 0x1B, 0xC, 0xD, -0xB, 0, 0xB },
-	{ -0x4A, 0x1B, 0xC, 0xD, -0xB, 0, 0xB },
-	{ -0x38, 0xD, 0xE, 0xD, -0xB, 0, 0xB },
-	{ -0x22, 0x36, 5, 0xD, -0xB, 0, 0xB },
-	{ 0x38, 0x34, 5, 0x10, -0xB, 0, 0xE },
-	{ -0x1A, 0xF, 0xD, 0xD, -0xB, 0, 0xB },
-	{ -0x70, 0x23, 0xB, 0xD, -0xB, 0, 0xB },
-	{ 0x30, 0xD, 0x12, 0xD, -0xB, 0, 0xB },
-	{ -0x70, 0xD, 0xE, 0xD, -0xB, 0, 0xB },
-	{ 0x36, 0x1A, 0xC, 0xD, -0xB, 0, 0xB },
-	{ -0x38, 0x1A, 0xC, 0xD, -0xB, 0, 0xB },
-	{ -0x10, 0, 0xE, 0xF, -0xB, 0, 0xD },
-	{ -0x62, 0xD, 0xE, 0xD, -0xB, 0, 0xB },
-	{ -0x64, 0x23, 0xB, 0xD, -0xB, 0, 0xB },
-	{ -0x54, 0xD, 0xE, 0xD, -0xB, 0, 0xB },
-	{ 0x62, 0xD, 0xF, 0xD, -0xB, 0, 0xB },
-	{ 0x52, 0xD, 0xF, 0xD, -0xB, 0, 0xB },
-	{ 0x18, 0xD, 0x17, 0xD, -0xB, 0, 0xB },
-	{ -0x46, 0xD, 0xD, 0xE, -0xB, 0, 0xC },
-	{ 0x72, 0xD, 0xF, 0xD, -0xB, 0, 0xB },
-	{ -0x1C, 0x1C, 0xC, 0xD, -0xB, 0, 0xB },
-	{ 0x3E, 0x3C, 6, 4, -4, 6, 9 },
-	{ -8, 0x3B, 6, 4, -4, 6, 9 },
-	{ 0x58, 0x3B, 8, 4, -4, 6, 9 },
-	{ -0x72, 0x3C, 7, 3, -3, 7, 9 },
-	{ 0x78, 0x3B, 8, 4, -4, 6, 9 },
-	{ -0xE, 0x3B, 5, 5, -0xB, 0, 4 },
-	{ 0x62, 0x31, 0xB, 9, -7, 4, 0xB },
-	{ 0x60, 0x23, 0xB, 0xE, -0xC, 0, 0xB },
-	{ 0x48, 0x34, 9, 9, -7, 4, 0xB },
-	{ 0, 0x27, 0xB, 0xC, -0xA, 1, 0xB },
-	{ -0x5C, 0x34, 9, 9, -7, 4, 0xB },
-	{ -0x58, 0x26, 0xA, 0xE, -0xC, 0, 0xB },
-	{ 0x78, 0x23, 0xC, 0xC, -7, 4, 0xE },
-	{ 0x6C, 0x23, 0xB, 0xE, -0xC, 0, 0xB },
-	{ -0x3E, 0x1B, 6, 0xC, -0xA, 1, 0xB },
-	{ 0x28, 0x33, 6, 0x10, -0xA, 1, 0xE },
-	{ 0x1C, 0x1A, 0xC, 0xE, -0xC, 0, 0xB },
-	{ 0x52, 0x34, 6, 0xD, -0xB, 0, 0xB },
-	{ 0x60, 0x1A, 0x12, 9, -7, 4, 0xB },
-	{ -0x68, 0x30, 0xC, 9, -7, 4, 0xB },
-	{ 0x3E, 0x33, 0xA, 9, -7, 4, 0xB },
-	{ -0xC, 0xF, 0xB, 0xD, -7, 4, 0xE },
-	{ 0x34, 0x27, 0xA, 0xD, -7, 4, 0xE },
-	{ 0xA, 0x34, 0xA, 9, -7, 4, 0xB },
-	{ -0x42, 0x34, 9, 9, -7, 4, 0xB },
-	{ 0, 0x33, 9, 0xB, -9, 2, 0xB },
-	{ -0x4E, 0x32, 0xB, 9, -7, 4, 0xB },
-	{ -0x7E, 0x30, 0xC, 9, -7, 4, 0xB },
-	{ -0x7C, 0x1A, 0x12, 9, -7, 4, 0xB },
-	{ -0xE, 0x32, 0xB, 9, -7, 4, 0xB },
-	{ 0x28, 0x26, 0xB, 0xD, -7, 4, 0xE },
-	{ -0x18, 0x29, 8, 9, -7, 4, 0xB },
-	{ -0x22, 0x29, 9, 0xD, -7, 4, 0xE },
-	{ -0x7E, 0x39, 6, 9, -7, 4, 0xB },
-	{ -0x3E, 0x27, 0xA, 0xD, -0xA, 1, 0xC },
-	{ 0x20, 0x38, 5, 0xC, -0xA, 1, 0xB },
-	{ 0, 0xD, 0x18, 0xD, -0xA, 6, 0xB },
-	{ -0x40, 0, 0x18, 0xD, -0xA, 6, 0xB },
-	{ -0x58, 0, 0x18, 0xD, -0xA, 6, 0xB },
-	{ -0x28, 0, 0x18, 0xD, -0xA, 6, 0xB },
-	{ -0x6A, 0x1A, 0x12, 9, -8, 6, 0xB },
-	{ -0x58, 0x1A, 0xD, 0xC, -9, 6, 0xB },
-	{ 0x72, 0x1A, 0x12, 9, -8, 6, 0xB },
-	{ -0x10, 0x1C, 0xD, 0xC, -9, 6, 0xB },
-	{ 0, 0, 0x29, 0xD, -0xA, 6, 0xB },
-	{ 0x54, 0, 0x29, 0xD, -0xA, 6, 0xB },
-	{ 0x2A, 0, 0x29, 0xD, -0xA, 6, 0xB },
-	{ 0x7E, 0, 0x29, 0xD, -0xA, 6, 0xB }
+	CDEF(174, 52, 4, 13, -11, 0, 11),
+	CDEF(98, 58, 7, 5, -10, 1, 5),
+	CDEF(82, 26, 14, 12, -10, 1, 11),
+	CDEF(78, 38, 10, 14, -10, 1, 13),
+	CDEF(214, 13, 15, 12, -9, 2, 12),
+	CDEF(40, 26, 14, 12, -10, 1, 11),
+	CDEF(158, 57, 5, 5, -11, 0, 4),
+	CDEF(204, 39, 6, 16, -12, 0, 13),
+	CDEF(34, 40, 6, 16, -11, 0, 14),
+	CDEF(184, 59, 5, 5, -11, 0, 4),
+	CDEF(22, 40, 11, 11, -9, 2, 11),
+	CDEF(178, 59, 5, 5, -2, 8, 12),
+	CDEF(106, 60, 8, 3, -4, 6, 9),
+	CDEF(114, 60, 5, 4, -2, 8, 11),
+	CDEF(212, 38, 9, 15, -12, 0, 12),
+	CDEF(88, 49, 10, 10, -8, 3, 11),
+	CDEF(200, 55, 6, 10, -8, 3, 11),
+	CDEF(46, 52, 9, 10, -8, 3, 11),
+	CDEF(88, 38, 8, 11, -8, 3, 12),
+	CDEF(62, 40, 11, 11, -8, 3, 12),
+	CDEF(142, 48, 9, 12, -9, 2, 12),
+	CDEF(232, 50, 9, 11, -9, 2, 11),
+	CDEF(120, 47, 9, 12, -9, 2, 12),
+	CDEF(22, 51, 9, 11, -9, 2, 11),
+	CDEF(110, 49, 9, 11, -8, 3, 12),
+	CDEF(152, 57, 5, 9, -7, 4, 11),
+	CDEF(136, 57, 5, 10, -7, 4, 12),
+	CDEF(178, 40, 12, 10, -8, 3, 11),
+	CDEF(210, 53, 11, 7, -7, 4, 9),
+	CDEF(240, 40, 12, 10, -8, 3, 11),
+	CDEF(12, 39, 10, 13, -11, 0, 11),
+	CDEF(66, 13, 16, 14, -10, 1, 13),
+	CDEF(130, 13, 14, 13, -11, 0, 11),
+	CDEF(214, 25, 13, 13, -11, 0, 11),
+	CDEF(132, 35, 11, 13, -11, 0, 11),
+	CDEF(0, 26, 13, 13, -11, 0, 11),
+	CDEF(14, 26, 13, 13, -11, 0, 11),
+	CDEF(66, 27, 12, 13, -11, 0, 11),
+	CDEF(182, 27, 12, 13, -11, 0, 11),
+	CDEF(200, 13, 14, 13, -11, 0, 11),
+	CDEF(222, 54, 5, 13, -11, 0, 11),
+	CDEF(56, 52, 5, 16, -11, 0, 14),
+	CDEF(230, 15, 13, 13, -11, 0, 11),
+	CDEF(144, 35, 11, 13, -11, 0, 11),
+	CDEF(48, 13, 18, 13, -11, 0, 11),
+	CDEF(144, 13, 14, 13, -11, 0, 11),
+	CDEF(54, 26, 12, 13, -11, 0, 11),
+	CDEF(200, 26, 12, 13, -11, 0, 11),
+	CDEF(240, 0, 14, 15, -11, 0, 13),
+	CDEF(158, 13, 14, 13, -11, 0, 11),
+	CDEF(156, 35, 11, 13, -11, 0, 11),
+	CDEF(172, 13, 14, 13, -11, 0, 11),
+	CDEF(98, 13, 15, 13, -11, 0, 11),
+	CDEF(82, 13, 15, 13, -11, 0, 11),
+	CDEF(24, 13, 23, 13, -11, 0, 11),
+	CDEF(186, 13, 13, 14, -11, 0, 12),
+	CDEF(114, 13, 15, 13, -11, 0, 11),
+	CDEF(228, 28, 12, 13, -11, 0, 11),
+	CDEF(62, 60, 6, 4, -4, 6, 9),
+	CDEF(248, 59, 6, 4, -4, 6, 9),
+	CDEF(88, 59, 8, 4, -4, 6, 9),
+	CDEF(142, 60, 7, 3, -3, 7, 9),
+	CDEF(120, 59, 8, 4, -4, 6, 9),
+	CDEF(242, 59, 5, 5, -11, 0, 4),
+	CDEF(98, 49, 11, 9, -7, 4, 11),
+	CDEF(96, 35, 11, 14, -12, 0, 11),
+	CDEF(72, 52, 9, 9, -7, 4, 11),
+	CDEF(0, 39, 11, 12, -10, 1, 11),
+	CDEF(164, 52, 9, 9, -7, 4, 11),
+	CDEF(168, 38, 10, 14, -12, 0, 11),
+	CDEF(120, 35, 12, 12, -7, 4, 14),
+	CDEF(108, 35, 11, 14, -12, 0, 11),
+	CDEF(194, 27, 6, 12, -10, 1, 11),
+	CDEF(40, 51, 6, 16, -10, 1, 14),
+	CDEF(28, 26, 12, 14, -12, 0, 11),
+	CDEF(82, 52, 6, 13, -11, 0, 11),
+	CDEF(96, 26, 18, 9, -7, 4, 11),
+	CDEF(152, 48, 12, 9, -7, 4, 11),
+	CDEF(62, 51, 10, 9, -7, 4, 11),
+	CDEF(244, 15, 11, 13, -7, 4, 14),
+	CDEF(52, 39, 10, 13, -7, 4, 14),
+	CDEF(10, 52, 10, 9, -7, 4, 11),
+	CDEF(190, 52, 9, 9, -7, 4, 11),
+	CDEF(0, 51, 9, 11, -9, 2, 11),
+	CDEF(178, 50, 11, 9, -7, 4, 11),
+	CDEF(130, 48, 12, 9, -7, 4, 11),
+	CDEF(132, 26, 18, 9, -7, 4, 11),
+	CDEF(242, 50, 11, 9, -7, 4, 11),
+	CDEF(40, 38, 11, 13, -7, 4, 14),
+	CDEF(232, 41, 8, 9, -7, 4, 11),
+	CDEF(222, 41, 9, 13, -7, 4, 14),
+	CDEF(130, 57, 6, 9, -7, 4, 11),
+	CDEF(194, 39, 10, 13, -10, 1, 12),
+	CDEF(32, 56, 5, 12, -10, 1, 11),
+	CDEF(0, 13, 24, 13, -10, 6, 11),
+	CDEF(192, 0, 24, 13, -10, 6, 11),
+	CDEF(168, 0, 24, 13, -10, 6, 11),
+	CDEF(216, 0, 24, 13, -10, 6, 11),
+	CDEF(150, 26, 18, 9, -8, 6, 11),
+	CDEF(168, 26, 13, 12, -9, 6, 11),
+	CDEF(114, 26, 18, 9, -8, 6, 11),
+	CDEF(240, 28, 13, 12, -9, 6, 11),
+	CDEF(0, 0, 41, 13, -10, 6, 11),
+	CDEF(84, 0, 41, 13, -10, 6, 11),
+	CDEF(42, 0, 41, 13, -10, 6, 11),
+	CDEF(126, 0, 41, 13, -10, 6, 11)
 };
 struct ROPE_STRUCT Ropes[12];
 
@@ -354,7 +363,25 @@ void UpdateLightning()
 
 void UpdatePulseColour()
 {
-	Unimpl();
+	unsigned int localPulseCnt = PulseCnt = (++PulseCnt & 0x1F);
+	if (localPulseCnt > 15)
+	{
+		localPulseCnt = -localPulseCnt;
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		uint8_t r, g, b;
+		r = g = b = localPulseCnt << 3;
+		uint32_t c1, c2;
+		CalcColorSplit(RGB_MAKE(r, g, b), &c1, &c2);
+
+		c1 |= 0xFF000000;
+		c2 |= 0xFF000000;
+
+		FontShades[1][i].color.rgbcd = c1;
+		FontShades[1][i].specular.rgbcd = c2;
+	}
 }
 
 void KlaxonTremor()
@@ -728,10 +755,10 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(!) //DO NOT TOUC
 		{
 			if (LaraDrawType != LARA_DIVESUIT)
 			{
-				HairControl(0, 0, 0);
+				HairControl(0, false, nullptr);
 
 				if (gfLevelFlags & GF_LVOP_YOUNG_LARA)
-					HairControl(0, 1, 0);
+					HairControl(0, true, nullptr);
 			}
 
 			if (!bUseSpotCam)
@@ -2289,7 +2316,7 @@ int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)//2
 		}
 		else
 		{
-			SoundEffect(SFX_SMASH_METAL, &item->pos, 0);
+			SoundEffect(SFX_SMASH_METAL, &item->pos, SFX_DEFAULT);
 			num = bits;
 		}
 		GetSpheres(item, Slist, 3);
@@ -2427,7 +2454,7 @@ void FlipMap(int FlipNumber)// (F)
 
 void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (F)
 {
-#if PSXPC_TEST
+#if PSXPC_TEST || PC_VERSION
 	int key = 0;
 #else
 	int key;
@@ -2566,7 +2593,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 				{
 					//loc_1EC64
 					//v1 = HeavyFlags
-					if (flags & 0x3E00 != HeavyFlags)
+					if ((flags & 0x3E00) != HeavyFlags)
 					{
 						return;
 					}
@@ -2636,7 +2663,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 		case COMBAT:
 		{
 			//loc_1EF08
-			if (lara.gun_status != 4)
+			if (lara.gun_status != LG_READY)
 			{
 				return;
 			}
@@ -2656,7 +2683,11 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 		case MONKEY:
 		{
 			//loc_1ED50
-			if (lara_item->current_anim_state >= ANIMATION_LARA_JUMP_BACK && (lara_item->current_anim_state <= ANIMATION_LARA_JUMP_LEFT || lara_item->current_anim_state == ANIMATION_LARA_LANDING_MIDDLE || lara_item->current_anim_state == ANIMATION_LARA_FORWARD_TO_FREE_FALL))
+			if ((lara_item->current_anim_state >= ANIMATION_LARA_JUMP_BACK &&
+			     lara_item->current_anim_state <= ANIMATION_LARA_JUMP_LEFT) ||
+			    lara_item->current_anim_state == ANIMATION_LARA_LANDING_MIDDLE ||
+			    lara_item->current_anim_state == ANIMATION_LARA_FORWARD_TO_FREE_FALL
+				)
 				break;
 			return;
 		}
@@ -2669,40 +2700,42 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 		case TIGHTROPE_T:
 		{
 			//loc_1ED90
-			if (lara_item->current_anim_state < ANIMATION_LARA_FREE_FALL_TO_UNDERWATER_ALTERNATE || lara_item->current_anim_state > ANIMATION_LARA_AH_LEFT || lara_item->current_anim_state == ANIMATION_LARA_AH_BACKWARD)
-			{
-				return;
-			}
-			break;
+			if (lara_item->current_anim_state >= ANIMATION_LARA_FREE_FALL_TO_UNDERWATER_ALTERNATE &&
+			    lara_item->current_anim_state <= ANIMATION_LARA_AH_LEFT &&
+			    lara_item->current_anim_state != ANIMATION_LARA_AH_BACKWARD)
+				break;
+			return;
 		}
 		case CRAWLDUCK_T:
 		{
 			//loc_1EDCC
-			if (lara_item->current_anim_state != ANIMATION_LARA_JUMP_RIGHT_BEGIN
-				|| lara_item->current_anim_state != ANIMATION_LARA_JUMP_RIGHT
-				|| lara_item->current_anim_state != ANIMATION_LARA_LEFT_TO_FREE_FALL
-				|| lara_item->current_anim_state != ANIMATION_LARA_RIGHT_TO_FREE_FALL
-				|| lara_item->current_anim_state != ANIMATION_LARA_UNDERWATER_SWIM_FORWARD
-				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_FORWARD_END
-				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_FORWARD_STOP
-				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_BACKWARD
-				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_BACKWARD_END)
-			{
-				return;
-			}
+			if (lara_item->current_anim_state == ANIMATION_LARA_JUMP_RIGHT_BEGIN ||
+			    lara_item->current_anim_state == ANIMATION_LARA_JUMP_RIGHT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_LEFT_TO_FREE_FALL ||
+			    lara_item->current_anim_state == ANIMATION_LARA_RIGHT_TO_FREE_FALL ||
+			    lara_item->current_anim_state == ANIMATION_LARA_UNDERWATER_SWIM_FORWARD ||
+			    lara_item->current_anim_state == ANIMATION_LARA_SLIDE_FORWARD_END ||
+			    lara_item->current_anim_state == ANIMATION_LARA_SLIDE_FORWARD_STOP ||
+			    lara_item->current_anim_state == ANIMATION_LARA_SLIDE_BACKWARD ||
+			    lara_item->current_anim_state == ANIMATION_LARA_SLIDE_BACKWARD_END)
+				break;
 
-			break;
-			//def_1ECA0
+			return;
 		}
 		case CLIMB_T:
 			//loc_1EE38
 
-			if (lara_item->current_anim_state != ANIMATION_LARA_RUN_TO_STAY_RIGHT || lara_item->current_anim_state != ANIMATION_LARA_RUN_UP_STEP_LEFT || lara_item->current_anim_state != ANIMATION_LARA_WALK_UP_STEP_RIGHT || lara_item->current_anim_state != ANIMATION_LARA_WALK_UP_STEP_LEFT || lara_item->current_anim_state != ANIMATION_LARA_WALK_DOWN_LEFT || lara_item->current_anim_state != ANIMATION_LARA_WALK_DOWN_RIGHT || lara_item->current_anim_state != ANIMATION_LARA_WALK_DOWN_BACK_LEFT || lara_item->current_anim_state != ANIMATION_LARA_JUMP_BACK)
-			{
-				return;
-			}
+			if (lara_item->current_anim_state == ANIMATION_LARA_RUN_TO_STAY_RIGHT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_RUN_UP_STEP_LEFT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_UP_STEP_RIGHT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_UP_STEP_LEFT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_DOWN_LEFT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_DOWN_RIGHT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_DOWN_BACK_LEFT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_JUMP_BACK)
+				break;
+			return;
 
-			break;
 		}
 	}
 	//def_1ECA0
@@ -2969,7 +3002,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 			flip_available = 1;
 			if (flip_stats[value] != 0)
 			{
-				flipmap[value] &= -15873;
+				flipmap[value] &= 0xC1FF;
 				flip = value;
 			}
 			break;
@@ -3019,7 +3052,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 			if (trigger != key)
 			{
 				lp = 0;
-				if (type == 6 || type == 9 || type == 11)
+				if (type == ANTIPAD || type == ANTITRIGGER || type == HEAVYANTITRIGGER)
 				{
 					//loc_1F460
 					bUseSpotCam = 0;
@@ -3283,7 +3316,7 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 		}
 	}
 
-	return -32512;
+	return BAD_HEIGHT;
 }
 
 void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F)
@@ -3360,10 +3393,309 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 }
 
 #if PC_VERSION
+void GH_adjust_height(int a1, int s4, short* t7, int a2, int s3)
+{
+	int v0;
+
+	v0 = s4 & 0x3FF;
+	if (a1 < 0)
+	{
+		v0 = (v0 * a1) >> 2;
+		*t7 -= v0;
+	}
+	else
+	{
+		//loc_79008
+		v0 = 0x3FF;
+		v0 -= s4;
+		v0 &= 0x3FF;
+		v0 *= a1;
+		v0 >>= 2;
+		*t7 += v0;
+	}
+
+	//loc_79024
+	v0 = s3 & 0x3FF;
+	if (a2 < 0)
+	{
+		v0 = (v0 * a2) >> 2;
+		*t7 -= v0;
+		return;
+	}//loc_79040
+
+	v0 = 0x3FF;
+	v0 -= s3;
+	v0 &= 0x3FF;
+	v0 = (v0 * a2) >> 2;
+	*t7 += v0;
+}
+
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
 {
-	UNIMPLEMENTED();
-	return 0;
+	struct room_info* r;//$a0
+	struct FLOOR_INFO* f;//$s0
+	unsigned short* fd;//$s1
+	unsigned short value;//$s2
+	short ret;//$t7 @ret
+	unsigned short trigger_value;//$s0
+	struct ITEM_INFO* item;//$a0
+	struct object_info* object;//$v0
+	int height;
+	unsigned short v1;//$v1
+
+	//s0 = floor
+	//s3 = x
+	OnObject = 0;
+	height_type = 0;
+	tiltyoff = 0;
+	tiltxoff = 0;
+	//s4 = z
+	f = floor;
+
+	//loc_78CB4
+	while (f->pit_room != 0xFF)
+	{
+		if (CheckNoColFloorTriangle(f, x, z) == 1)
+			break;//loc_78D28
+
+		r = &room[f->pit_room];
+		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
+	}
+
+	//loc_78D28
+	ret = f->floor << 8;
+	//v0 = -32512
+
+	if ((f->floor << 8) == -32512)
+	{
+		return ret;
+	}
+
+	//v1 = f->index
+	//v1 <<= 1;
+	trigger_index = NULL;
+
+	if (f->index == 0)
+	{
+		return ret;
+	}
+
+	fd = (unsigned short*)&floor_data[f->index];
+
+	//loc_78D60
+	do
+	{
+		value = *fd++;
+
+		//v0 = value & 0x1F
+		//v1 = v0 - 1
+		//v0 = v1 < 0x15 ? 1 : 0
+		//v0 = v1 << 2
+
+		switch ((value & 0x1F))
+		{
+		case DOOR_TYPE:
+		case ROOF_TYPE:
+		case SPLIT3:
+		case SPLIT4:
+		case NOCOLC1T:
+		case NOCOLC1B:
+		case NOCOLC2T:
+		case NOCOLC2B://COMPLETE
+		{
+			//loc_78EEC
+			fd++;
+			break;
+		}
+		case TILT_TYPE://COMPLETE
+		{
+			//loc_78EA0
+			char a1 = ((char*)fd)[1];
+			char a2 = ((char*)fd)[0];
+
+			//loc_78EB4
+			tiltxoff = a1;
+			tiltyoff = a2;
+
+			if (ABS(a1) < 3)
+			{
+				if (ABS(a2) < 3)
+				{
+					height_type = 1;
+					GH_adjust_height(a1, z, &ret, a2, x);
+				}
+				else
+				{
+					height_type = 2;
+					GH_adjust_height(a1, z, &ret, a2, x);
+				}
+			}
+			else
+			{
+				//loc_78EE4
+				height_type = 2;
+				GH_adjust_height(a1, z, &ret, a2, x);
+			}
+			fd++;
+			break;
+		}
+		case TRIGGER_TYPE://COMPLETE
+		{
+			//loc_78F0C
+			fd++;
+
+			if (trigger_index == 0)
+			{
+				trigger_index = (short*)&fd[-2];
+			}
+			//loc_78F20
+			do
+			{
+				trigger_value = *fd++;
+
+				if (((trigger_value & 0x3FFF) >> 10) == 0xC || ((trigger_value & 0x3FFF) >> 10) == 0x1)
+				{
+					trigger_value = *fd++;
+					continue;
+				}
+				//loc_78F54
+				item = &items[trigger_value & 0x3FF];
+
+				if (!(item->flags & 0x8000))
+				{
+					object = &objects[item->object_number];
+
+					if (object->floor != NULL)
+					{
+						object->floor(item, x, y, z, &height);
+					}//loc_78FB8
+				}//loc_78FB8
+			} while (!(trigger_value & 0x8000));
+			break;
+		}
+		case LAVA_TYPE://COMPLETE
+		{
+			//loc_78F00
+			trigger_index = (short*)--fd;
+			break;
+		}
+		case CLIMB_TYPE:
+		case MONKEY_TYPE:
+		case TRIGTRIGGER_TYPE:
+		case MINER_TYPE://COMPLETE
+		{
+			//loc_78EF4
+			if (trigger_index == NULL)
+			{
+				trigger_index = (short*)&fd[-1];
+			}
+			break;
+		}
+		case SPLIT1:
+		case SPLIT2:
+		case NOCOLF1T:
+		case NOCOLF1B:
+		case NOCOLF2T:
+		case NOCOLF2B:
+		{
+			//loc_78D94
+			//v0 = 4
+			v1 = *fd;
+			//a0 = value & 0x1F;
+			height_type = 4;
+			int t0 = v1 & 0xF;
+			int a3 = (v1 >> 4) & 0xF;
+			int a2 = (v1 >> 8) & 0xF;
+			int t1 = z & 0x3FF;
+			int t2 = x & 0x3FF;
+			//v0 = 7
+			int a1;
+			int v0;
+
+			v1 >>= 12;
+			if ((value & 0x1F) == 7 || (unsigned)((value & 0x1F) - 11) < 2)
+			{
+				//loc_78DD8
+				v0 = value >> 10;
+				if (0x400 - t1 < t2)
+				{
+					//loc_78DF8
+					v0 = value >> 5;
+					a1 = v1 - t0;
+					a2 = v1 - a2;
+					//j loc_78E2C
+				}
+				else
+				{
+					//loc_78DF8
+					a1 = a2 - a3;
+					a2 = t0 - a3;
+					//j loc_78E2C
+				}
+			}
+			else
+			{
+				//loc_78E08
+				v0 = value >> 10;
+				if (t1 < t2)
+				{
+					v0 = value >> 5;
+					a1 = v1 - t0;
+					a2 = t0 - a3;
+				}
+				else
+				{
+					//loc_78E20
+					a1 = a2 - a3;
+					a2 = v1 - a2;
+					//j       loc_78E2C
+				}
+			}
+
+			//loc_78E2C
+			tiltxoff = a1;
+			tiltyoff = a2;
+
+			v0 &= 0x1F;
+
+			int at = -16;
+			if ((v0 & 0x10))
+			{
+				v0 |= at;
+			}
+			//loc_78E48
+			v0 <<= 8;
+			ret += v0;
+
+			if (ABS(a1) >= 3)
+			{
+				//loc_78E90
+				height_type = 3;
+			}
+			else if(ABS(a2) >= 3)
+			{
+				//loc_78E90
+				height_type = 3;
+			}
+			else if (height_type != 4)
+			{
+				height_type = 1;
+			}
+
+			//loc_78E94
+			fd++;
+			GH_adjust_height(a1, z, &ret, a2, x);
+			break;
+		}
+		default:
+			Error("GetHeight(): Unknown type");
+			break;
+		}
+
+		//loc_78FC0
+	} while (!(value & 0x8000));
+
+	return ret;
 }
 
 struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 7A998(<) (F)
@@ -3446,12 +3778,6 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 			*room_number = floor->pit_room;
 			r = &room[floor->pit_room];
 			tmp = ((z - r->z) >> 10) + r->x_size * ((x - r->x) >> 10);
-			/*if (ABS(tmp) > 1048576)
-			{
-				S_Warn("[GetFloor] - sector num too big -> probably room array not initialized\n");
-				S_Warn("[GetFloor] - returning or the vc runtime will shit brixes\n");
-				return floor;
-			}*/
 			floor = &r->floor[tmp];
 			if (y < r->floor[tmp].floor << 8)
 				break;
@@ -3463,11 +3789,283 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 	return floor;
 }
 
+
+void GC_adjust_height(unsigned short a0, char a1, char a2, int t4, int t5, int* t7/*ret*/)
+{
+	int v0;
+
+	v0 = t5 & 0x3FF;
+	if (a1 < 0)
+	{
+		v0 = (v0 * a1) >> 2;
+		*t7 += v0;
+	}
+	else
+	{
+		//loc_79408
+		v0 = 0x3FF;
+		v0 -= t5;
+		v0 &= 0x3FF;
+		v0 = (v0 * a1) >> 2;
+		*t7 -= v0;
+	}
+
+	//loc_79424
+	v0 = 0x3FF;
+	if (a2 < 0)
+	{
+		v0 -= t4;
+		v0 &= 0x3FF;
+		v0 = (v0 * a2) >> 2;
+		*t7 += v0;
+		return;
+	}
+	//loc_79448
+	v0 = t4 & 0x3FF;
+	v0 = (v0 * a2) >> 2;
+	*t7 -= v0;
+	return;
+}
+
 short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 {
-	UNIMPLEMENTED();
-	return 0;
+	struct room_info* r;//$a0
+	struct FLOOR_INFO* f;//$s0
+	unsigned short* fd;//$s0
+	unsigned short a0;
+	unsigned short v1;
+	int a1;
+	int a2;
+	int t7;
+	//s1 = floor
+	//t4 = x
+	//t5 = z
+	f = floor;
+
+	//loc_790F0
+	while (f->sky_room != 0xFF)
+	{
+		//loc_7908C
+		if (CheckNoColCeilingTriangle(f, x, z) == 1)
+		{
+			break;
+		}
+
+		r = &room[f->sky_room];
+		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
+	}
+	//loc_79100
+	t7 = f->ceiling << 8;
+	//v1 = f->index << 1
+	//v0 = -32512
+
+	if ((f->ceiling << 8) != -32512)
+	{
+		if(f->index != 0)
+		{
+			//s0 = floor_data
+			//v0 = 2
+			fd = (unsigned short*)&floor_data[f->index];
+			a0 = *fd++;
+			if ((unsigned)(a0 & 0x1F) == 2 || (unsigned)((a0 & 0x1F) - 7) < 2 || (unsigned)((a0 & 0x1F) - 11) < 4)
+			{
+				//loc_79154
+				if (((a0 & 0x8000) << 10) != 0)
+				{
+					a0 = fd[1];
+					fd += 2;
+					//s2 = a0 & 0x1F
+					///goto loc_792BC;
+				}
+				else
+				{
+					a0 = fd[1];
+					fd += 2;
+					//s2 = a0 & 0x1F
+				}
+			}
+			//loc_7916C
+			if ((a0 & 0x1F) == 3)
+			{
+				//loc_7924C
+				//Below todo pass as args
+				///lb      $a1, 1($s0)
+				///j       loc_79244
+				///lb      $a2, 0($s0)
+				GC_adjust_height(a0, ((char*)fd)[1], ((char*)fd)[0], x, z, &t7);
+				//j loc_792BC
+			}
+			else if ((unsigned)((a0 & 0x1F) - 9) < 2 || (unsigned)((a0 & 0x1F) - 15) < 4)
+			{
+				//loc_7918C
+				//a2 = x & 0x3FF
+				v1 = fd[0];
+				//a1 = z & 0x3FF
+				//t1 = -(fd[0] & 0xF)
+				//t0 = -((fd[0] >> 4) & 0xF);
+				//a3 = -((fd[0] >> 8) & 0xF);
+				//v1 = -(fd[0] >> 12);
+				//v0 = 9
+
+				if ((a0 & 0x1F) == 9 || (a0 & 0x1F) - 15  < 2)
+				{
+					//loc_791D4
+					//v0 = (1024 - (z & 1023));
+					if ((1024 - (z & 1023)) < (x & 1023))
+					{
+						//loc_791F8
+						a0 >>= 5;
+						a1 = -(fd[0] >> 12) - -(fd[0] & 0xF);
+						a2 = -(fd[0] & 0xF) - -((fd[0] >> 4) & 0xF);
+						//j       loc_79228
+					}
+					else
+					{
+						//loc_791F8
+						a0 >>= 10;
+						a1 = -((fd[0] >> 8) & 0xF) - -((fd[0] >> 4) & 0xF);
+						a2 = -(fd[0] >> 12) - -((fd[0] >> 8) & 0xF);
+						//j       loc_79228
+					}
+				}//loc_79204
+				else if ((z & 0x3FF) < (x & 0x3FF))
+				{
+					//loc_79220
+					a0 >>= 5;
+					a1 = -(fd[0] >> 12) - -(fd[0] & 0xF);
+					a2 = -(fd[0] >> 12) - -((fd[0] >> 8) & 0xF);
+				}
+				else
+				{
+					a0 >>= 10;
+					a1 = -((fd[0] >> 8) & 0xF) - -((fd[0] >> 4) & 0xF);
+					a2 = -(fd[0] & 0xF) - -((fd[0] >> 4) & 0xF);
+				}
+				//loc_79228
+				a0 &= 0x1F;
+
+				if ((a0 & 0x10))
+				{
+					a0 |= -0x10;
+				}
+				//loc_7923C
+				a0 <<= 8;
+				t7 += a0;
+
+				GC_adjust_height(a0, a1, a2, x, z, &t7);
+				//j loc_792BC
+			}
+		}
+		//loc_792BC
+		//v1 = floor->pit_room
+		f = floor;
+		while (f->pit_room != 0xFF)
+		{
+			//loc_79258
+			if (CheckNoColFloorTriangle(f, x, z) == 1)
+			{
+				break;
+			}
+
+			r = &room[f->pit_room];
+			f = &r->floor[((z - r->z) >> 10) + ((x - r->x) >> 10) * r->x_size];
+		}
+		//loc_792CC
+		//v0 = floor->index
+		//v1 = floor_data
+		if (floor->index == 0)
+		{
+			return t7;
+		}
+
+		fd = (unsigned short*)&floor_data[floor->index];
+
+	loc_792E0:
+		unsigned short s2 = *fd++;
+		unsigned short v0 = (s2) & 0x1F;
+		unsigned short s1;
+
+		switch (v0)
+		{
+		case 1:
+		case 2:
+		case 3:
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
+		case 15:
+		case 16:
+		case 17:
+		case 18:
+			//loc_79314
+			fd++;
+			goto loc_793C8;
+			break;
+		case 4:
+			//loc_79318
+			fd++;
+		loc_7931C:
+			s1 = *fd++;
+			v0 = s1 & 0x3FFF;
+
+			//v0 = 0xC
+			if ((v0 >> 10) != 0)
+			{
+				if ((v0 >> 10) == 0xC || (v0 >> 10) == 0x1)
+				{
+					//loc_79344
+					s1 = *fd++;
+				}
+			}
+			else
+			{
+				//loc_79350
+				//a0 = items
+				v1 = s1 & 0x3FF;
+				struct ITEM_INFO* item = &items[s1 & 0x3FF];//$a0
+				//v0 = item->flags & 0x8000
+				//v1 = item->object_number
+
+				if (!(item->flags & 0x8000))
+				{
+					struct object_info* object = &objects[item->object_number];
+
+					if (object->ceiling != NULL)
+					{
+						///@CHECKME args?!?!?
+						object->ceiling(item, x, y, z, NULL);
+					}
+				}//loc_793C0
+			}
+			//loc_793C0
+
+			if (!(s1 & 0x8000))
+				goto loc_7931C;
+
+		case 5:
+		case 6:
+		case 19:
+		case 20:
+		case 21:
+		loc_793C8:
+			if (!(s2 & 0x8000))
+				goto loc_792E0;
+			break;
+		}
+
+		//loc_793D0
+		return t7;
+
+	}//loc_793D4
+
+	return -32512;
 }
+
 #endif
 
 int TriggerActive(struct ITEM_INFO* item)// (F)
@@ -3588,7 +4186,7 @@ int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 	floor = GetFloor(x, y, z, &room_num);
 
 	height = GetHeight(floor, x, y, z);
-	if (height == -32512 || y > height)
+	if (height == BAD_HEIGHT || y > height)
 		return -2;
 
 	ceiling = GetCeiling(floor, x, y, z);

@@ -42,8 +42,11 @@ extern uint8_t opt_ControlMethod;
 extern uint8_t opt_SoundQuality;
 
 bool InitSetupDialog();
+
 void SaveSettingsDialog(HWND h_dlg_hwnd);
+
 void SaveSettings();
+
 bool LoadSettings();
 
 #endif

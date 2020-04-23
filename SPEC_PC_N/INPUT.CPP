@@ -30,11 +30,11 @@ short mouse_y;
 int mouse_vkeys;
 unsigned char keymap[256];
 int32_t conflict[18];
-int16_t layout[2][18] = 
-{
-	{ DIK_UP, DIK_DOWN, DIK_LEFT, DIK_RIGHT, DIK_PERIOD, DIK_SLASH, DIK_RSHIFT, DIK_RMENU, DIK_RCONTROL, DIK_SPACE, DIK_COMMA, DIK_NUMPAD0, DIK_END, DIK_ESCAPE, DIK_DELETE, DIK_NEXT, DIK_P, DIK_RETURN },
-	{ DIK_UP, DIK_DOWN, DIK_LEFT, DIK_RIGHT, DIK_PERIOD, DIK_SLASH, DIK_RSHIFT, DIK_RMENU, DIK_RCONTROL, DIK_SPACE, DIK_COMMA, DIK_NUMPAD0, DIK_END, DIK_ESCAPE, DIK_DELETE, DIK_NEXT, DIK_P, DIK_RETURN }
-};
+int16_t layout[2][18] =
+		{
+				{DIK_UP, DIK_DOWN, DIK_LEFT, DIK_RIGHT, DIK_PERIOD, DIK_SLASH, DIK_RSHIFT, DIK_RMENU, DIK_RCONTROL, DIK_SPACE, DIK_COMMA, DIK_NUMPAD0, DIK_END, DIK_ESCAPE, DIK_DELETE, DIK_NEXT, DIK_P, DIK_RETURN},
+				{DIK_UP, DIK_DOWN, DIK_LEFT, DIK_RIGHT, DIK_PERIOD, DIK_SLASH, DIK_RSHIFT, DIK_RMENU, DIK_RCONTROL, DIK_SPACE, DIK_COMMA, DIK_NUMPAD0, DIK_END, DIK_ESCAPE, DIK_DELETE, DIK_NEXT, DIK_P, DIK_RETURN}
+		};
 int joy_x;
 int joy_y;
 int joy_fire;
@@ -49,7 +49,7 @@ int Key(int number)// (F)
 	if (keymap[key])
 		return 1;
 
-	switch(key)
+	switch (key)
 	{
 		case DIK_RCONTROL:
 			return keymap[DIK_LCONTROL];
@@ -75,18 +75,18 @@ int Key(int number)// (F)
 
 	switch (key)
 	{
-	case DIK_RCONTROL:
-		return keymap[DIK_LCONTROL];
-	case DIK_LCONTROL:
-		return keymap[DIK_RCONTROL];
-	case DIK_RSHIFT:
-		return keymap[DIK_LSHIFT];
-	case DIK_LSHIFT:
-		return keymap[DIK_RSHIFT];
-	case DIK_RMENU:
-		return keymap[DIK_LMENU];
-	case DIK_LMENU:
-		return keymap[DIK_RMENU];
+		case DIK_RCONTROL:
+			return keymap[DIK_LCONTROL];
+		case DIK_LCONTROL:
+			return keymap[DIK_RCONTROL];
+		case DIK_RSHIFT:
+			return keymap[DIK_LSHIFT];
+		case DIK_LSHIFT:
+			return keymap[DIK_RSHIFT];
+		case DIK_RMENU:
+			return keymap[DIK_LMENU];
+		case DIK_LMENU:
+			return keymap[DIK_RMENU];
 	}
 
 	return 0;
@@ -154,7 +154,7 @@ int S_UpdateInput()// (F)
 		if (Key(opt_JWlk + 256))
 			linput |= IN_WALK;
 		if (Key(opt_JDck + 256))
-			linput |= IN_DUCK;			
+			linput |= IN_DUCK;
 		if (Key(opt_JFlr + 256))
 			flare = true;
 	}
@@ -164,13 +164,13 @@ int S_UpdateInput()// (F)
 		if (!flare_no)
 		{
 			if (lara_item->current_anim_state == STATE_LARA_CRAWL_IDLE ||
-				lara_item->current_anim_state == STATE_LARA_CRAWL_FORWARD ||
-				lara_item->current_anim_state == STATE_LARA_CRAWL_TURN_LEFT ||
-				lara_item->current_anim_state == STATE_LARA_CRAWL_TURN_RIGHT ||
-				lara_item->current_anim_state == STATE_LARA_CRAWL_BACK ||
-				lara_item->current_anim_state == STATE_LARA_CRAWL_TO_CLIMB)
+			    lara_item->current_anim_state == STATE_LARA_CRAWL_FORWARD ||
+			    lara_item->current_anim_state == STATE_LARA_CRAWL_TURN_LEFT ||
+			    lara_item->current_anim_state == STATE_LARA_CRAWL_TURN_RIGHT ||
+			    lara_item->current_anim_state == STATE_LARA_CRAWL_BACK ||
+			    lara_item->current_anim_state == STATE_LARA_CRAWL_TO_CLIMB)
 			{
-				SoundEffect(SFX_LARA_NO, nullptr, 2);
+				SoundEffect(SFX_LARA_NO, nullptr, SFX_ALWAYS);
 				flare_no = true;
 			}
 			else
@@ -261,7 +261,7 @@ int S_UpdateInput()// (F)
 					if (lara_item->hit_points > 1000)
 					{
 						lara_item->hit_points = 1000;
-						SoundEffect(SFX_MENU_MEDI, nullptr, 2);
+						SoundEffect(SFX_MENU_MEDI, nullptr, SFX_ALWAYS);
 						savegame.Game.HealthUsed++;
 					}
 				}
@@ -270,7 +270,7 @@ int S_UpdateInput()// (F)
 			}
 		}
 	}
-	else if(keymap[DIK_9])
+	else if (keymap[DIK_9])
 	{
 		if (medipack_timeout == 0)
 		{
@@ -287,7 +287,7 @@ int S_UpdateInput()// (F)
 					if (lara_item->hit_points > 1000)
 					{
 						lara_item->hit_points = 1000;
-						SoundEffect(SFX_MENU_MEDI, nullptr, 2);
+						SoundEffect(SFX_MENU_MEDI, nullptr, SFX_ALWAYS);
 						savegame.Game.HealthUsed++;
 					}
 				}
@@ -345,24 +345,24 @@ int S_UpdateInput()// (F)
 		if (linput != 0)
 			cheat_code = 0;
 
-		switch(cheat_code)
+		switch (cheat_code)
 		{
-		case 0:
-			if (Key(DIK_D))
-				cheat_code = 1;
-			break;
-		case 1:
-			if (Key(DIK_O))
-				cheat_code = 2;
-			break;
-		case 2:
-			if (Key(DIK_Z))
-				cheat_code = 3;
-			break;
-		case 3:
-			if (Key(DIK_Y))
-				linput = IN_CHEAT;
-			break;
+			case 0:
+				if (Key(DIK_D))
+					cheat_code = 1;
+				break;
+			case 1:
+				if (Key(DIK_O))
+					cheat_code = 2;
+				break;
+			case 2:
+				if (Key(DIK_Z))
+					cheat_code = 3;
+				break;
+			case 3:
+				if (Key(DIK_Y))
+					linput = IN_CHEAT;
+				break;
 		}
 	}
 

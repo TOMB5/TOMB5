@@ -45,19 +45,17 @@ static struct PHD_VECTOR PolePos = {0, 0, -208}; // offset 0xA1238
 static struct PHD_VECTOR PolePosR = {0, 0, 0}; // offset 0xA1244
 static short PoleBounds[12] = // offset 0xA1250
 {
-	0xFF00, 0x0100, 0x0000, 0x0000, 0xFE00, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0xF8E4, 0x071C
+	-256, 256, 0, 0, -512, 512, -1820, 1820, -5460, 5460, -1820, 1820
 };
 int AnimatingWaterfallsVOffset = 0; // offset 0xA1268
 static short TightRopeBounds[12] = // offset 0xA126C
 {
-	0xFF00, 0x0100, 0x0000, 0x0000, 0xFF00, 0x0100, 0xF8E4, 0x071C, 0xEAAC, 0x1554,
-	0xF8E4, 0x071C
+	-256, 256, 0, 0, -256, 256, -1820, 1820, -5460, 5460, -1820, 1820
 };
 static struct PHD_VECTOR TightRopePos = {0, 0, 0}; // offset 0xA1284
 static short ParallelBarsBounds[12] = // offset 0xA1290
 {
-	0xFD80, 0x0280, 0x02C0, 0x0340, 0xFFA0, 0x0060, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 0xF8E4, 0x071C
+	-640, 640, 704, 832, -96, 96, -1820, 1820, -5460, 5460, -1820, 1820
 };
 
 void EarthQuake(short item_number)
@@ -76,7 +74,7 @@ void SmashObject(short item_number)//4EDB0, 4F214 (F)
 		box->overlap_index &= ~BOX_BLOCKED;
 	}
 
-	SoundEffect(SFX_SMASH_GLASS, &item->pos, 0);
+	SoundEffect(SFX_SMASH_GLASS, &item->pos, SFX_DEFAULT);
 	item->collidable = 0;
 	item->mesh_bits = 0xFFFE;
 	ExplodingDeath2(item_number, -1, 257);
@@ -242,11 +240,11 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 
 		if (item->trigger_flags == 0x29C)
 		{
-			SoundEffect(SFX_D_METAL_KICKOPEN, &item->pos, 0);
+			SoundEffect(SFX_D_METAL_KICKOPEN, &item->pos, SFX_DEFAULT);
 		}
 		else if (item->trigger_flags == 0x309)
 		{
-			SoundEffect(SFX_WATERFALL_LOOP, &item->pos, 0);
+			SoundEffect(SFX_WATERFALL_LOOP, &item->pos, SFX_DEFAULT);
 		}
 	}
 	else
@@ -286,7 +284,7 @@ void ControlXRayMachine(short item_number)// (F)
 			else
 			{
 				item->item_flags[1] = 30;
-				SoundEffect(SFX_ALARM, &item->pos, 0);
+				SoundEffect(SFX_ALARM, &item->pos, SFX_DEFAULT);
 			}
 		}
 
@@ -334,7 +332,7 @@ void ControlXRayMachine(short item_number)// (F)
 
 		if (item->item_flags[1] < 128)
 		{
-			SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &item->pos, 0);
+			SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &item->pos, SFX_DEFAULT);
 			TriggerFontFire(&items[item->item_flags[0]], item->item_flags[1], item->item_flags[1] == 0 ? 16 : 1);
 		}
 
@@ -357,7 +355,7 @@ void ControlXRayMachine(short item_number)// (F)
 				{
 					ShatterObject(NULL, mesh, 128, item->room_number, 0);
 					mesh->Flags &= ~1;
-					SoundEffect(ShatterSounds[gfCurrentLevel - 5][mesh->static_number], (struct PHD_3DPOS*)&mesh->x, 0);
+					SoundEffect(ShatterSounds[gfCurrentLevel - 5][mesh->static_number], (struct PHD_3DPOS*)&mesh->x, SFX_DEFAULT);
 				}
 			}
 		}

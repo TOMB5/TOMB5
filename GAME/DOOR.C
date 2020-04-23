@@ -24,17 +24,17 @@ static struct PHD_VECTOR CrowbarDoorPos = { -412, 0, 256 };
 
 static short PushPullKickDoorBounds[12] =
 {
-	0xFE80, 0x0180, 0x0000, 0x0000, 0xFC00, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 0xF8E4, 0x071C
+	-384, 384, 0, 0, -1024, 512, -1820, 1820, -5460, 5460, -1820, 1820
 };
 
 static short UnderwaterDoorBounds[12] =
 {
-	0xFF00, 0x0100, 0xFC00, 0x0000, 0xFC00, 0x0000, 0xC720, 0x38E0, 0xC720, 0x38E0, 0xC720, 0x38E0
+	-256, 256, -1024, 0, -1024, 0, -14560, 14560, -14560, 14560, -14560, 14560
 };
 
 static short CrowbarDoorBounds[12] =
 {
-	0xFE00, 0x0200, 0xFC00, 0x0000, 0x0000, 0x0200, 0xC720, 0x38E0, 0xC720, 0x38E0, 0xC720, 0x38E0
+	-512, 512, -1024, 0, 0, 512, -14560, 14560, -14560, 14560, -14560, 14560
 };
 
 long ClosedDoors[32];
@@ -157,7 +157,7 @@ void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 			&& lara.gun_status == LG_NO_ARMS
 			|| lara.IsMoving && lara.GeneralPtr == (void *)item_num))
 	{
-		item->pos.y_rot ^= (short)ANGLE(180);
+		item->pos.y_rot ^= ANGLE(180);
 		if (TestLaraPosition(CrowbarDoorBounds, item, l))
 		{
 			if (!lara.IsMoving)
@@ -167,7 +167,7 @@ void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 					if (have_i_got_object(CROWBAR_ITEM))
 					{
 						GLOBAL_enterinventory = CROWBAR_ITEM;
-						item->pos.y_rot ^= (short)ANGLE(180);
+						item->pos.y_rot ^= ANGLE(180);
 					}
 					else
 					{
@@ -178,13 +178,13 @@ void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 							OldPickupPos.z = l->pos.z_pos;
 							SayNo();
 						}
-						item->pos.y_rot ^= (short)ANGLE(180);
+						item->pos.y_rot ^= ANGLE(180);
 					}
 					return;
 				}
 				if (GLOBAL_inventoryitemchosen != CROWBAR_ITEM)
 				{
-					item->pos.y_rot ^= (short)ANGLE(180);
+					item->pos.y_rot ^= ANGLE(180);
 					return;
 				}
 			}
@@ -194,7 +194,7 @@ void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 				l->anim_number = 403;
 				l->current_anim_state = STATE_LARA_MISC_CONTROL;
 				l->frame_number = anims[403].frame_base;
-				item->pos.y_rot ^= (short)ANGLE(180);
+				item->pos.y_rot ^= ANGLE(180);
 				AddActiveItem(item_num);
 				item->flags |= IFLAG_ACTIVATION_MASK;
 				item->status = ITEM_ACTIVE;
@@ -210,7 +210,7 @@ void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 			lara.IsMoving = 0;
 			lara.gun_status = LG_NO_ARMS;
 		}
-		item->pos.y_rot ^= (short)ANGLE(180);
+		item->pos.y_rot ^= ANGLE(180);
 	}
 
 	if (TestBoundsCollide(item, l, coll->radius))

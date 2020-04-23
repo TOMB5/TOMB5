@@ -17,6 +17,7 @@
 #ifdef PC_VERSION
 #include "GAME.H"
 #include "GLOBAL.H"
+#include "INCLUDE.H"
 #else
 #include "ROOMLOAD.H"
 #include "SETUP.H"
@@ -475,7 +476,7 @@ void LaraLocation(struct ITEM_INFO* item)//396D0(<), 39BD0(<) (F)
 
 void ExplosionFX(struct ITEM_INFO* item)//39694(<), 39B94(<) (F)
 {
-	SoundEffect(SFX_EXPLOSION1, NULL, 0);
+	SoundEffect(SFX_EXPLOSION1, NULL, SFX_DEFAULT);
 	camera.bounce = -75;
 	flipeffect = -1;
 }
@@ -503,7 +504,7 @@ void ActivateCamera(struct ITEM_INFO* item)//39610(<), 39B10(<) (F)
 
 void PoseidonSFX(struct ITEM_INFO* item)//395E0(<), 39AE0(<) (F)
 {
-	SoundEffect(SFX_J_GRAB_OPEN, NULL, 0);
+	SoundEffect(SFX_J_GRAB_OPEN, NULL, SFX_DEFAULT);
 	flipeffect = -1;
 }
 
@@ -527,7 +528,7 @@ void RubbleFX(struct ITEM_INFO* item)//39534(<), 39A34(<) (F)
 
 void SoundFlipEffect(struct ITEM_INFO* item)//39500(<), 39A00(<) (F)
 {
-	SoundEffect(TriggerTimer, NULL, 0);
+	SoundEffect(TriggerTimer, NULL, SFX_DEFAULT);
 	flipeffect = -1;
 }
 
@@ -568,7 +569,7 @@ void WaterFall(short item_number)//39294(<), 39794(<) (F)
 
 	if (item->pos.y_rot + 0x8000 == 0)
 	{
-		x = item->pos.x_pos - (SIN(item->pos.y_rot + 0x8000) >> 3) + ((rcossin_tbl[2048] * wf) >> 12);
+		x = item->pos.x_pos - (SIN(item->pos.y_rot + 0x8000) >> 3) + ((rcossin_tbl[2048] * wf) >> 12); // @TODO: ANGLE(11.25)
 		z = item->pos.z_pos - (COS(item->pos.y_rot + 0x8000) >> 3) + ((rcossin_tbl[2049] * wf) >> 12);
 	}
 	else
@@ -580,7 +581,7 @@ void WaterFall(short item_number)//39294(<), 39794(<) (F)
 
 	//393A0
 	TriggerWaterfallMist(x, item->pos.y_pos, z, item->pos.y_rot + 0x8000);
-	SoundEffect(SFX_WATERFALL_LOOP, &item->pos, 0);
+	SoundEffect(SFX_WATERFALL_LOOP, &item->pos, SFX_DEFAULT);
 }
 
 void SoundEffects()//39190(<), 39690 (F)
@@ -598,7 +599,7 @@ void SoundEffects()//39190(<), 39690 (F)
 			//loc_39224
 			if ((flip_stats[((sound_effects[i].flags & 0x1F) & 1) | ((sound_effects[i].flags & 0x1F) & 2) + ((((sound_effects[i].flags & 0x1F) >> 2) & 1) << 1) + (((sound_effects[i].flags & 0x1F) >> 2) & 1) + (((sound_effects[i].flags & 0x1F) >> 1) & 4) + (((sound_effects[i].flags & 0x1F) >> 4) << 2) + ((sound_effects[i].flags & 0x1F) >> 4)] & 0x40) || (flip_stats[((sound_effects[i].flags & 0x1F) & 1) | ((sound_effects[i].flags & 0x1F) & 2) + ((((sound_effects[i].flags & 0x1F) >> 2) & 1) << 1) + (((sound_effects[i].flags & 0x1F) >> 2) & 1) + (((sound_effects[i].flags & 0x1F) >> 1) & 4) + (((sound_effects[i].flags & 0x1F) >> 4) << 2) + ((sound_effects[i].flags & 0x1F) >> 4)] & 0x80))///@FIXME Macro
 			{
-				SoundEffect(sound->data, (struct PHD_3DPOS*)&sound, 0);
+				SoundEffect(sound->data, (struct PHD_3DPOS*)&sound, SFX_DEFAULT);
 			}
 			//loc_39238
 		}
@@ -615,10 +616,268 @@ void SoundEffects()//39190(<), 39690 (F)
 #endif
 }
 
-#if SAT_VERSION || PC_VERSION
-long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<), 937C4(!)
+#if SAT_VERSION
+long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int flags)//91780(<), 937C4(!)
 {
 	UNIMPLEMENTED();
+	return 0;
+}
+#endif
+
+#if PC_VERSION
+long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int flags)//91780(<), 937C4(!)
+{
+	if (GLOBAL_playing_cutseq)
+	{
+		if (!dword_51CE58)
+			return 0;
+	}
+
+	if (sample_index == SFX_LARA_NO)
+	{
+		switch (Gameflow->Language)
+		{
+		case LNG_FRENCH:
+			sample_index = SFX_LARA_NO_FRENCH;
+			break;
+		case LNG_GERMAN:
+		case LNG_ITALIAN:
+		case LNG_SPANISH:
+			sample_index = SFX_LARA_NO;
+			break;
+		case LNG_JAPAN:
+			sample_index = SFX_LARA_NO_JAPANESE;
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (!sound_active ||
+	    !(flags & SFX_ALWAYS) && (flags & SFX_WATER) != (room[camera.pos.room_number].flags & RF_FILL_WATER))
+		return 0;
+
+	short info_num = sample_lut[sample_index];
+
+	if (info_num == -1)
+	{
+		Log(LT_Error, "Non present sample:%d", sample_index);
+		sample_lut[sample_index] = -2;
+
+		return 0;
+	}
+
+	if (info_num == -2)
+		return 0;
+
+	SAMPLE_INFO* info = &sample_infos[info_num];
+
+	if (info->randomness)
+	{
+		if ((BYTE)GetRandomDraw() > info->randomness)
+			return 0;
+	}
+
+	int radius = SECTOR(info->radius + 1);
+	int pan = 0;
+	long distance;
+	PHD_3DPOS zero = { 0, 0, 0 };
+
+	if (pos)
+	{
+		long x = pos->x_pos - camera.pos.x;
+		long y = pos->y_pos - camera.pos.y;
+		long z = pos->z_pos - camera.pos.z;
+
+		long aradius = ABS(radius);
+		if (ABS(x) > aradius ||
+		    ABS(y) > aradius ||
+		    ABS(z) > aradius)
+			return 0;
+
+		distance = x * x + y * y + z * z;
+
+		if (distance > radius * radius)
+			return 0;
+
+		if (distance >= SOUND_MAXVOL_RADIUS_SQRD)
+			distance = phd_sqrt_asm(distance) - 1024;
+		else
+			distance = 0;
+
+		if (!(info->flags & SI_NO_PAN))
+			pan = 16 * CamRot.vy + phd_atan_asm(z, x);
+	}
+	else
+	{
+		distance = 0;
+		pos = &zero;
+	}
+
+	int volume = info->volume * 64;
+
+	if (flags & SFX_SETVOL)
+	{
+		volume *= ((flags >> 8) & 0x1F);
+		volume /= 32;
+	}
+
+	if (info->flags & SI_VOLUME_WIBBLE)
+		volume -= GetRandomDraw() << 12 >> 15;
+
+	int origvolume = volume;
+
+	if (distance != 0)
+		volume = volume * 4 * (4096 - (SIN((distance << W2V_SHIFT) / (unsigned int)radius) / 4))
+			>> W2V_SHIFT;// @TODO: this should work?
+
+
+	if (volume <= 0)
+		return 0;
+
+	volume = MIN(volume, 0x7FFF);
+
+	int pitch = 0x10000;
+	if (flags & SFX_SETPITCH)
+		pitch = (flags >> 8) & 0xFFFF00;
+
+	pitch += (info->pitch << 9);
+
+	if (info->flags & SI_PITCH_WIBBLE)
+		pitch += (6000 * GetRandomDraw() >> 14) - 6000;
+
+
+	if (info->number < 0)
+		return 0;
+
+	int unk = (info->flags >> 2) & 0xF; // @TODO: ?
+	int num = info->number;
+
+	if (unk != 1)
+		num += (unk * GetRandomDraw() >> 15);
+
+	short mode = info->flags & 3;
+
+	switch (mode)
+	{
+	case SF_WAIT:
+		for (int i = 0; i < ArraySize(LaSlot); i++)
+		{
+			if (LaSlot[i].nSampleInfo == info_num)
+			{
+				if (S_SoundSampleIsPlaying(i))
+					return 0;
+
+				LaSlot[i].nSampleInfo = -1;
+			}
+		}
+		break;
+
+	case SF_RESTART:
+		for (int i = 0; i < ArraySize(LaSlot); i++)
+		{
+			if (LaSlot[i].nSampleInfo == info_num)
+			{
+				S_SoundStopSample(i);
+				LaSlot[i].nSampleInfo = -1;
+				break;
+			}
+		}
+		break;
+
+	case SF_LOOP:
+		for (int i = 0; i < ArraySize(LaSlot); i++)
+		{
+			if (LaSlot[i].nSampleInfo == info_num)
+			{
+				if (volume > LaSlot[i].nVolume)
+				{
+					LaSlot[i].OrigVolume = origvolume;
+					LaSlot[i].nVolume = volume;
+					LaSlot[i].nPan = pan;
+					LaSlot[i].nPitch = pitch;
+					LaSlot[i].distance = distance;
+					LaSlot[i].pos.x = pos->x_pos;
+					LaSlot[i].pos.y = pos->y_pos;
+					LaSlot[i].pos.z = pos->z_pos;
+
+					return 1;
+				}
+				return 0;
+			}
+		}
+		break;
+
+	case SF_NORMAL:
+		break;
+	}
+
+	int handle;
+	if (mode == SF_LOOP)
+		handle = S_SoundPlaySampleLooped(num, volume, pitch, pan);
+	else
+		handle = S_SoundPlaySample(num, volume, pitch, pan);
+
+	if (handle >= 0)
+	{
+		LaSlot[handle].OrigVolume = origvolume;
+		LaSlot[handle].nVolume = volume;
+		LaSlot[handle].nPan = pan;
+		LaSlot[handle].nPitch = pitch;
+		LaSlot[handle].distance = distance;
+		LaSlot[handle].pos.x = pos->x_pos;
+		LaSlot[handle].pos.y = pos->y_pos;
+		LaSlot[handle].pos.z = pos->z_pos;
+
+		return 1;
+	}
+
+	if (handle == -1)
+	{
+		int nMinVolume = 0x8000000;
+		int nMinSlot = -1;
+		for (int i = 1; i < ArraySize(LaSlot); i++)
+		{
+			if ((LaSlot[i].nSampleInfo >= 0) && (LaSlot[i].nVolume < nMinVolume))
+			{
+				nMinVolume = LaSlot[i].nVolume;
+				nMinSlot = i;
+			}
+		}
+
+		if (volume < nMinVolume)
+			return 0;
+
+		S_SoundStopSample(nMinSlot);
+		LaSlot[nMinSlot].nSampleInfo = -1;
+
+		if (mode == SF_LOOP)
+			handle = S_SoundPlaySampleLooped(num, volume, pitch, pan);
+		else
+			handle = S_SoundPlaySample(num, volume, pitch, pan);
+
+		if (handle >= 0)
+		{
+			LaSlot[handle].OrigVolume = origvolume;
+			LaSlot[handle].nVolume = volume;
+			LaSlot[handle].nPan = pan;
+			LaSlot[handle].nPitch = pitch;
+			LaSlot[handle].distance = distance;
+			LaSlot[handle].pos.x = pos->x_pos;
+			LaSlot[handle].pos.y = pos->y_pos;
+			LaSlot[handle].pos.z = pos->z_pos;
+
+			return 1;
+		}
+	}
+	else
+	{
+		if (num >= 0)
+			Log(LT_Error, "Can't play SFX %d", sample_index);
+
+		info->number = -1;
+	}
+
 	return 0;
 }
 #endif
@@ -774,7 +1033,7 @@ void LaraBubbles(struct ITEM_INFO* item)// (F)
 	struct PHD_VECTOR pos;
 	int num, i;
 
-	SoundEffect(SFX_LARA_BUBBLES, &item->pos, 1);
+	SoundEffect(SFX_LARA_BUBBLES, &item->pos, SFX_WATER);
 
 	pos.x = 0;
 

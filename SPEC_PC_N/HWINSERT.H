@@ -8,22 +8,22 @@ extern "C" {
 #endif
 
 
-#define VERTSPERBUCKET	2080
-#define MAXBUCKETS		30
-	struct TEXTUREBUCKET
-	{
-		int tpage;
-		int cnt;
-		D3DTLBUMPVERTEX Vertex[VERTSPERBUCKET];
-	};
+#define VERTSPERBUCKET    2080
+#define MAXBUCKETS        30
+struct TEXTUREBUCKET
+{
+	int tpage;
+	int cnt;
+	D3DTLBUMPVERTEX Vertex[VERTSPERBUCKET];
+};
 
-	extern TEXTUREBUCKET Bucket[];
+extern TEXTUREBUCKET Bucket[];
 
 
-	void InitBuckets();
-	void DrawBuckets();
-	void FindBucket(uint16_t tile, D3DTLBUMPVERTEX** vptr, int** cntptr);
-	void DrawBucket(TEXTUREBUCKET* buk);
+void InitBuckets();
+void DrawBuckets();
+void FindBucket(uint16_t tile, D3DTLBUMPVERTEX** vptr, int** cntptr);
+void DrawBucket(TEXTUREBUCKET* buk);
 
 #ifdef __cplusplus
 }

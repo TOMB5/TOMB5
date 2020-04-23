@@ -27,73 +27,63 @@
 
 static short PickUpBounds[12] = // offset 0xA1338
 {
-	0xFF00, 0x0100, 0xFF38, 0x00C8, 0xFF00, 0x0100, 0xF8E4, 0x071C, 0x0000, 0x0000, 
-	0x0000, 0x0000
+	-256, 256, -200, 200, -256, 256, -1820, 1820, 0, 0, 0, 0
 };
-static struct PHD_VECTOR PickUpPosition = { 0, 0, 0xFFFFFF9C }; // offset 0xA1350
+static struct PHD_VECTOR PickUpPosition = { 0, 0, -100 }; // offset 0xA1350
 static short HiddenPickUpBounds[12] = // offset 0xA135C
 {
-	0xFF00, 0x0100, 0xFF9C, 0x0064, 0xFCE0, 0xFF00, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0x0000, 0x0000
+	-256, 256, -100, 100, -800, -256, -1820, 1820, -5460, 5460, 0, 0
 };
-static struct PHD_VECTOR HiddenPickUpPosition = { 0, 0, 0xFFFFFD4E }; // offset 0xA1374
+static struct PHD_VECTOR HiddenPickUpPosition = { 0, 0, -690 }; // offset 0xA1374
 static short CrowbarPickUpBounds[12] = // offset 0xA1380
 {
-	0xFF00, 0x0100, 0xFF9C, 0x0064, 0x00C8, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0x0000, 0x0000
+	-256, 256, -100, 100, 200, 512, -1820, 1820, -5460, 5460, 0, 0
 };
-static struct PHD_VECTOR CrowbarPickUpPosition = { 0, 0, 0xD7 }; // offset 0xA1398
+static struct PHD_VECTOR CrowbarPickUpPosition = { 0, 0, 215 }; // offset 0xA1398
 static short JobyCrowPickUpBounds[12] = // offset 0xA13A4
 {
-	0xFE00, 0x0000, 0xFF9C, 0x0064, 0x0000, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0x0000, 0x0000
+	-512, 0, -100, 100, 0, 512, -1820, 1820, -5460, 5460, 0, 0
 };
-static struct PHD_VECTOR JobyCrowPickUpPosition = { 0xFFFFFF20, 0, 0xF0 }; // offset 0xA13BC
+static struct PHD_VECTOR JobyCrowPickUpPosition = { -224, 0, 240 }; // offset 0xA13BC
 static short PlinthPickUpBounds[12] = // offset 0xA13C8
 {
-	0xFF00, 0x0100, 0xFD80, 0x0280, 0xFE01, 0x0000, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0x0000, 0x0000
+	-256, 256, -640, 640, -511, 0, -1820, 1820, -5460, 5460, 0, 0
 };
-static struct PHD_VECTOR PlinthPickUpPosition = { 0, 0, 0xFFFFFE34 }; // offset 0xA13E0
+static struct PHD_VECTOR PlinthPickUpPosition = { 0, 0, -460 }; // offset 0xA13E0
 static short PickUpBoundsUW[12] = // offset 0xA13EC
 {
-	0xFE00, 0x0200, 0xFE00, 0x0200, 0xFE00, 0x0200, 0xE002, 0x1FFE, 0xE002, 0x1FFE, 
-	0xE002, 0x1FFE
+	-512, 512, -512, 512, -512, 512, -8190, 8190, -8190, 8190, -8190, 8190
 };
-static struct PHD_VECTOR PickUpPositionUW = { 0, 0xFFFFFF38, 0xFFFFFEA2 }; // offset 0xA1404
+static struct PHD_VECTOR PickUpPositionUW = { 0, -200, -350 }; // offset 0xA1404
 static short KeyHoleBounds[12] = // offset 0xA1410
 {
-	0xFF00, 0x0100, 0x0000, 0x0000, 0x0000, 0x019C, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0xF8E4, 0x071C
+	-256, 256, 0, 0, 0, 412, -1820, 1820, -5460, 5460, -1820, 1820
 };
-static struct PHD_VECTOR KeyHolePosition = { 0, 0, 0x138 }; // offset 0xA1428
+static struct PHD_VECTOR KeyHolePosition = { 0, 0, 312 }; // offset 0xA1428
 static short PuzzleBounds[12] = // offset 0xA1434
 {
-	0x0000, 0x0000, 0xFF00, 0x0100, 0x0000, 0x0000, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0xF8E4, 0x071C
+	0, 0, -256, 256, 0, 0, -1820, 1820, -5460, 5460, -1820, 1820
 };
 static short SOBounds[12] = // offset 0xA144C
 {
-	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0xF8E4, 0x071C
+	0, 0, 0, 0, 0, 0, -1820, 1820, -5460, 5460, -1820, 1820
 };
 static struct PHD_VECTOR SOPos = { 0, 0, 0 }; // offset 0xA1464
 short SearchCollectFrames[4] =
 {
-	0x00B4, 0x0064, 0x0099, 0x0053
+	180, 100, 153, 83
 };
 short SearchAnims[4] =
 {
-	0x01D0, 0x01D1, 0x01D2, 0x01D8
+	464, 465, 466, 472
 };
 short SearchOffsets[4] =
 {
-	0x00A0, 0x0060, 0x00A0, 0x0070
+	160, 96, 160, 112
 };
 static short MSBounds[12] = // offset 0xA1488
 {
-	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0xF8E4, 0x071C
+	0, 0, 0, 0, 0, 0, -1820, 1820, -5460, 5460, -1820, 1820
 };
 static struct PHD_VECTOR MSPos = { 0, 0, 0 }; // offset 0xA14A0
 unsigned char NumRPickups; // offset 0xA390C
@@ -231,7 +221,7 @@ void PuzzleHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 
 void PuzzleDoneCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//524C8(<), 5292C (F)
 {
-	if (items[item_num].trigger_flags - 998 > 1)
+	if (items[item_num].trigger_flags > 999)
 	{
 		ObjectCollision(item_num, l, coll);
 	}
@@ -285,7 +275,7 @@ void AnimatingPickUp(short item_number)//51450(<), 518B4 (F)
 	struct ITEM_INFO* item;
 	short room_number;
 
-	item = &item[item_number];
+	item = &items[item_number];
 
 	if ((item->trigger_flags & 0x3F) == 5)
 	{
@@ -338,7 +328,7 @@ void PuzzleDone(struct ITEM_INFO* item, short item_num)//51004, 51468 (F)
 	{
 		IsAtmospherePlaying = 0;
 		S_CDPlay(CDA_XA6_SPOOKY03, 0);
-		SoundEffect(SFX_HANGMAN_LAUGH_OFFCAM, &item->pos, 0);
+		SoundEffect(SFX_HANGMAN_LAUGH_OFFCAM, &item->pos, SFX_DEFAULT);
 	}
 
 	item->object_number += 8; // PUZZLE_HOLEx -> PUZZLE_DONEx

@@ -84,7 +84,7 @@ void draw_flare()//49F74, 4A3D8 (F)
 		{
 			if (ani == 72)
 			{
-				SoundEffect(SFX_RAVESTICK, &lara_item->pos, room[lara_item->room_number].flags & RF_FILL_WATER);
+				SoundEffect(SFX_RAVESTICK, &lara_item->pos, (room[lara_item->room_number].flags & RF_FILL_WATER) ? SFX_WATER : SFX_DEFAULT);
 				lara.flare_age = 1;
 			}
 

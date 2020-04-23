@@ -184,7 +184,7 @@ void lara_col_uwdeath(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C980(<),
 	lara.air = -1;
 	lara.gun_status = LG_HANDS_BUSY;
 	wh = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
-	if (wh != -32512)
+	if (wh != BAD_HEIGHT)
 	{
 		if (wh < item->pos.y_pos - 100)
 			item->pos.y_pos -= 5;
@@ -225,7 +225,7 @@ void lara_as_uwdeath(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C884(<), 
 	if (item->fallspeed <= 0)
 		item->fallspeed = 0;
 
-	if(item->pos.x_rot < ANGLE(-2) || item->pos.x_rot > ANGLE(2))
+	if((item->pos.x_rot < ANGLE(-2)) || (item->pos.x_rot > ANGLE(2)))
 	{
 		if (item->pos.x_rot >= 0)
 			item->pos.x_rot -= ANGLE(2);
@@ -415,7 +415,7 @@ void lara_as_swimcheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C3A8, 4
 void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C418 (F)
 {
 #if PC_VERSION
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -400;
 	coll->bad_ceiling = 400;
 
@@ -473,9 +473,9 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 
 	AnimateLara(item);
 	
-	item->pos.x_pos += 4 * COS(item->pos.x_rot) * (item->fallspeed * SIN(item->pos.y_rot) >> W2V_SHIFT) >> W2V_SHIFT;
-	item->pos.y_pos -= item->fallspeed * 4 * SIN(item->pos.x_rot) >> W2V_SHIFT >> 2;
-	item->pos.z_pos += 4 * COS(item->pos.x_rot) * (item->fallspeed * COS(item->pos.y_rot) >> W2V_SHIFT) >> W2V_SHIFT;
+	item->pos.x_pos += COS(item->pos.x_rot) * (item->fallspeed * SIN(item->pos.y_rot) >> W2V_SHIFT >> 2) >> W2V_SHIFT;
+	item->pos.y_pos -= item->fallspeed * SIN(item->pos.x_rot) >> W2V_SHIFT >> 2;
+	item->pos.z_pos += COS(item->pos.x_rot) * (item->fallspeed * COS(item->pos.y_rot) >> W2V_SHIFT >> 2) >> W2V_SHIFT;
 
 	LaraBaddieCollision(item, coll);
 
@@ -489,9 +489,9 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 #else
 
 	//s2 = coll
-	//v0 = 32512
+	//v0 = -BAD_HEIGHT
 	//v1 = -400
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	//v0 = 400
 	//s0 = item
 	coll->bad_neg = -400;
@@ -680,7 +680,7 @@ void UpdateSubsuitAngles()//4BD20, 4C184 (F)
 	if (subsuit.Vel[0] != 0 || subsuit.Vel[1] != 0)
 	{
 		// todo make the formula clearer
-		SoundEffect(SFX_LARA_UNDERWATER_ENGINE, &lara_item->pos, (((subsuit.Vel[0] + subsuit.Vel[1]) * 4) & 0x1F00) + 10);
+		SoundEffect(SFX_LARA_UNDERWATER_ENGINE, &lara_item->pos, (((subsuit.Vel[0] + subsuit.Vel[1]) * 4) & 0x1F00) | SFX_SETVOL | SFX_ALWAYS);
 	}
 #endif
 }
@@ -1027,7 +1027,7 @@ void LaraSwimCollision(struct ITEM_INFO* item/*s3*/, struct COLL_INFO* coll/*s4*
 		item->pos.z_pos = coll->old.z;
 	}
 	//v0 = 0x20
-	if (coll->mid_floor < 0 && coll->mid_floor != -32512)
+	if (coll->mid_floor < 0 && coll->mid_floor != BAD_HEIGHT)
 	{
 		hit = 1;
 		item->pos.y_pos += coll->mid_floor;
@@ -1044,7 +1044,7 @@ void LaraSwimCollision(struct ITEM_INFO* item/*s3*/, struct COLL_INFO* coll/*s4*
 			{
 				//a0 = 0xF4
 				//a1 = lara_item
-				SoundEffect(SFX_SWIMSUIT_METAL_CLASH, &lara_item->pos, (((GetRandomControl() << 1) + 0x8000) << 8) | 6);
+				SoundEffect(SFX_SWIMSUIT_METAL_CLASH, &lara_item->pos, (((GetRandomControl() << 1) + 0x8000) << 8) | SFX_SETPITCH | SFX_ALWAYS);
 			}
 			else
 			{
@@ -1084,7 +1084,7 @@ void LaraTestWaterDepth(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B4F8(<
 	floor = GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
 	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, room_number);
 
-	if (wd == -32512)
+	if (wd == BAD_HEIGHT)
 	{
 		item->pos.x_pos = coll->old.x;
 		item->pos.y_pos = coll->old.y;

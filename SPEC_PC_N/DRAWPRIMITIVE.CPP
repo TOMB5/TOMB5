@@ -24,17 +24,26 @@
 #include "FILE.H"
 #include "TWOGUN.H"
 
-HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
-	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
-HRESULT(*BeginScene)();
-HRESULT(*EndScene)();
-HRESULT(*SetRenderState)(D3DRENDERSTATETYPE dwRenderStateType, DWORD dwRenderState);
-bool(*PtrVisible)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3);
-void(*AddQuad1)(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7);
-void(*AddQuad2)(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7);
-void(*AddTri1)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
-void(*AddTri2)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
-void(*AddLine)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color);
+HRESULT (* DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
+                          LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
+
+HRESULT (* BeginScene)();
+
+HRESULT (* EndScene)();
+
+HRESULT (* SetRenderState)(D3DRENDERSTATETYPE dwRenderStateType, DWORD dwRenderState);
+
+bool (* PtrVisible)(D3DTLVERTEX* v1, D3DTLVERTEX* v2, D3DTLVERTEX* v3);
+
+void (* AddQuad1)(D3DTLVERTEX* v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7);
+
+void (* AddQuad2)(D3DTLVERTEX* v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7);
+
+void (* AddTri1)(D3DTLVERTEX* v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
+
+void (* AddTri2)(D3DTLVERTEX* v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
+
+void (* AddLine)(D3DTLVERTEX* v1, D3DTLVERTEX* v2, short color);
 
 DXTEXTURE DXTextureList[MAX_D3D_TEXTURES];
 
@@ -71,26 +80,29 @@ D3DMATRIX d3d_camera;
 SNOWFLAKE raindrops[2048];
 SNOWFLAKE snowflakes[2048];
 
-bool visible_zclip(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)
+ENERGY_ARC EnergyArcs[16];
+
+bool visible_zclip(D3DTLVERTEX* v1, D3DTLVERTEX* v2, D3DTLVERTEX* v3)
 {
 	return (v3->tu * v1->sz - v3->sz * v1->tu) * v2->tv
-		+ (v3->sz * v1->tv - v3->tv * v1->sz) * v2->tu
-		+ (v3->tv * v1->tu - v3->tu * v1->tv) * v2->sz < 0.0;
+	       + (v3->sz * v1->tv - v3->tv * v1->sz) * v2->tu
+	       + (v3->tv * v1->tu - v3->tu * v1->tv) * v2->sz < 0.0;
 }
 
-void SubdivideEdge(D3DTLVERTEX *a, D3DTLVERTEX *b, D3DTLVERTEX *c, short *a4, float u1, float v1, float u2, float v2, float *u, float *v)
+void SubdivideEdge(D3DTLVERTEX* a, D3DTLVERTEX* b, D3DTLVERTEX* c, short* a4, float u1, float v1, float u2, float v2,
+                   float* u, float* v)
 {
 	__int16 v10 = 0;
-	
+
 	*u = AVG(u1, u2);
 	*v = AVG(v1, v2);
-	
+
 	c->sx = AVG(a->tu, b->tu);
 	c->sy = AVG(a->tv, b->tv);
 	c->tu = c->sx;
 	c->tv = c->sy;
 	c->sz = AVG(a->sz, b->sz);
-	
+
 	if (c->sz < f_znear)
 	{
 		v10 = -128;
@@ -119,24 +131,28 @@ void SubdivideEdge(D3DTLVERTEX *a, D3DTLVERTEX *b, D3DTLVERTEX *c, short *a4, fl
 			v10 += 4;
 		}
 	}
-	
+
 	*a4 = v10;
-	
+
 	c->color = AVG_COL(a->color, b->color);
 	c->specular = AVG_COL(a->specular, b->specular);
 }
-void SubdivideQuad(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, D3DTLVERTEX *pv4, OBJECT_TEXTURE* tex, int a6, int a7, short *face)
-{
-	// function used if zbuffer disabled
-	Unimpl();
-}
-void SubdivideTri (D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, OBJECT_TEXTURE* tex, int a5, int a6, short *face)
+
+void SubdivideQuad(D3DTLVERTEX* pv1, D3DTLVERTEX* pv2, D3DTLVERTEX* pv3, D3DTLVERTEX* pv4, OBJECT_TEXTURE* tex, int a6,
+                   int a7, short* face)
 {
 	// function used if zbuffer disabled
 	Unimpl();
 }
 
-void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
+void
+SubdivideTri(D3DTLVERTEX* pv1, D3DTLVERTEX* pv2, D3DTLVERTEX* pv3, OBJECT_TEXTURE* tex, int a5, int a6, short* face)
+{
+	// function used if zbuffer disabled
+	Unimpl();
+}
+
+void AddQuadSubdivide(D3DTLVERTEX* v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
 	if (e4b100)
 	{
@@ -168,8 +184,11 @@ void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEX
 		}
 	}
 }
-void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
+
+void AddTriSubdivide(D3DTLVERTEX* v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
+
 	if (e4b100)
 	{
 		AddTriClippedSorted(v, v1, v2, v3, tex, dside);
@@ -200,15 +219,20 @@ void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex
 	}
 }
 
-void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
+void AddQuadClippedZBuffer(D3DTLVERTEX* v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
 	//Log(LT_Enter, "AddQuadClippedZBuffer %4d;%4d;%4d;%4d tex=%d", v1, v2, v3, v4, tex->tile_and_flag);
-	if(0)Log(LT_Enter, "AddQuadClippedZBuffer %d=(%3.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) %d=(%.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) tex=%d", 
-		v1, v[v1].sx, v[v1].sy, v[v1].sz,
-		v2, v[v2].sx, v[v2].sy, v[v2].sz,
-		v3, v[v3].sx, v[v3].sy, v[v3].sz,
-		v4, v[v4].sx, v[v4].sy, v[v4].sz,
-		tex->tile_and_flag);
+	/*
+        Log(LT_Enter,
+            "AddQuadClippedZBuffer %d=(%3.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) %d=(%.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) tex=%d",
+            v1, v[v1].sx, v[v1].sy, v[v1].sz,
+            v2, v[v2].sx, v[v2].sy, v[v2].sz,
+            v3, v[v3].sx, v[v3].sy, v[v3].sz,
+            v4, v[v4].sx, v[v4].sy, v[v4].sz,
+            tex->tile_and_flag);
+            */
+
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
 
 	const WORD vp1 = d9ab34[v1];
 	const WORD vp2 = d9ab34[v2];
@@ -288,7 +312,7 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 
 				FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
 
-				const auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
+				const auto buk = (TEXTUREBUCKET*) (cnt_ptr - 1);
 				//Log(LT_Info, "QuadZ writing 6 verts to bucket %d", buk - Bucket);
 
 				*cnt_ptr += 6;
@@ -356,12 +380,12 @@ int ZClipper(int num_vert, D3DTLBUMPVERTEX* v1, D3DTLBUMPVERTEX* v2)
 {
 	if (num_vert == 0)
 		return 0;
-	
+
 	int result = 0;
-	
+
 	D3DTLBUMPVERTEX* prev = &v1[num_vert - 1];
 	D3DTLBUMPVERTEX* cur = &v1[0];
-	
+
 	for (int i = 0; i < num_vert; i++)
 	{
 		const float v32 = f_znear - prev->sz;
@@ -371,53 +395,53 @@ int ZClipper(int num_vert, D3DTLBUMPVERTEX* v1, D3DTLBUMPVERTEX* v2)
 		{
 			if ((v32 < 0) ^ (v33 < 0))
 			{
-				float v7 = v33 / (prev->sz - cur->sz);
-				
+				const float v7 = v33 / (prev->sz - cur->sz);
+
 				v2->sx = ((prev->tu2 - cur->tu2) * v7 + cur->tu2) * f_perspoznear + f_centerx;
 				v2->sy = ((prev->tv2 - cur->tv2) * v7 + cur->tv2) * f_perspoznear + f_centery;
 				v2->rhw = f_oneoznear;
-				
+
 				v2->tu = ((prev->tu - cur->tu) * v7 + cur->tu) * v2->rhw;
 				v2->tv = ((prev->tv - cur->tv) * v7 + cur->tv) * v2->rhw;
 
-				
+
 				/*auto v8 = cur->color;
-				auto v9 = prev->color;
-				auto v10 = RGBA_GETRED(v8);
-				auto v11 = RGBA_GETGREEN(v8);
-				auto v12 = RGBA_GETBLUE(v8);
-				auto v13 = (RGBA_GETALPHA(v9) - RGBA_GETALPHA(v8))* v7 + RGBA_GETALPHA(v8) + 12582912.0;
-				auto v14 = (LODWORD(v13) & 0x3FFFFF) << 8;
-				auto v15 = ((double)((v9 >> 16) & 0xFFi64) - v10)* v7 + v10 + 12582912.0;
-				auto v16 = (LODWORD(v15) & 0x3FFFFF | v14) << 8;
-				auto v17 = ((double)((unsigned __int16)v9 >> 8) - v11)* v7 + v11 + 12582912.0;
-				auto v18 = (LODWORD(v17) & 0x3FFFFF | v16) << 8;
-				auto v19 = ((double)(unsigned __int8)prev->color - v12) * v7 + v12 + 12582912.0;
-				v2->color = LODWORD(v19) & 0x3FFFFF | v18;
-				auto v20 = cur->specular;
-				auto v21 = (double)((v20 >> 16) & 0xFFi64);
-				auto v22 = (double)((unsigned __int16)v20 >> 8);
-				auto v23 = prev->specular;
-				auto v24 = (double)(unsigned __int8)cur[-1].specular;
-				
-				auto v25 = ((double)(v23 >> 24) - (double)(cur[-1].specular >> 24))* v7
-					+ (double)(cur[-1].specular >> 24)
-					+ 12582912.0;
-				v26 = (LODWORD(v25) & 0x3FFFFF) << 8;
-				v27 = ((double)((v23 >> 16) & 0xFFi64) - v21)* v7 + v21 + 12582912.0;
-				v28 = (LODWORD(v27) & 0x3FFFFF | v26) << 8;
-				v29 = ((double)((unsigned __int16)v23 >> 8) - v22)* v7 + v22 + 12582912.0;
-				v30 = (LODWORD(v29) & 0x3FFFFF | v28) << 8;
-				v31 = ((double)(unsigned __int8)v23 - v24) * v7 + v24 + 12582912.0;
-				v2->specular = LODWORD(v31) & 0x3FFFFF | v30;*/
+                auto v9 = prev->color;
+                auto v10 = RGBA_GETRED(v8);
+                auto v11 = RGBA_GETGREEN(v8);
+                auto v12 = RGBA_GETBLUE(v8);
+                auto v13 = (RGBA_GETALPHA(v9) - RGBA_GETALPHA(v8))* v7 + RGBA_GETALPHA(v8) + 12582912.0;
+                auto v14 = (LODWORD(v13) & 0x3FFFFF) << 8;
+                auto v15 = ((double)((v9 >> 16) & 0xFFi64) - v10)* v7 + v10 + 12582912.0;
+                auto v16 = (LODWORD(v15) & 0x3FFFFF | v14) << 8;
+                auto v17 = ((double)((unsigned __int16)v9 >> 8) - v11)* v7 + v11 + 12582912.0;
+                auto v18 = (LODWORD(v17) & 0x3FFFFF | v16) << 8;
+                auto v19 = ((double)(unsigned __int8)prev->color - v12) * v7 + v12 + 12582912.0;
+                v2->color = LODWORD(v19) & 0x3FFFFF | v18;
+                auto v20 = cur->specular;
+                auto v21 = (double)((v20 >> 16) & 0xFFi64);
+                auto v22 = (double)((unsigned __int16)v20 >> 8);
+                auto v23 = prev->specular;
+                auto v24 = (double)(unsigned __int8)cur[-1].specular;
+
+                auto v25 = ((double)(v23 >> 24) - (double)(cur[-1].specular >> 24))* v7
+                    + (double)(cur[-1].specular >> 24)
+                    + 12582912.0;
+                v26 = (LODWORD(v25) & 0x3FFFFF) << 8;
+                v27 = ((double)((v23 >> 16) & 0xFFi64) - v21)* v7 + v21 + 12582912.0;
+                v28 = (LODWORD(v27) & 0x3FFFFF | v26) << 8;
+                v29 = ((double)((unsigned __int16)v23 >> 8) - v22)* v7 + v22 + 12582912.0;
+                v30 = (LODWORD(v29) & 0x3FFFFF | v28) << 8;
+                v31 = ((double)(unsigned __int8)v23 - v24) * v7 + v24 + 12582912.0;
+                v2->specular = LODWORD(v31) & 0x3FFFFF | v30;*/
 
 				// TODO FIX THIS CODE
 
 				v2->color = AVG_COL(cur->color, prev->color);
 				v2->specular = AVG_COL(cur->specular, prev->specular);
-				
+
 				v2++;
-				
+
 				result++;
 			}
 
@@ -426,10 +450,10 @@ int ZClipper(int num_vert, D3DTLBUMPVERTEX* v1, D3DTLBUMPVERTEX* v2)
 				v2->sx = cur->sx;
 				v2->sy = cur->sy;
 				v2->rhw = cur->rhw;
-				
+
 				v2->tu = cur->tu * cur->rhw;
 				v2->tv = cur->tv * cur->rhw;
-				
+
 				v2->color = cur->color;
 				v2->specular = cur->specular;
 
@@ -442,10 +466,10 @@ int ZClipper(int num_vert, D3DTLBUMPVERTEX* v1, D3DTLBUMPVERTEX* v2)
 		prev = cur;
 		cur++;
 	}
-	
+
 	if (result < 3)
 		return 0;
-	
+
 	return result;
 }
 
@@ -458,11 +482,11 @@ int XYUVGClipper(int num_vert, D3DTLBUMPVERTEX* v)
 void AddClippedPoly(D3DTLBUMPVERTEX* vt1, int num, D3DTLBUMPVERTEX* vt2)
 {
 	Log(LT_Enter, "AddClippedPoly n=%d", num);
-	
+
 	auto v1 = vt1;
 	auto v2 = vt2;
 
-	for(int i = 0; i < 3; i++, v1++, v2++)
+	for (int i = 0; i < 3; i++, v1++, v2++)
 	{
 		v1->sx = v2->sx;
 		v1->sy = v2->sy;
@@ -480,7 +504,7 @@ void AddClippedPoly(D3DTLBUMPVERTEX* vt1, int num, D3DTLBUMPVERTEX* vt2)
 
 	num -= 3;
 
-	for(int i = 0; i < num; i++, d9ab10++, v2++)
+	for (int i = 0; i < num; i++, d9ab10++, v2++)
 	{
 		*v1++ = *vt1;
 		*v1 = v1[-2];
@@ -502,8 +526,10 @@ void AddClippedPoly(D3DTLBUMPVERTEX* vt1, int num, D3DTLBUMPVERTEX* vt2)
 D3DTLBUMPVERTEX stru_BA3FB0[24];
 D3DTLBUMPVERTEX stru_923C88[20];
 
-void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
+void AddTriClippedZBuffer(D3DTLVERTEX* v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
+
 	const WORD vp1 = d9ab34[v1];
 	const WORD vp2 = d9ab34[v2];
 	const WORD vp3 = d9ab34[v3];
@@ -582,12 +608,12 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 		}
 		else
 		{
-				
+
 			int* cnt_ptr;
 
 			FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
 
-			const auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
+			const auto buk = (TEXTUREBUCKET*) (cnt_ptr - 1);
 			//Log(LT_Info, "TriZ writing 3 verts to bucket %d", buk - Bucket);
 
 			v31 = 0;
@@ -598,7 +624,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 
 	auto first = vptr;
 
-	D3DTLVERTEX * vt1 = &v[v1];
+	D3DTLVERTEX* vt1 = &v[v1];
 
 	vptr->sx = vt1->sx;
 	vptr->sy = vt1->sy;
@@ -646,7 +672,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 		int v23 = 3;
 
 		if (v27)
-		{	
+		{
 			v23 = ZClipper(3, stru_923C88, stru_BA3FB0);
 
 			if (!v23)
@@ -674,7 +700,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 	}
 	else
 	{
-		for(int i = 0; i < 3; i++, first++)
+		for (int i = 0; i < 3; i++, first++)
 		{
 			first->sz = f_a - f_boo * first->rhw;
 		}
@@ -683,8 +709,10 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 	}
 }
 
-void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
+void AddQuadClippedSorted(D3DTLVERTEX* v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
+
 	const WORD vp1 = d9ab34[v1];
 	const WORD vp2 = d9ab34[v2];
 	const WORD vp3 = d9ab34[v3];
@@ -699,11 +727,11 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 	if (vp1 & vp2 & vp3 & vp4)
 		return;
 
-	
+
 	if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
 	{
 		AddTriClippedSorted(v, v1b, v2, v3, tex, dside);
-			
+
 		newtex.attribute = tex->attribute;
 		newtex.new_flags = tex->new_flags;
 		newtex.tile_and_flag = tex->tile_and_flag;
@@ -760,14 +788,14 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 		}
 		else
 		{
-			auto info = (dinfo_quad*)info3dptrbf;
+			auto info = (dinfo_quad*) info3dptrbf;
 
 			info->head.texattr = next->attribute;
 			info->head.tile_and_flag = next->tile_and_flag;
 			info->head.num_verts = 6;
 			info->head.e4b100 = e4b100;
 
-			info3dptrbf = (short*)(info + 1);
+			info3dptrbf = (short*) (info + 1);
 
 			*sort3dptrbf++ = &info->head;
 
@@ -865,8 +893,10 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 	}
 }
 
-void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
+void AddTriClippedSorted(D3DTLVERTEX* v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
+
 	D3DTLBUMPVERTEX* vptr; // ecx
 	float* v29; // ecx
 	signed int v30; // edx
@@ -882,41 +912,41 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 	if (vp1 & vp2 & vp3)
 		return;
 
-	Log(LT_Enter, "AddTriClippedSorted %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
+	//Log(LT_Enter, "AddTriClippedSorted %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
 
 	char v36 = 0;
-	int v38 = v1;
+	const int v38 = v1;
 	char v1b = true;
-	
+
 	if ((vp1 | vp2 | vp3) & 0x8000u)
 	{
 		if (visible_zclip(&v[v1], &v[v2], &v[v3]))
 		{
 			next = tex;
 			vptr = stru_923C88;
-			
+
 			v36 = 1;
 		}
 		else
 		{
 			if (!dside)
 				return;
-			
+
 			SWAP(v2, v3);
-			
+
 			if (!visible_zclip(&v[v1], &v[v2], &v[v3]))
 				return;
-			
+
 			v36 = 1;
 
 			newtex.attribute = tex->attribute;
 			newtex.new_flags = tex->new_flags;
 			newtex.tile_and_flag = tex->tile_and_flag;
-			
+
 			newtex.vertices[0] = tex->vertices[0];
 			newtex.vertices[1] = tex->vertices[2];
 			newtex.vertices[2] = tex->vertices[1];
-			
+
 			vptr = stru_923C88;
 		}
 	}
@@ -926,13 +956,13 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 		{
 			if (!dside)
 				return;
-			
+
 			SWAP(v2, v3);
-			
+
 			newtex.attribute = tex->attribute;
 			newtex.new_flags = tex->new_flags;
 			newtex.tile_and_flag = tex->tile_and_flag;
-			
+
 			newtex.vertices[0] = tex->vertices[0];
 			newtex.vertices[1] = tex->vertices[2];
 			newtex.vertices[2] = tex->vertices[1];
@@ -942,14 +972,14 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 			next = tex;
 		}
 
-		
+
 		if (d9ab34[v38] | d9ab34[v2] | d9ab34[v3])
 		{
 			vptr = stru_BA3FB0;
 		}
 		else
 		{
-			auto info = (dinfo_tri*)info3dptrbf;
+			auto info = (dinfo_tri*) info3dptrbf;
 
 			info->head.texattr = next->attribute;
 			info->head.tile_and_flag = next->tile_and_flag;
@@ -958,7 +988,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 
 			vptr = &info->v1;
 
-			info3dptrbf = (short*)(info + 1);
+			info3dptrbf = (short*) (info + 1);
 
 			*sort3dptrbf++ = &info->head;
 
@@ -1011,7 +1041,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 	{
 		v3a = vt2->sz;
 	}
-	
+
 	D3DTLVERTEX* vt3 = &v[v3];
 
 	vptr[2].sx = vt3->sx;
@@ -1024,7 +1054,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 	vptr[2].tv = next->vertices[2].y;
 	vptr[2].tu2 = vt3->tu;
 	vptr[2].tv2 = vt3->tv;
-	
+
 	if (e4b100)
 	{
 		v3a = v3a + vt3->sz;
@@ -1033,7 +1063,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 	{
 		v3a = vt3->sz;
 	}
-	
+
 	if (v1b)
 	{
 		signed int v28 = 3;
@@ -1052,21 +1082,21 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 				first->tv *= first->rhw;
 			}
 		}
-		int v32 = XYUVGClipper(v28, stru_BA3FB0);
+		const int v32 = XYUVGClipper(v28, stru_BA3FB0);
 		if (v32)
 		{
 			// remove hacks in setXY4 and RoomletTransformLight when this works
 			//todo check this
-			auto info = (dinfo_tri*)info3dptrbf;
-			int v34 = 3 * v32 - sizeof(dinfo_head) / sizeof(short); // weird
+			auto info = (dinfo_tri*) info3dptrbf;
+			const int v34 = 3 * v32 - sizeof(dinfo_head) / sizeof(short); // weird
 			info->head.texattr = next->attribute;
 			info->head.tile_and_flag = next->tile_and_flag;
 			info->head.num_verts = v34;
 			info->head.e4b100 = e4b100;
 			info->head.z = v3a;
-			
+
 			if (e4b100)
-				info->head.z *= 0.33333299;
+				info->head.z /= 3.0;
 
 			info3dptrbf += sizeof(dinfo_head) / sizeof(short);
 			info3dptrbf += sizeof(D3DTLBUMPVERTEX) * v34;
@@ -1082,25 +1112,27 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 		vptr[0].sz = f_a - f_boo * vptr[0].rhw;
 		vptr[1].sz = f_a - f_boo * vptr[1].rhw;
 		vptr[2].sz = f_a - f_boo * vptr[2].rhw;
-		
+
+		const auto info = (dinfo_tri*) info3dptrbf;
+
+		info[-1].head.z = v3a;
+
 		if (e4b100)
-			*(float*)&tex->attribute = v3a / 3.0;
-		else
-			*(float*)&tex->attribute = v3a;
-		
+			info[-1].head.z /= 3.0;
+
 		surfacenumbf++;
 		++num_tris;
 	}
 }
 
 
-void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)// (F)
+void AddLineClippedSorted(D3DTLVERTEX* v1, D3DTLVERTEX* v2, short color)// (F)
 {
-	auto ptr = (dinfo_line*)info3dptrbf;
+	auto ptr = (dinfo_line*) info3dptrbf;
 	ptr->head.tile_and_flag = 0;
 	ptr->head.texattr = color;
 	ptr->head.num_verts = 2;
-	info3dptrbf = (short*)(ptr + 1);
+	info3dptrbf = (short*) (ptr + 1);
 
 	*sort3dptrbf++ = &ptr->head;
 
@@ -1131,11 +1163,11 @@ void do_quickysorty(int left, int right, dinfo_head* buffer[])// (F)
 	do
 	{
 		if (buffer[i]->z > compare)
-			while (buffer[i + 1]->z > compare && i < right)
+			while (i < right && buffer[i + 1]->z > compare)
 				i++;
 
 		if (compare > buffer[j]->z)
-			while (compare > buffer[j - 1]->z && j > left)
+			while (j > left && compare > buffer[j - 1]->z)
 				j--;
 
 		if (i <= j)
@@ -1159,7 +1191,7 @@ void SortPolyList(int number, dinfo_head* buffer[])// (F)
 	if (number != 0)
 	{
 		auto ptr = buffer;
-		
+
 		for (int i = 0; i < number; i++)
 		{
 			(*ptr++)->z -= i / 10.0;
@@ -1171,8 +1203,8 @@ void SortPolyList(int number, dinfo_head* buffer[])// (F)
 
 HRESULT HWBeginScene()// (F)
 {
-	Log(LT_Enter, "HWBeginScene");
-	
+	//Log(LT_Enter, "HWBeginScene");
+
 	if (App.isInScene)
 	{
 		Log(LT_Error, "Already In Scene");
@@ -1189,14 +1221,14 @@ HRESULT HWBeginScene()// (F)
 
 HRESULT HWEndScene()// (F)
 {
-	Log(LT_Enter, "HWEndScene");
-	
+	//Log(LT_Enter, "HWEndScene");
+
 	App.isInScene = false;
 
 	return App.lpD3DDevice->EndScene();
 }
 
-bool Visible(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)// (F)
+bool Visible(D3DTLVERTEX* v1, D3DTLVERTEX* v2, D3DTLVERTEX* v3)// (F)
 {
 	return (v1->sy - v2->sy) * (v3->sx - v2->sx) - (v3->sy - v2->sy) * (v1->sx - v2->sx) < 0.0;
 }
@@ -1293,67 +1325,69 @@ void DrawEffect(short fx_num)
 		phd_PopMatrix();
 	}
 }
-int dword_506D3C = 0xFF000000;
+
+DWORD dword_506D3C = 0xFF000000;
 short word_E6D730;
+
 void PrintObjects(short room_number)// (F)
 {
 	CurrentRoom = room_number;
 	e4b100 = 1;
-	
-	auto r = &room[room_number];
+
+	const auto r = &room[room_number];
 	r->bound_active = 0;
-	
-	DrawStaticObjects(room_number);
-	
+
+	//DrawStaticObjects(room_number);
+
 	phd_PushMatrix();
 	phd_TranslateAbs(r->x, r->y, r->z);
-	
+
 	phd_left = 0;
 	phd_top = 0;
 	phd_right = phd_winxmax + 1;
 	phd_bottom = phd_winymax + 1;
-	
+
 	e4b100 = 2;
-	
+
 	for (int i = r->item_number; i != -1; i = items[i].next_item)
 	{
 		word_E6D730 = room_number;
 
 		const auto item = &items[i];
-		
+
 		if (item->status != ITEM_INVISIBLE)
 		{
 			if (item->after_death)
 				dword_506D3C = 0xFE000000 * item->after_death;
-			
+
 			if (!(gfCurrentLevel == LVL5_BASE && item->object_number == BRIDGE_FLAT))
 			{
 				const auto draw = objects[item->object_number].draw_routine;
 				if (draw)
 					draw(&items[i]);
-				
+
 				const auto draw_ex = objects[item->object_number].draw_routine_extra;
 				if (draw_ex)
 					draw_ex(item);
 			}
-			
+
 			dword_506D3C = 0xFF000000;
 		}
-		
+
 		if (item->after_death > 0 && item->after_death < 128 && !(wibble & 3))
 			item->after_death++;
-		
+
 		if (item->after_death == 128)
 			KillItem(i);
 	}
-	
+
 	e4b100 = 3;
-	
+
 	for (short j = r->fx_number; j != -1; j = effects[j].next_fx)
 		DrawEffect(j);
 
 	phd_PopMatrix();
-	
+
 	r->left = phd_winxmax;
 	r->top = phd_winymax;
 	r->right = 0;
@@ -1383,9 +1417,53 @@ void DrawLaserSightSprite()
 	Unimpl();
 }
 
-void DrawStaticObjects(short current_room)
+void DrawStaticObjects(short current_room)// (F)
 {
-	Unimpl();
+	CurrentRoom = current_room;
+	e4b100 = 1;
+
+	room_info* r = &room[current_room];
+
+	phd_PushMatrix();
+	phd_TranslateAbs(r->x, r->y, r->z);
+
+	phd_left = r->left;
+	phd_right = r->right;
+	phd_top = r->top;
+	phd_bottom = r->bottom;
+
+	struct MESH_INFO* v2 = r->mesh;
+
+	for (int i = 0; i < r->num_meshes; i++, v2++)
+	{
+		if (v2->Flags & 1)
+		{
+			phd_PushMatrix();
+			phd_TranslateAbs(v2->x, v2->y, v2->z);
+			phd_RotY(v2->y_rot);
+
+			int v4 = v2->static_number;
+
+			if (S_GetObjectBounds(&static_objects[v4].bbox))
+			{
+				const int v5 = static_objects[v4].flags & 0x3C;
+
+				S_CalculateStaticMeshLight(v2->x, v2->y, v2->z, v2->shade, r);
+
+				if (v5)
+				{
+					if (((phd_mxptr[M23] / 2) >> W2V_SHIFT) > (v5 << 8))
+						++v4;
+				}
+
+				phd_PutPolygons(meshes[static_objects[v4].mesh_number]);
+			}
+
+			phd_PopMatrix();
+		}
+	}
+
+	phd_PopMatrix();
 }
 
 void DoMonitorScreen()
@@ -1397,11 +1475,11 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 {
 	struct room_info* r = &room[room_number];
 
-	/*if (r->left <= parent->test_left &&
-		r->right >= parent->test_right &&
-		r->top <= parent->test_top &&
-		r->bottom >= parent->test_bottom)
-		return;*/
+	if (r->left <= parent->test_left &&
+	    r->right >= parent->test_right &&
+	    r->top <= parent->test_top &&
+	    r->bottom >= parent->test_bottom)
+		return;
 
 	int left = parent->test_right;
 	int right = parent->test_left;
@@ -1415,22 +1493,22 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 	for (int i = 0; i < 4; i++, dest++)
 	{
 		const int xv = vbufdoor[i].xv =
-			phd_mxptr[M00] * portal->Vertices[i].x +
-			phd_mxptr[M01] * portal->Vertices[i].y +
-			phd_mxptr[M02] * portal->Vertices[i].z +
-			phd_mxptr[M03];
+				               phd_mxptr[M00] * portal->Vertices[i].x +
+				               phd_mxptr[M01] * portal->Vertices[i].y +
+				               phd_mxptr[M02] * portal->Vertices[i].z +
+				               phd_mxptr[M03];
 
 		const int yv = vbufdoor[i].yv =
-			phd_mxptr[M10] * portal->Vertices[i].x +
-			phd_mxptr[M11] * portal->Vertices[i].y +
-			phd_mxptr[M12] * portal->Vertices[i].z +
-			phd_mxptr[M13];
+				               phd_mxptr[M10] * portal->Vertices[i].x +
+				               phd_mxptr[M11] * portal->Vertices[i].y +
+				               phd_mxptr[M12] * portal->Vertices[i].z +
+				               phd_mxptr[M13];
 
 		int zv = vbufdoor[i].zv =
-			phd_mxptr[M20] * portal->Vertices[i].x +
-			phd_mxptr[M21] * portal->Vertices[i].y +
-			phd_mxptr[M22] * portal->Vertices[i].z +
-			phd_mxptr[M23];
+				         phd_mxptr[M20] * portal->Vertices[i].x +
+				         phd_mxptr[M21] * portal->Vertices[i].y +
+				         phd_mxptr[M22] * portal->Vertices[i].z +
+				         phd_mxptr[M23];
 
 		if (zv > 0)
 		{
@@ -1470,8 +1548,9 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 		}
 	}
 
+	// @TODO: HACK
 	/*if (t5 == 4 || t6 == 4)
-		return;*/
+        return;*/
 
 	if (t5 > 0)
 	{
@@ -1526,8 +1605,8 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 	if (bottom > parent->test_bottom)
 		bottom = parent->test_bottom;
 
-	/*if (left >= right || top >= bottom)
-		return;*/
+	if (left >= right || top >= bottom)
+		return;
 
 	if (r->bound_active & 2)
 	{
@@ -1545,7 +1624,7 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 	}
 	else
 	{
-		Log(LT_Enter, "SetRoomBounds - adding room %d", room_number);
+		//Log(LT_Enter, "SetRoomBounds - adding room %d", room_number);
 		bound_list[bound_end++ % 128] = room_number;
 
 		r->bound_active |= 2;
@@ -1562,7 +1641,7 @@ void GetRoomBounds()// (F)
 	while (bound_start != bound_end)
 	{
 		const int current = bound_list[bound_start++ % 128];
-		Log(LT_Enter, "GetRoomBounds - %d", current);
+		//Log(LT_Enter, "GetRoomBounds - %d", current);
 		room_info* r = &room[current];
 		r->bound_active -= 2;
 
@@ -1575,9 +1654,9 @@ void GetRoomBounds()// (F)
 		if (r->test_bottom > r->bottom)
 			r->bottom = r->test_bottom;
 
-		//if (!(r->bound_active & 1))
+		if (!(r->bound_active & 1))
 		{
-			Log(LT_Enter, "GetRoomBounds - adding room %d", current);
+			//Log(LT_Enter, "GetRoomBounds - adding room %d", current);
 			draw_rooms[number_draw_rooms++] = current;
 			r->bound_active |= 1;
 
@@ -1603,17 +1682,17 @@ void GetRoomBounds()// (F)
 		short* door;
 		if ((door = r->door))
 		{
-			tr_room_portal* portal = (tr_room_portal*)(door + 1);
+			tr_room_portal* portal = (tr_room_portal*) (door + 1);
 			for (short i = *door++; i > 0; i--, portal++)
 			{
 				if (portal->Normal.x * (r->x + portal->Vertices[0].x - w2v_matrix[M03]) +
-					portal->Normal.y * (r->y + portal->Vertices[0].y - w2v_matrix[M13]) +
-					portal->Normal.z * (r->z + portal->Vertices[0].z - w2v_matrix[M23])
-					>= 0)
+				    portal->Normal.y * (r->y + portal->Vertices[0].y - w2v_matrix[M13]) +
+				    portal->Normal.z * (r->z + portal->Vertices[0].z - w2v_matrix[M23])
+				    >= 0)
 				{
 					continue;
 				}
-				Log(LT_Enter, "GetRoomBounds - entering portal to room %d", portal->AdjoiningRoom);
+				//Log(LT_Enter, "GetRoomBounds - entering portal to room %d", portal->AdjoiningRoom);
 				SetRoomBounds(portal, portal->AdjoiningRoom, r);
 			}
 		}
@@ -1623,12 +1702,12 @@ void GetRoomBounds()// (F)
 
 void InitialiseFogBulbs()// (F)
 {
-	
+
 }
 
 void CreateFXBulbs()// (F)
 {
-	
+
 }
 
 void SkyDrawPhase()
@@ -1664,27 +1743,31 @@ void DrawLara(ITEM_INFO* item, int a2)// (F)
 	}
 	else
 	{
-		switch(LaraDrawType)
+		switch (LaraDrawType)
 		{
-		case LARA_NORMAL:
-		case LARA_YOUNG:
-		case LARA_BUNHEAD:
-			DrawLara__1(item, a2);
-			return;
+			case LARA_NORMAL:
+			case LARA_YOUNG:
+			case LARA_BUNHEAD:
+				DrawLara__1(item, a2);
+				return;
 
-		case LARA_CATSUIT:
-			DrawLara__4(item, a2);
+			case LARA_CATSUIT:
+				DrawLara__4(item, a2);
 
-		case LARA_DIVESUIT:
-			DrawLara__5(item, a2);
-			return;
+			case LARA_DIVESUIT:
+				DrawLara__5(item, a2);
+				return;
+
+			default:
+				assert(false);
+				break;
 		}
 	}
 }
 
 void FadeLightList(PCLIGHT* lights, int num)// (F)
 {
-	for(int i = 0; i < num; i++)
+	for (int i = 0; i < num; i++)
 	{
 		PCLIGHT* ptr = &lights[i];
 
@@ -1734,7 +1817,7 @@ void RestoreLaraMeshswaps()
 float lara_left_mat[12];
 float lara_right_mat[12];
 
-void InitDynamicLighting()
+void InitDynamicLighting(ITEM_INFO* item)
 {
 	Unimpl();
 }
@@ -1769,9 +1852,121 @@ void S_DrawSplashes()
 	Unimpl();
 }
 
-void DrawBubbles()
+tr_vertex stru_E914E0;
+SVECTOR stru_E912E0;
+
+int dword_E913E0[1]; // TODO???
+
+void DrawBubbles()// (F)
 {
-	Unimpl();
+	phd_PushMatrix();
+	phd_TranslateAbs(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos);
+
+	struct BUBBLE_STRUCT* bub = Bubbles;
+
+	for (int i = 0; i < 40; i++, bub++)
+	{
+		if (bub->size == 0)
+			continue;
+
+		const int dx = bub->pos.x - lara_item->pos.x_pos;
+		const int dy = bub->pos.y - lara_item->pos.y_pos;
+		const int dz = bub->pos.z - lara_item->pos.z_pos;
+
+		if (dx < -20480 || dx > 20480 || dy < -20480 || dy > 20480 || dz < -20480 || dz > 20480)
+		{
+			bub->size = 0;
+			continue;
+		}
+
+		stru_E914E0 = {(short) dx, (short) dy, (short) dz};
+
+		const int v6 =
+				phd_mxptr[M20] * dx +
+				phd_mxptr[M21] * dy +
+				phd_mxptr[M22] * dz +
+				phd_mxptr[M23];
+
+		const double v7 = f_persp_bis / v6;
+		const int v9 = v6 >> W2V_SHIFT;
+
+		stru_E912E0.vx = (
+				                 phd_mxptr[M00] * dx +
+				                 phd_mxptr[M01] * dy +
+				                 phd_mxptr[M02] * dz +
+				                 phd_mxptr[M03]
+		                 ) * v7 + f_centerx;
+
+		stru_E912E0.vy = (
+				                 phd_mxptr[M10] * dx +
+				                 phd_mxptr[M11] * dy +
+				                 phd_mxptr[M12] * dz +
+				                 phd_mxptr[M13]
+		                 ) * v7 + f_centery;
+
+		dword_E913E0[0] = v9;
+
+		if (v9 >= 32)
+		{
+			if (v9 >= 20480)
+			{
+				bub->size = 0;
+				continue;
+			}
+
+			int diameter = phd_persp * (bub->size / 2) / v9;
+
+			if (diameter > 128)
+			{
+				bub->size = 0;
+				continue;
+			}
+
+			if (diameter < 4)
+				diameter = 4;
+
+			const int radius = diameter / 2;
+
+			const int left = stru_E912E0.vx - radius;
+			const int right = stru_E912E0.vx + radius;
+			const int top = stru_E912E0.vy - radius;
+			const int bottom = stru_E912E0.vy + radius;
+
+			if (right >= phd_winxmin && left < phd_winxmax && bottom >= phd_winymin && top < phd_winymax)
+			{
+				SPRITE_STRUCT* v16 = &sprites[objects[DEFAULT_SPRITES].mesh_index + SPRITE_BUBBLE];
+				const int v17 = bub->shade;
+
+				D3DTLVERTEX v[4];
+				setXY4(v, left, top, right, top, right, bottom, left, bottom, dword_E913E0[0], d9ab34);
+
+				for (int j = 0; j < 4; j++)
+				{
+					v[j].color = RGB_MAKE(v17, v17, v17);
+					v[j].specular = RGB_MAKE(0, 0, 0);
+				}
+
+				OBJECT_TEXTURE tex;
+
+				tex.attribute = OT_ALPHA_BLENDING;
+				tex.new_flags = 0;
+				tex.tile_and_flag = v16->tile;
+
+				tex.vertices[0].x = v16->left;
+				tex.vertices[0].y = v16->top;
+				tex.vertices[1].x = v16->right;
+				tex.vertices[1].y = v16->top;
+				tex.vertices[2].x = v16->right;
+				tex.vertices[2].y = v16->bottom;
+				tex.vertices[3].x = v16->left;
+				tex.vertices[3].y = v16->bottom;
+
+				AddQuad2(v, 0, 1, 2, 3, &tex, 0);
+			}
+		}
+	}
+
+	phd_PopMatrix();
 }
 
 void DrawDebris()
@@ -1806,7 +2001,7 @@ void DrawTwogunLaser(TWOGUN_INFO* tg)
 
 void DrawTwogunLasers()// (F)
 {
-	for(int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		if (twogun[i].life != 0)
 			DrawTwogunLaser(&twogun[i]);
@@ -1816,6 +2011,235 @@ void DrawTwogunLasers()// (F)
 void DrawGunshells()
 {
 	Unimpl();
+}
+
+ITEM_INFO* dword_9158A8;
+
+void GetJointAbsPositionCutSeq(ITEM_INFO* a1, object_info* a2, __int16* a3, PHD_VECTOR* pos)// (F)
+{
+	phd_PushUnitMatrix();
+	phd_TranslateRel(a3[6], a3[7], a3[8]);
+
+	short* a2a = a3 + 9;
+	mRotSuperPackedYXZ(&a2a, 0);
+
+	pos->x = phd_mxptr[M03] >> W2V_SHIFT;
+	pos->y = phd_mxptr[M13] >> W2V_SHIFT;
+	pos->z = phd_mxptr[M23] >> W2V_SHIFT;
+
+	pos->x += a1->pos.x_pos;
+	pos->y += a1->pos.y_pos;
+	pos->z += a1->pos.z_pos;
+
+	phd_PopMatrix();
+}
+
+void CalcAmbientLight(ITEM_INFO* item)// (F)
+{
+	short r = item->room_number;
+	GetFloor(item->ambient_light_pos.x, item->ambient_light_pos.y, item->ambient_light_pos.z, &r);
+
+	const CVECTOR icol = item->il.room_ambient;
+	const CVECTOR rcol = room[r].ambient;
+
+	if (icol.rgbcd != rcol.rgbcd)
+	{
+		if (item->il.room_num == -1)
+		{
+			item->il.room_ambient = rcol;
+			item->il.room_num = 0;
+		}
+		else
+		{
+			if (item->il.room_num == 0)
+			{
+				item->il.d_green = rcol.g - icol.g;
+				item->il.d_blue = rcol.b - icol.b;
+				item->il.d_red = rcol.r - icol.r;
+
+				item->il.red = 8 * icol.r;
+				item->il.green = 8 * icol.g;
+				item->il.blue = 8 * icol.b;
+
+				item->il.room_num = 8;
+			}
+			else
+			{
+				item->il.red = item->il.red + item->il.d_red;
+				item->il.green = item->il.green + item->il.d_green;
+				item->il.blue = item->il.blue + item->il.d_blue;
+
+				item->il.room_ambient = CVECTOR(item->il.red >> 3, item->il.green >> 3, item->il.blue >> 3);
+				item->il.room_num = item->il.room_num - 1;
+			}
+		}
+	}
+}
+
+void CreateLightList(ITEM_INFO* item)
+{
+	room_info* itemroom = &room[item->room_number];
+
+	if (item->light_room_num == item->room_number)
+		return;
+
+	item->light_room_num = item->room_number;
+
+	SWAP(item->num_lights_1, item->num_lights_2);
+	SWAP(item->ptr_lights_1, item->ptr_lights_2);
+
+	for (auto v8 = item->ptr_lights_2; v8 < &item->ptr_lights_2[item->num_lights_2]; v8++)
+	{
+		if (v8->UnknownByte)
+		{
+			if (v8->LightType == LT_SHADOW)
+			{
+				v8->dy2 = v8->ShadowIntensity / -8.0;
+			}
+			else
+			{
+				v8->r3 = v8->r / -8.0;
+				v8->g3 = v8->g / -8.0;
+				v8->b3 = v8->b / -8.0;
+				v8->r2 = 0.0;
+				v8->g2 = 0.0;
+				v8->b2 = 0.0;
+			}
+			v8->UnknownInt = 8;
+		}
+	}
+
+	item->num_lights_1 = itemroom->num_lights;
+	PCLIGHT* v9 = item->ptr_lights_1;
+	ROOM_LIGHT* v10 = itemroom->RoomLights;
+	for (int i = 0; i < itemroom->num_lights; i++, v9++, v10++)
+	{
+		v9->r = v10->r;
+		v9->g = v10->g;
+		v9->b = v10->b;
+		v9->r2 = v10->r;
+		v9->g2 = v10->g;
+		v9->b2 = v10->b;
+		v9->x = v10->x;
+		v9->y = v10->y;
+		v9->z = v10->z;
+		v9->ShadowIntensity = 8 * v10->ShadowIntensity;
+		v9->In = v10->In;
+		v9->Out = v10->Out;
+		v9->RadIn = v10->RadIn;
+		v9->RadOut = v10->RadOut;
+		v9->Range = v10->Range;
+		v9->dx2 = v10->dx2;
+		v9->dy2 = v10->dy2;
+		v9->dz2 = v10->dz2;
+		v9->x2 = v10->x2;
+		v9->y2 = v10->y2;
+		v9->z2 = v10->z2;
+		v9->dx = v10->dx;
+		v9->dy = v10->dy;
+		v9->dz = v10->dz;
+		v9->LightType = v10->LightType;
+		v9->UnknownByte = 0;
+		if (v9->LightType == LT_SHADOW)
+			v9->dx2 = v10->ShadowIntensity;// ?
+	}
+
+	for (auto l1 = item->ptr_lights_1; l1 < &item->ptr_lights_1[item->num_lights_1]; l1++)
+	{
+		const PHD_VECTOR d = {
+				l1->x2 - item->ambient_light_pos.x,
+				l1->y2 - item->ambient_light_pos.y,
+				l1->z2 - item->ambient_light_pos.z
+		};
+		bool v20 = true;
+		const auto normsq = d.x * d.x + d.y * d.y + d.z * d.z;
+		if (l1->LightType == LT_LIGHT || l1->LightType == LT_SHADOW)
+		{
+			if (l1->Out * l1->Out < normsq)
+				v20 = false;
+		}
+		else if (l1->LightType == LT_SPOT)
+		{
+			if (l1->Range * l1->Range < normsq)
+			{
+				v20 = false;
+			}
+			else
+			{
+				tr5_vertex m{-d.x, -d.y, -d.z};
+				D3DNormalise(&m);
+				if (m.z * l1->dz + m.y * l1->dy + m.x * l1->dx <= l1->Out)
+					v20 = false;
+			}
+		}
+
+		l1->dx3 = d.x;
+		l1->dy3 = d.y;
+		l1->dz3 = d.z;
+		l1->magnsq = normsq;
+
+		if (v20)
+		{
+			if (!l1->UnknownByte)
+			{
+				if (l1->LightType != LT_SHADOW)
+				{
+					l1->r = 0.0;
+					l1->g = 0.0;
+					l1->b = 0.0;
+					l1->r3 = l1->r2 / 8.0;
+					l1->g3 = l1->g2 / 8.0;
+					l1->b3 = l1->b2 / 8.0;
+					l1->UnknownInt = 8;
+					l1->UnknownByte = 1;
+				}
+				else
+				{
+					l1->UnknownByte = 1;
+					l1->dy2 = l1->dx2;
+					l1->ShadowIntensity = 0;
+					l1->UnknownInt = 8;
+				}
+			}
+		}
+		else if (l1->UnknownByte && !l1->UnknownInt)
+		{
+			if (l1->LightType == LT_SHADOW)
+			{
+				l1->dy2 = l1->ShadowIntensity / -8.0;
+			}
+			else
+			{
+				l1->r3 = l1->r / -8.0;
+				l1->g3 = l1->g / -8.0;
+				l1->b3 = l1->b / -8.0;
+			}
+
+			l1->UnknownInt = 8;
+		}
+	}
+
+	FadeLightList(item->ptr_lights_1, item->num_lights_1);
+	FadeLightList(item->ptr_lights_2, item->num_lights_2);
+}
+
+void CalcActorLighting(ITEM_INFO* item, object_info* a2, short* a3)// (F)
+{
+	PHD_VECTOR x;
+	GetJointAbsPositionCutSeq(item, a2, a3, &x);
+
+	IsRoomOutsideNo = -1;
+	IsRoomOutside(x.x, x.y, x.z);
+
+	if (IsRoomOutsideNo != -1)
+		item->room_number = IsRoomOutsideNo;
+
+	dword_9158A8 = item;
+	item->il.room_num = -1;
+	item->ambient_light_pos = x;
+
+	CalcAmbientLight(item);
+	CreateLightList(item);
 }
 
 void DrawCutSeqActors()
@@ -1854,17 +2278,17 @@ float room_top_flt_2, room_left_flt_2, room_bottom_flt_2, room_right_flt_2;
 tr5_vertex cam_pos_flt, cam_tar_flt, cam_dir_flt;
 room_info* inserting_room;
 DWORD dword_7EE0C8;
-WORD word_511A68[8][3] = 
-{
-	{ 0, 1, 2 }, 
-	{ 3, 1, 2 }, 
-	{ 0, 1, 5 }, 
-	{ 3, 1, 5 }, 
-	{ 0, 4, 2 }, 
-	{ 3, 4, 2 },
-	{ 0, 4, 5 }, 
-	{ 3, 4, 5 }
-};
+WORD word_511A68[8][3] =
+		{
+				{0, 1, 2},
+				{3, 1, 2},
+				{0, 1, 5},
+				{3, 1, 5},
+				{0, 4, 2},
+				{3, 4, 2},
+				{0, 4, 5},
+				{3, 4, 5}
+		};
 tr5_vertex dword_921618[8];
 
 DWORD dword_56ED10;
@@ -1880,7 +2304,7 @@ void Update()
 	dword_577540 = 0;
 
 	if (cam_dir_flt.y >= 0.0)
-		dword_56ED10 = (95 - (int)((1.0 - cam_dir_flt.y) * -144.0)) << 24;
+		dword_56ED10 = (95 - (int) ((1.0 - cam_dir_flt.y) * -144.0)) << 24;
 	else
 		dword_56ED10 = 0xEF000000;
 }
@@ -1891,21 +2315,23 @@ bool CheckBoundsClip(bounding_box_f* bbox)
 	float minY = 10000, maxY = -10000;
 	float minZ = 10000, maxZ = -10000;
 
-	const auto ptr = (float*)bbox;
+	const auto ptr = (float*) bbox;
 
 	for (int i = 0; i < 8; i++)
 	{
-		const auto idx = word_511A68[i];
+		const unsigned short* idx = word_511A68[i];
 
 		const float f1 = ptr[idx[0]];
 		const float f2 = ptr[idx[1]];
 		const float f3 = ptr[idx[2]];
 
-		const float ox = App.ViewMatrix._41 + App.ViewMatrix._31 * f3 + App.ViewMatrix._21 * f2 + App.ViewMatrix._11 * f1;
-		const float oy = App.ViewMatrix._42 + App.ViewMatrix._32 * f3 + App.ViewMatrix._22 * f2 + App.ViewMatrix._12 * f1;
+		const float ox =
+				App.ViewMatrix._41 + App.ViewMatrix._31 * f3 + App.ViewMatrix._21 * f2 + App.ViewMatrix._11 * f1;
+		const float oy =
+				App.ViewMatrix._42 + App.ViewMatrix._32 * f3 + App.ViewMatrix._22 * f2 + App.ViewMatrix._12 * f1;
 		float oz = App.ViewMatrix._43 + App.ViewMatrix._33 * f3 + App.ViewMatrix._23 * f2 + App.ViewMatrix._13 * f1;
 
-		dword_921618[i] = { ox, oy, oz };
+		dword_921618[i] = {ox, oy, oz};
 
 		const float z = MAX(f_znear, oz);
 		const float persp = f_persp / z;
@@ -1938,9 +2364,9 @@ bool CheckBoundsClip(bounding_box_f* bbox)
 	}
 
 	return minX <= room_right_flt_2
-		&& maxX >= room_left_flt_2
-		&& minY <= room_bottom_flt_2
-		&& maxY >= room_top_flt_2;
+	       && maxX >= room_left_flt_2
+	       && minY <= room_bottom_flt_2
+	       && maxY >= room_top_flt_2;
 }
 
 D3DTLVERTEX vert_buf[1024];
@@ -1950,8 +2376,8 @@ int dword_7EE0C4;
 
 int BuildRoomletLights(ROOMLET* r)
 {
-	auto dyn = dynamics;
-	auto vptr = stru_7ED6B0;
+	DYNAMIC* dyn = dynamics;
+	DYNTHING* vptr = stru_7ED6B0;
 	int nvert = 0;
 
 	const float rx = inserting_room->RoomX;
@@ -1963,7 +2389,7 @@ int BuildRoomletLights(ROOMLET* r)
 	const float maxX = r->BoundingBox.maxX;
 	const float maxZ = r->BoundingBox.maxZ;
 
-	for(int i = 0; i < 32; i++, dyn++)
+	for (int i = 0; i < 32; i++, dyn++)
 	{
 		if (dyn->on)
 		{
@@ -1972,10 +2398,10 @@ int BuildRoomletLights(ROOMLET* r)
 			const float dz = dyn->z - rz;
 			const float falloff = dyn->falloff / 2 + dyn->falloff / 8;
 
-			if (dx - falloff <= maxX && 
-				dx + falloff >= minX && 
-				dz - falloff <= maxZ && 
-				dz + falloff >= minZ)
+			if (dx - falloff <= maxX &&
+			    dx + falloff >= minX &&
+			    dz - falloff <= maxZ &&
+			    dz + falloff >= minZ)
 			{
 				vptr->sx = dx;
 				vptr->sy = dy;
@@ -1999,9 +2425,9 @@ int BuildRoomletLights(ROOMLET* r)
 	dword_7DFFDC = 0;
 	if (dword_7EE0C4)
 		Log(LT_Info, "BuildRoomletLights - UNIMPL FOR");
-	for(int i = 0; i < dword_7EE0C4; i++)
+	for (int i = 0; i < dword_7EE0C4; i++)
 	{
-		
+
 	}
 
 	return nvert;
@@ -2012,16 +2438,16 @@ float flt_511A64 = SECTOR(12);
 
 void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, int num_vert_2, int a5)
 {
-	Log(LT_Enter, "RoomletTransformLight vert=%d lights=%d vert_2=%d a5=%5d", num_vert, num_lights, num_vert_2, a5);
-	
+	//Log(LT_Enter, "RoomletTransformLight vert=%d lights=%d vert_2=%d a5=%5d", num_vert, num_lights, num_vert_2, a5);
+
 	int water = camera.underwater;
 	if (!(App.Flags & WA_BACK_BUFFER))
 		water = 0;
 
-	auto vptr = vert_buf;
-	auto d9ptr = d9ab34;
+	D3DTLVERTEX* vptr = vert_buf;
+	unsigned short* d9ptr = d9ab34;
 
-	for(int i = 0; i < num_vert; i++, vptr++, vert++)
+	for (int i = 0; i < num_vert; i++, vptr++, vert++)
 	{
 		float vx = vert->Vertex.x;
 		float vy = vert->Vertex.y;
@@ -2033,11 +2459,12 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 		if (i < num_vert_2)
 		{
 			vy += WaterTable[0][(inserting_room->MeshEffect << 6)
-				+ ((BYTE)(wibble >> 2)
-					+ WaterTable[0][(inserting_room->MeshEffect << 6)
-						+ ((BYTE)((int)(vx + inserting_room->x) / 64)
-							+ (BYTE)((int)(vy + inserting_room->y) / 64)
-							+ (BYTE)((int)(vz + inserting_room->z) / 128) & 0x3F)].random & 0x3F)].choppy;
+			                    + ((BYTE) (wibble >> 2)
+			                       + WaterTable[0][(inserting_room->MeshEffect << 6)
+			                                       + ((BYTE) ((int) (vx + inserting_room->x) / 64)
+			                                          + (BYTE) ((int) (vy + inserting_room->y) / 64)
+			                                          + (BYTE) ((int) (vz + inserting_room->z) / 128) & 0x3F)].random &
+			                       0x3F)].choppy;
 		}
 
 		float ox = App.ViewMatrix._41 + App.ViewMatrix._31 * vz + App.ViewMatrix._21 * vy + App.ViewMatrix._11 * vx;
@@ -2051,7 +2478,7 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 
 		if (oz < f_znear)
 		{
-			v7 = 0xFF80;
+			v7 = -128;
 		}
 		else
 		{
@@ -2067,8 +2494,8 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 			{
 				float fix = oz / 512.0;
 
-				ox += flt_878658[((wibble + (long)(fix * oy)) >> 3) & 0x1F];
-				oy += flt_878658[((wibble + (long)(fix * ox)) >> 3) & 0x1F];
+				ox += flt_878658[((wibble + (long) (fix * oy)) >> 3) & 0x1F];
+				oy += flt_878658[((wibble + (long) (fix * ox)) >> 3) & 0x1F];
 			}
 
 			vptr->rhw = persp * f_oneopersp;
@@ -2103,12 +2530,12 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 
 		//vptr++;
 		*d9ptr++ = 0;// v7; TODO
-		
+
 
 		float r = 0.0, g = 0.0, b = 0.0;
 
-		auto dyn = stru_7ED6B0;
-		for(int i = 0; i < num_lights; i++, dyn++)
+		DYNTHING* dyn = stru_7ED6B0;
+		for (int j = 0; j < num_lights; j++, dyn++)
 		{
 			float dx = vx - dyn->sx;
 			float dy = vy - dyn->sy;
@@ -2116,13 +2543,16 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 
 			float sqr = dx * dx + dy * dy + dz * dz;
 
-			if(sqr < dyn->falloff_sqr)
+			if (sqr < dyn->falloff_sqr)
 			{
 				float norm = sqrt(sqr);
 
-				float px = (App.ViewMatrix._31 * nz + App.ViewMatrix._21 * ny + App.ViewMatrix._11 * nx) * (1.0 / norm * dx);
-				float py = (App.ViewMatrix._32 * nz + App.ViewMatrix._22 * ny + App.ViewMatrix._12 * nx) * (1.0 / norm * dy);
-				float pz = (App.ViewMatrix._33 * nz + App.ViewMatrix._23 * ny + App.ViewMatrix._13 * nx) * (1.0 / norm * dz);
+				float px = (App.ViewMatrix._31 * nz + App.ViewMatrix._21 * ny + App.ViewMatrix._11 * nx) *
+				           (1.0 / norm * dx);
+				float py = (App.ViewMatrix._32 * nz + App.ViewMatrix._22 * ny + App.ViewMatrix._12 * nx) *
+				           (1.0 / norm * dy);
+				float pz = (App.ViewMatrix._33 * nz + App.ViewMatrix._23 * ny + App.ViewMatrix._13 * nx) *
+				           (1.0 / norm * dz);
 
 				float fix = (1.0 - (px + py + pz)) * ((dyn->falloff - norm) * dyn->falloff_inv);
 
@@ -2132,22 +2562,22 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 			}
 		}
 
-		BYTE vr = (vert->Colour >> 16) & 0xFF;
-		BYTE vg = (vert->Colour >>  8) & 0xFF;
-		BYTE vb = (vert->Colour >>  0) & 0xFF;
+		BYTE vr = RGB_GETRED(vert->Colour);
+		BYTE vg = RGB_GETGREEN(vert->Colour);
+		BYTE vb = RGB_GETBLUE(vert->Colour);
 
 		int mr = vr + r * 255;
-		int mg = vr + g * 255;
-		int mb = vr + b * 255;
+		int mg = vg + g * 255;
+		int mb = vb + b * 255;
 
 		if (dword_7EE0C8)
 		{
 			int fix = 2 * WaterTable[0][(inserting_room->MeshEffect << 6)
-				+ ((BYTE)(wibble >> 2)
-					+ WaterTable[0][(inserting_room->MeshEffect << 6)
-					+ ((BYTE)(vx / 64)
-						+ (BYTE)(vy / 64)
-						+ (BYTE)(vz / 128) & 0x3F)].random & 0x3F)].choppy;
+			                            + ((BYTE) (wibble >> 2)
+			                               + WaterTable[0][(inserting_room->MeshEffect << 6)
+			                                               + ((BYTE) (vx / 64)
+			                                                  + (BYTE) (vy / 64)
+			                                                  + (BYTE) (vz / 128) & 0x3F)].random & 0x3F)].choppy;
 
 			mr -= fix;
 			mg -= fix;
@@ -2156,20 +2586,20 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 		else if (a5 != 0 && i > num_vert_2 && i < a5 + num_vert_2)
 		{
 			int fix = (inserting_room->MeshEffect << 6)
-				+ ((BYTE)(wibble >> 2)
-					+ WaterTable[0][(inserting_room->MeshEffect << 6)
-					+ ((BYTE)(vx / 64)
-						+ (BYTE)(vy / 64)
-						+ (BYTE)(vz / 128) & 0x3F)].random & 0x3F);
+			          + ((BYTE) (wibble >> 2)
+			             + WaterTable[0][(inserting_room->MeshEffect << 6)
+			                             + ((BYTE) (vx / 64)
+			                                + (BYTE) (vy / 64)
+			                                + (BYTE) (vz / 128) & 0x3F)].random & 0x3F);
 
 			int fix2 = WaterTable[0][fix].shimmer + WaterTable[0][fix].abs;
 
-			mr += fix;
-			mg += fix;
-			mb += fix;
+			mr += fix2;
+			mg += fix2;
+			mb += fix2;
 		}
 
-		if (oz > (double)flt_511A5C)
+		if (oz > flt_511A5C)
 		{
 			int fix = (oz - flt_511A5C) * flt_511A64 * 255.0;
 
@@ -2221,8 +2651,8 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 		sg = CLAMP(sg, 0, 255);
 		sb = CLAMP(sb, 0, 255);
 
-		vptr->color = ARGB(cr, cg, cb, 255);
-		vptr->specular = ARGB(sr, sg, sb, 255);
+		vptr->color = RGBA(cr, cg, cb, 255);
+		vptr->specular = RGBA(sr, sg, sb, 255);
 	}
 }
 
@@ -2232,32 +2662,34 @@ void InsertRoomlet(ROOMLET* r)
 		return;
 
 	RoomletTransformLight(
-		(tr5_room_vertex*)r->VerticesOffset, 
-		r->NumLayerVertices, 
-		BuildRoomletLights(r) & 0x7FFFFFFF, 
-		r->NumLayerVertices, 
-		r->UnknownL1);
+			(tr5_room_vertex*) r->VerticesOffset,
+			r->NumLayerVertices,
+			BuildRoomletLights(r) & 0x7FFFFFFF,
+			r->NumLayerVerticesWater,
+			r->UnknownL1);
 
-	char* poly = (char*)r->PolyOffset;
+	char* poly = (char*) r->PolyOffset;
 
-	for(int i = 0; i < r->NumLayerRectangles; i++, poly += sizeof(tr_face4))
+	for (int i = 0; i < r->NumLayerRectangles; i++, poly += sizeof(tr_face4))
 	{
-		auto face = (tr_face4*)poly;
+		auto face = (tr_face4*) poly;
 		const auto tex = &object_textures[face->Texture];
 
 		if (tex->attribute == OT_ALL_OPAQUE)
 		{
-			AddQuad1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
+			AddQuad1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex,
+			         face->DoubleSided);
 		}
 		else
 		{
-			AddQuad2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
+			AddQuad2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex,
+			         face->DoubleSided);
 		}
 	}
 
 	for (int i = 0; i < r->NumLayerTriangles; i++, poly += sizeof(tr_face3))
 	{
-		auto face = (tr_face3*)poly;
+		auto face = (tr_face3*) poly;
 		const auto tex = &object_textures[face->Texture];
 
 		if (tex->attribute == OT_ALL_OPAQUE)
@@ -2273,36 +2705,36 @@ void InsertRoomlet(ROOMLET* r)
 
 void InsertRoom(room_info* r)
 {
-	Log(LT_Info, "InsertRoom %d", r - room);
+	//Log(LT_Info, "InsertRoom %d", r - room);
 
 	room_top_flt = room_top_flt_2 = r->top;
 	room_left_flt = room_left_flt_2 = r->left;
 	room_bottom_flt = room_bottom_flt_2 = r->bottom;
 	room_right_flt = room_right_flt_2 = r->right;
 
-	cam_pos_flt = { (float)camera.pos.x, (float)camera.pos.y, (float)camera.pos.z };
-	cam_tar_flt = { (float)camera.target.x, (float)camera.target.y, (float)camera.target.z };
+	cam_pos_flt = {(float) camera.pos.x, (float) camera.pos.y, (float) camera.pos.z};
+	cam_tar_flt = {(float) camera.target.x, (float) camera.target.y, (float) camera.target.z};
 
 	const float dx = cam_tar_flt.x - cam_pos_flt.x;
 	const float dy = cam_tar_flt.y - cam_pos_flt.y;
 	const float dz = cam_tar_flt.z - cam_pos_flt.z;
 
-	const float norm = sqrt(dx * dx + dy * dy + dz * dz);
+	const float norm = hypot3(dx, dy, dz);
 
-	cam_dir_flt = { dx / norm, dy / norm, dz / norm };
+	cam_dir_flt = {dx / norm, dy / norm, dz / norm};
 
 	if (r->Unknown1)
 	{
 		inserting_room = r;
 		dword_7EE0C8 = r->flags & RF_FILL_WATER;
 
-		for(int i = 0; i < r->NumLayers; i++)
+		for (int i = 0; i < r->NumLayers; i++)
 		{
 			if (CheckBoundsClip(&r->LayerOffset[i].BoundingBox))
 				InsertRoomlet(&r->LayerOffset[i]);
 		}
 
-		dword_57A508 = 0xFFFFFF;
+		dword_57A508 = RGBA_MAKE(255, 255, 255, 0);
 	}
 }
 
@@ -2323,14 +2755,16 @@ void SaveD3DCameraMatrix()// (F)
 	d3d_camera._43 = phd_dxptr[M23];
 }
 
+int num_fog_bulb_list;
+
 void ResetFogBulbList()
 {
-	Unimpl();
+	num_fog_bulb_list = 0;
 }
 
 void RoomTestThing()// (F)
 {
-	
+
 }
 
 void BuildFogBulbList()
@@ -2356,7 +2790,7 @@ void DrawRooms(short current_room)
 	r->test_top = phd_top = 0;
 	r->test_right = phd_right = phd_winxmax;
 	r->test_bottom = phd_bottom = phd_winymax;
-	
+
 	//dword_E6CAE8 = 0;
 	outside = r->flags & RF_SKYBOX_VISIBLE;
 	camera_underwater = r->flags & RF_FILL_WATER;
@@ -2393,7 +2827,7 @@ void DrawRooms(short current_room)
 	{
 		if (!(lara_item->flags & IFLAG_INVISIBLE))
 		{
-			e4b100 = 4;	
+			e4b100 = 4;
 
 			if (lara_item->mesh_bits != 0 && !SCNoDrawLara)
 			{
@@ -2431,7 +2865,7 @@ void DrawRooms(short current_room)
 		}
 	}
 
-	InitDynamicLighting();
+	//InitDynamicLighting(); nullsub
 
 	e4b100 = 0;
 
@@ -2523,7 +2957,7 @@ void DrawRooms(short current_room)
 	if (LaserSightActive)
 		DrawLaserSightSprite();
 
-	for(int i = 0; i < number_draw_rooms; i++)
+	for (int i = 0; i < number_draw_rooms; i++)
 	{
 		PrintObjects(draw_rooms[i]);
 	}
@@ -2531,9 +2965,387 @@ void DrawRooms(short current_room)
 	Update();
 }
 
-void phd_PutPolygons(short* mesh)
+OBJECT_TEXTURE_VERT stru_920E18[256];
+tr5_vertex stru_91F3B8;
+CVECTOR3 stru_87AD04;
+
+void TransformLightPrelightClipMesh(tr4_mesh* mesh)
 {
 	Unimpl();
+}
+
+void TransformLightClipMesh(tr4_mesh* mesh)
+{
+	Unimpl();
+}
+
+void ClearObjectLighting()// (F)
+{
+
+}
+
+light_thing stru_878E28[64];
+light_thing_2 stru_879538[16];
+DWORD dword_87B0D8;
+D3DMATRIX res;
+
+void SuperSetupLight(PCLIGHT* light, ITEM_INFO* item, CVECTOR* col)// (F)
+{
+	if (light->LightType == LT_LIGHT)
+	{
+		const double dx = light->x - stru_91F3B8.x;
+		const double dy = light->y - stru_91F3B8.y;
+		const double dz = light->z - stru_91F3B8.z;
+		light_thing* v16 = &stru_878E28[dword_87B104];
+		const float dist = hypot3(dx, dy, dz);
+		v16->f1 = (res._11 * dx + res._12 * dy + res._13 * dz) / dist;
+		v16->f2 = (res._21 * dx + res._22 * dy + res._23 * dz) / dist;
+		v16->f3 = (res._31 * dx + res._32 * dy + res._33 * dz) / dist;
+		v16->r = light->r * 255.0;
+		v16->g = light->g * 255.0;
+		v16->b = light->b * 255.0;
+		v16->f7 = (light->Out - dist) / light->Out;
+		++dword_87B104;
+		++dword_87B110;
+	}
+	else if (light->LightType == LT_SHADOW)
+	{
+		const double dist = phd_sqrt_asm(light->magnsq);
+		int v8 = light->ShadowIntensity >> 3;
+		if (dist >= light->In)
+			v8 = (dist - light->Out) / ((light->Out - light->In) / -v8);
+		const int v9 = v8 >> 1;
+		const int r = MAX(0, col->r - v9);
+		const int g = MAX(0, col->g - v9);
+		const int b = MAX(0, col->b - v9);
+		*col = CVECTOR(r, g, b);
+		++dword_87B10C;
+	}
+	else if (light->LightType == LT_SUN)
+	{
+		const double dx = light->dx2;
+		const double dy = light->dy2;
+		const double dz = light->dz2;
+		light_thing_2* v22 = &stru_879538[dword_87B100];
+		const double normsq = dx * dx + dy * dy + dz * dz;
+		v22->f1 = (res._11 * dx + res._12 * dy + res._13 * dz) / normsq;
+		v22->f2 = (res._21 * dx + res._22 * dy + res._23 * dz) / normsq;
+		v22->f3 = (res._31 * dx + res._32 * dy + res._33 * dz) / normsq;
+		v22->r = light->r * 255.0;
+		v22->g = light->g * 255.0;
+		v22->b = light->b * 255.0;
+		++dword_87B100;
+		++dword_87B110;
+	}
+}
+
+BYTE byte_57A468;
+int dword_87B0FC;
+
+void InitObjectLighting(ITEM_INFO* item)// (F)
+{
+	CVECTOR ambient = item->il.room_ambient;
+	dword_87B0D8 = 0;
+
+	int v3 = 0;
+
+	PCLIGHT* l1 = item->ptr_lights_1;
+	for (int v2 = 0; v2 < item->num_lights_1; l1++, v2++)
+	{
+		if (l1->UnknownByte)
+		{
+			SuperSetupLight(l1, item, &ambient);
+			++v3;
+		}
+	}
+
+	PCLIGHT* l2 = item->ptr_lights_2;
+	for (int j = 0; j < item->num_lights_2; j++, l2++)
+	{
+		if (l2->UnknownByte)
+			SuperSetupLight(l2, item, &ambient);
+	}
+
+	InitDynamicLighting(item);
+
+	if (item == lara_item && byte_57A468)
+	{
+		if (dword_87B0FC < 0)
+		{
+			item->il.room_num = 0;
+			ambient = LaraNodeAmbient[0];
+			item->il.room_ambient = LaraNodeAmbient[0];
+		}
+		else
+		{
+			ambient = LaraNodeAmbient[1];
+		}
+	}
+	else
+	{
+		ambient = item->il.room_ambient;
+	}
+
+	stru_87AD04.r = MAX(16, ambient.r);
+	stru_87AD04.g = MAX(16, ambient.g);
+	stru_87AD04.b = MAX(16, ambient.b);
+}
+
+void InitObjectFogBulbs()
+{
+	Unimpl();
+}
+
+int CheckMeshClip(tr4_mesh* mesh)
+{
+	Unimpl();
+	return 1;
+}
+
+
+DWORD dword_87B100;
+DWORD dword_87B104;
+DWORD dword_87B108;
+DWORD dword_87B10C;
+DWORD dword_87B110;
+DWORD dword_87B114;
+
+void SuperResetLights()// (F)
+{
+	D3DMATRIX a = App.ViewMatrix;
+	D3DMATRIX b = stru_55D168;
+
+	dword_87B100 = 0;
+	dword_87B104 = 0;
+	dword_87B108 = 0;
+	dword_87B10C = 0;
+	dword_87B110 = 0;
+	dword_87B114 = 0;
+
+	stru_87AD04.b = 0;
+	stru_87AD04.g = 0;
+	stru_87AD04.r = 0;
+
+	D3DMultMatrix(&res, &a, &b);
+
+	stru_91F3B8.x = stru_51D0B0[3].x + res._41;
+	stru_91F3B8.y = stru_51D0B0[3].y + res._42;
+	stru_91F3B8.z = stru_51D0B0[3].z + res._43;
+}
+
+void ClearDynamicLighting()// (F)
+{
+
+}
+
+void phd_PutPolygons(short* mptr)
+{
+	const auto mesh = (tr4_mesh*) mptr;
+
+	int v8; // esi
+	int v10; // edx
+	OBJECT_TEXTURE* v86; // [esp+3Ch] [ebp-2Ch]
+	OBJECT_TEXTURE tex; // [esp+40h] [ebp-28h]
+
+	SetViewMatrix();
+	if (mesh)
+	{
+		room_left_flt = clip_xmin;
+		room_top_flt = clip_ymin;
+		room_right_flt = clip_xmax;
+		room_bottom_flt = clip_ymax;
+		if (CheckMeshClip(mesh))
+		{
+			stru_91F3B8.x = mesh->bbox.maxX - mesh->bbox.minX;
+			stru_91F3B8.y = mesh->bbox.maxY - mesh->bbox.minY;
+			stru_91F3B8.z = mesh->bbox.maxZ - mesh->bbox.minZ;
+			SuperResetLights();
+			if (global_ambient)
+			{
+				ClearObjectLighting();
+				ClearDynamicLighting();
+				App.lpD3DDevice->SetLightState(D3DLIGHTSTATE_AMBIENT, global_ambient);
+				stru_87AD04.r = RGB_GETRED(global_ambient);
+				stru_87AD04.g = RGB_GETGREEN(global_ambient);
+				stru_87AD04.b = RGB_GETBLUE(global_ambient);
+				global_ambient = 0;
+			}
+			else
+			{
+				if (mesh->lights)
+				{
+					ClearObjectLighting();
+					InitDynamicLighting(dword_9158A8);
+				}
+				else
+				{
+					InitObjectLighting(dword_9158A8);
+				}
+				InitObjectFogBulbs();
+			}
+			if (mesh->attributes & 2)
+				TransformLightPrelightClipMesh(mesh);
+			else
+				TransformLightClipMesh(mesh);
+			if (mesh->attributes & 1)
+			{
+				for (int i = 0; i < mesh->num_vert; i++)
+				{
+					const auto norm = mesh->vert[i].norm;
+
+					stru_920E18[i].x = (
+							                   App.ViewMatrix._11 * norm.x +
+							                   App.ViewMatrix._21 * norm.y +
+							                   App.ViewMatrix._31 * norm.z +
+							                   1) * 0.25;
+
+					stru_920E18[i].y = (
+							                   App.ViewMatrix._12 * norm.x +
+							                   App.ViewMatrix._22 * norm.y +
+							                   App.ViewMatrix._32 * norm.z +
+							                   1) * 0.25;
+				};
+			}
+
+			if (mesh->num_rectangles > 0)
+			{
+				auto rect = mesh->rectangles;
+				for (int v81 = 0; v81 < mesh->num_rectangles; v81++, rect++)
+				{
+					char v80 = 0;
+					const int v11 = rect->Texture;
+					OBJECT_TEXTURE* v12 = v86 = &object_textures[v11];
+					const uint16 v83 = object_textures[v11].attribute;
+					if (rect->AlphaBlending)
+						v12->attribute = OT_ALPHA_BLENDING;
+					if (rect->EnvMappingStrength & 1)
+					{
+						tex.attribute = OT_ALPHA_BLENDING;
+						tex.new_flags = v12->new_flags;
+						tex.tile_and_flag = num_pages - 3;
+						v80 = 1;
+
+						for (int j = 0; j < 4; j++)
+						{
+							tex.vertices[j] = stru_920E18[rect->Vertices[j]];
+						}
+
+						v8 = 2 * (rect->EnvMappingStrength & 0x3E);
+					}
+					if (dword_506D3C == RGB_MAKE(0, 0, 0))
+					{
+						if (v12->attribute == OT_ALL_OPAQUE)
+						{
+							AddQuad1(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2],
+							         rect->Vertices[3], v12, 0);
+						}
+						else if (v12->attribute == OT_ALPHA_TESTING || v12->attribute == OT_ALPHA_BLENDING)
+						{
+							AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2],
+							         rect->Vertices[3], v12, 0);
+						}
+						if (v80)
+						{
+							D3DCOLOR old_color[4];
+							D3DCOLOR old_specular[4];
+
+							for (int k = 0; k < 4; k++)
+							{
+								old_color[k] = vert_buf[rect->Vertices[k]].color;
+								old_specular[k] = vert_buf[rect->Vertices[k]].specular;
+
+								vert_buf[rect->Vertices[k]].color = RGB_MULT(vert_buf[rect->Vertices[k]].color, v8);
+								vert_buf[rect->Vertices[k]].specular = RGB_MULT(vert_buf[rect->Vertices[k]].specular,
+								                                                v8);
+							}
+
+							AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2],
+							         rect->Vertices[3], &tex, 0);
+
+							for (int k = 0; k < 4; k++)
+							{
+								vert_buf[rect->Vertices[k]].color = old_color[k];
+								vert_buf[rect->Vertices[k]].specular = old_specular[k];
+							}
+						}
+					}
+					else
+					{
+						v12->attribute = OT_FORCED_ALPHA;
+						AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3],
+						         v12, 0);
+					}
+					v12->attribute = v83;
+				}
+			}
+
+
+			if (mesh->num_triangles > 0)
+			{
+				auto tri = mesh->triangles;
+				for (int v82 = 0; v82 < mesh->num_triangles; v82++, tri++)
+				{
+					const int v52 = tri->Texture;
+					char v53 = 0;
+					const uint16 v84 = object_textures[v52].attribute;
+					OBJECT_TEXTURE* v56 = &object_textures[v52];
+					if (tri->AlphaBlending)
+						v56->attribute = OT_ALPHA_BLENDING;
+					if (tri->EnvMappingStrength & 1)
+					{
+						v8 = 2 * (tri->EnvMappingStrength & 0x3E);
+						tex.attribute = OT_ALPHA_BLENDING;
+						tex.new_flags = v56->new_flags;
+						tex.tile_and_flag = num_pages - 3;
+						v53 = 1;
+						for (int j = 0; j < 3; j++)
+						{
+							tex.vertices[j] = stru_920E18[tri->Vertices[j]];
+						}
+					}
+					if (dword_506D3C == RGB_MAKE(0, 0, 0))
+					{
+						if (v56->attribute == OT_ALL_OPAQUE)
+						{
+							AddTri1(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
+						}
+						else if (v56->attribute == OT_ALPHA_TESTING || v56->attribute == OT_ALPHA_BLENDING)
+						{
+							AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
+						}
+						if (v53)
+						{
+							D3DCOLOR old_color[3];
+							D3DCOLOR old_specular[3];
+
+							for (int k = 0; k < 3; k++)
+							{
+								old_color[k] = vert_buf[tri->Vertices[k]].color;
+								old_specular[k] = vert_buf[tri->Vertices[k]].specular;
+
+								vert_buf[tri->Vertices[k]].color = RGB_MULT(vert_buf[tri->Vertices[k]].color, v8);
+								vert_buf[tri->Vertices[k]].specular = RGB_MULT(vert_buf[tri->Vertices[k]].specular, v8);
+							}
+
+							AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], &tex, 0);
+
+							for (int k = 0; k < 3; k++)
+							{
+								vert_buf[tri->Vertices[k]].color = old_color[k];
+								vert_buf[tri->Vertices[k]].specular = old_specular[k];
+							}
+						}
+					}
+					else
+					{
+						v56->attribute = OT_FORCED_ALPHA;
+						AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
+					}
+					v56->attribute = v84;
+				}
+			}
+		}
+	}
 }
 
 int32_t DrawPhaseGame()// (F)
@@ -2566,7 +3378,7 @@ void DrawBinoculars()
 void DrawLoadingScreen()
 {
 	Log(LT_Enter, "DrawLoadingScreen");
-	
+
 	if (App.Flags & WA_BACK_BUFFER)
 	{
 		App.lpBackBuffer->Blt(nullptr, surf_screen, nullptr, DDBLT_WAIT, nullptr);
@@ -2574,18 +3386,18 @@ void DrawLoadingScreen()
 	else
 	{
 		/*DDSURFACEDESC2 desc;
-		DXInit(desc);
-		surf_screen->Lock(nullptr, &desc, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, nullptr);
+        DXInit(desc);
+        surf_screen->Lock(nullptr, &desc, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, nullptr);
 
-		short* src = (short*)pix_buf;
-		short* dest = (short*)desc.lpSurface;
+        short* src = (short*)pix_buf;
+        short* dest = (short*)desc.lpSurface;
 
-		for (int i = 0; i < pix_num; i++, src++, dest++)
-		{
-			*dest = (*src & 0x1F) | 2 * (*src & 0xFFE0);
-		}
+        for (int i = 0; i < pix_num; i++, src++, dest++)
+        {
+            *dest = (*src & 0x1F) | 2 * (*src & 0xFFE0);
+        }
 
-		surf_screen->Unlock(nullptr);*/
+        surf_screen->Unlock(nullptr);*/
 		S_Warn("NO BACK BUFFER BS!");
 		Unimpl();
 	}
@@ -2593,9 +3405,9 @@ void DrawLoadingScreen()
 
 void DrawFlash()// to test
 {
-	BYTE r = FlashFader * FlashFadeR >> 5;
-	BYTE g = FlashFader * FlashFadeG >> 5;
-	BYTE b = FlashFader * FlashFadeB >> 5;
+	const BYTE r = FlashFader * FlashFadeR >> 5;
+	const BYTE g = FlashFader * FlashFadeG >> 5;
+	const BYTE b = FlashFader * FlashFadeB >> 5;
 
 	DrawPsxTile(0, phd_winwidth | (phd_winheight << 16), RGBA(r, g, b, 0x62));
 	DrawPsxTile(0, phd_winwidth | (phd_winheight << 16), RGBA(r, g, b, 0xFF));
@@ -2613,135 +3425,142 @@ void HWR_DrawRoutine(D3DTLBUMPVERTEX* info, short num_verts, short texture, shor
 
 	switch (type)
 	{
-	case OT_ALL_OPAQUE:
-		if (App.lpZBuffer)
-		{
-			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
-		}
+		case OT_ALL_OPAQUE:
+			if (App.lpZBuffer)
+			{
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+			}
 
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+			DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+			App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts,
+			                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 
-		break;
-	case OT_ALPHA_TESTING:
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			break;
+		case OT_ALPHA_TESTING:
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+			DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+			App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts,
+			                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-		break;
-	case OT_ALPHA_BLENDING:
-		if (App.lpZBuffer)
-		{
-			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
-		}
+			break;
+		case OT_ALPHA_BLENDING:
+			if (App.lpZBuffer)
+			{
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+			}
 
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
 
-		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+			DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+			App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts,
+			                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-		break;
-	case OT_ALPHA_BLENDING_INV:
-		if (App.lpZBuffer)
-		{
-			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
-		}
+			break;
+		case OT_ALPHA_BLENDING_INV:
+			if (App.lpZBuffer)
+			{
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+			}
 
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 
-		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+			DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+			App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts,
+			                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
 
-		break;
-	case OT_ALPHA_TESTING_DEPTHLESS:
-		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+			break;
+		case OT_ALPHA_TESTING_DEPTHLESS:
+			DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		if (App.lpZBuffer)
-		{
-			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
-			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
-		}
+			if (App.lpZBuffer)
+			{
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+			}
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+			App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts,
+			                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-		if (App.lpZBuffer)
-		{
-			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, TRUE);
-			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
-		}
+			if (App.lpZBuffer)
+			{
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, TRUE);
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+			}
 
-		break;
-	case OT_UNUSED:
-		break;
-	case OT_WIREFRAME:
-		if (App.lpZBuffer)
-		{
-			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
-		}
+			break;
+		case OT_UNUSED:
+			break;
+		case OT_WIREFRAME:
+			if (App.lpZBuffer)
+			{
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+			}
 
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
 
-		DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
+			DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+			App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, info, num_verts,
+			                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-		break;
-	case OT_FORCED_ALPHA:
-		if (App.lpZBuffer)
-		{
-			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
-		}
+			break;
+		case OT_FORCED_ALPHA:
+			if (App.lpZBuffer)
+			{
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+			}
 
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 
-		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+			DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+			App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts,
+			                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
-		break;
-	default:
-		break;
+			break;
+		default:
+			break;
 	}
 
 	App.DrawPrimitiveCnt++;
@@ -2775,14 +3594,14 @@ void DrawSortList()
 			{
 				info = *ptr;
 
-				if (info->texattr == OT_ALPHA_TESTING || 
-					info->texattr == OT_ALPHA_TESTING_DEPTHLESS || 
-					info->texattr == OT_ALL_OPAQUE)
+				if (info->texattr == OT_ALPHA_TESTING ||
+				    info->texattr == OT_ALPHA_TESTING_DEPTHLESS ||
+				    info->texattr == OT_ALL_OPAQUE)
 					break;
 			}
 		}
 
-		auto vert = Bucket[0].Vertex;
+		D3DTLBUMPVERTEX* vert = Bucket[0].Vertex;
 		auto tile_and_flag = info->tile_and_flag;
 		auto type = info->texattr;
 
@@ -2795,127 +3614,134 @@ void DrawSortList()
 				info = *ptr;
 
 				if (info->texattr == OT_ALPHA_TESTING ||
-					info->texattr == OT_ALPHA_TESTING_DEPTHLESS ||
-					info->texattr == OT_ALL_OPAQUE)
+				    info->texattr == OT_ALPHA_TESTING_DEPTHLESS ||
+				    info->texattr == OT_ALL_OPAQUE)
 				{
 					if (info->tile_and_flag != tile_and_flag || info->texattr != type)
 					{
-						switch(type)
+						switch (type)
 						{
-						case OT_ALL_OPAQUE:
-							if (App.lpZBuffer)
-								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+							case OT_ALL_OPAQUE:
+								if (App.lpZBuffer)
+									App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
 
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+								DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+								App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3,
+								                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 
-							break;
-						case OT_ALPHA_TESTING:
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+								break;
+							case OT_ALPHA_TESTING:
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+								DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+								App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3,
+								                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-							break;
-						case OT_ALPHA_BLENDING:
-							if (App.lpZBuffer)
-								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+								break;
+							case OT_ALPHA_BLENDING:
+								if (App.lpZBuffer)
+									App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, FALSE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, FALSE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
 
-							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+								DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+								App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3,
+								                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-							break;
-						case OT_ALPHA_BLENDING_INV:
-							if (App.lpZBuffer)
-								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+								break;
+							case OT_ALPHA_BLENDING_INV:
+								if (App.lpZBuffer)
+									App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, FALSE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
-							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, FALSE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+								App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 
-							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+								DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+								App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3,
+								                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+								App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
 
-							break;
-						case OT_ALPHA_TESTING_DEPTHLESS:
-							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+								break;
+							case OT_ALPHA_TESTING_DEPTHLESS:
+								DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
-							if (App.lpZBuffer)
-							{
-								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
-								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
-							}
+								if (App.lpZBuffer)
+								{
+									App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
+									App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+								}
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+								App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3,
+								                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-							if (App.lpZBuffer)
-							{
-								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, TRUE);
-								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
-							}
+								if (App.lpZBuffer)
+								{
+									App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, TRUE);
+									App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+								}
 
-							break;
-						case OT_UNUSED:
-							break;
-						case OT_WIREFRAME:
-							if (App.lpZBuffer)
-								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+								break;
+							case OT_UNUSED:
+								break;
+							case OT_WIREFRAME:
+								if (App.lpZBuffer)
+									App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
 
-							DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
+								DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+								App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, Bucket[0].Vertex, v3,
+								                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-							break;
-						case OT_FORCED_ALPHA:
-							if (App.lpZBuffer)
-								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+								break;
+							case OT_FORCED_ALPHA:
+								if (App.lpZBuffer)
+									App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
 
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
-							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+								App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 
-							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+								DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+								App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3,
+								                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
-							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+								App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
-							break;
-						default:
-							break;
+								break;
+							default:
+								break;
 						}
 
 						v3 = 0;
@@ -2929,8 +3755,8 @@ void DrawSortList()
 					}
 					else
 					{
-						auto vptr = (D3DTLBUMPVERTEX*)(info + 1);
-						for(int j = 0; j < info->num_verts; j++, v3++)
+						auto vptr = (D3DTLBUMPVERTEX*) (info + 1);
+						for (int j = 0; j < info->num_verts; j++, v3++)
 						{
 							*vert++ = *vptr++;
 						}
@@ -2953,10 +3779,10 @@ void DrawSortList()
 			{
 				info = *ptr;
 
-				if (info->texattr == OT_ALPHA_BLENDING || 
-					info->texattr == OT_ALPHA_BLENDING_INV || 
-					info->texattr == OT_WIREFRAME || 
-					info->texattr == OT_FORCED_ALPHA)
+				if (info->texattr == OT_ALPHA_BLENDING ||
+				    info->texattr == OT_ALPHA_BLENDING_INV ||
+				    info->texattr == OT_WIREFRAME ||
+				    info->texattr == OT_FORCED_ALPHA)
 					break;
 			}
 		}
@@ -2971,14 +3797,14 @@ void DrawSortList()
 		{
 			auto ptr = &sort3d_bufferbf[i];
 
-			for(; i >= 0; i--, ptr--)
+			for (; i >= 0; i--, ptr--)
 			{
 				info = *ptr;
 
 				if (info->texattr == OT_ALPHA_BLENDING ||
-					info->texattr == OT_ALPHA_BLENDING_INV ||
-					info->texattr == OT_WIREFRAME ||
-					info->texattr == OT_FORCED_ALPHA)
+				    info->texattr == OT_ALPHA_BLENDING_INV ||
+				    info->texattr == OT_WIREFRAME ||
+				    info->texattr == OT_FORCED_ALPHA)
 				{
 					if (info->tile_and_flag != tile_and_flag || info->texattr != type)
 					{
@@ -3004,7 +3830,7 @@ void DrawSortList()
 							sortptra = 0;
 						}
 
-						auto vptr = (D3DTLBUMPVERTEX*)(info + 1);
+						auto vptr = (D3DTLBUMPVERTEX*) (info + 1);
 						for (int j = 0; j < info->num_verts; j++, v3++)
 						{
 							*vert++ = *vptr++;
@@ -3020,7 +3846,7 @@ void DrawSortList()
 	else // LINE 421
 	{
 		auto ptr = &sort3d_bufferbf[0];
-		for(int i = 0; i < surfacenumbf; i++, ptr++)
+		for (int i = 0; i < surfacenumbf; i++, ptr++)
 		{
 			const auto info = *ptr;
 

@@ -1,5 +1,7 @@
 #include "PCTIME.H"
+
 #define _X86_
+
 #include <profileapi.h>
 #include "STYPES.H"
 #include "INCLUDE.H"
@@ -34,7 +36,7 @@ int Sync()// (F)
 	LARGE_INTEGER ct;
 	double dCounter;
 	QueryPerformanceCounter(&ct);
-	dCounter = (double)ct.LowPart + (double)ct.HighPart*(double)0xffffffff;
+	dCounter = (double) ct.LowPart + (double) ct.HighPart * (double) 0xffffffff;
 	dCounter /= LdFreq;
 	nFrames = long(dCounter) - long(LdSync);
 	LdSync = dCounter;

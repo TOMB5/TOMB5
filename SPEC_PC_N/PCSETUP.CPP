@@ -44,7 +44,7 @@ void CLSetup(char* arg)// (F)
 	appsettings.OpenSetup = arg == nullptr;
 }
 
-BYTE oemToIso[10] = { 0x82, 0xE9, 0x8A, 0xE8, 0x88, 0xEA, 0x94, 0xF6, 0x85, 0xE0 };
+BYTE oemToIso[10] = {0x82, 0xE9, 0x8A, 0xE8, 0x88, 0xEA, 0x94, 0xF6, 0x85, 0xE0};
 
 char* LoadToISO(const char* instr, char* outbuf)// (F)
 {
@@ -88,7 +88,7 @@ void LoadTextureFormats(HWND hDlg, HWND hWnd)
 
 	auto d3d = &App.DeviceInfo.DDInfo[appsettings.GraphicsAdapter].D3DInfo[appsettings.AccelAdapter];
 
-	for(int i = 0; i < d3d->nTexture; i++)
+	for (int i = 0; i < d3d->nTexture; i++)
 	{
 		auto tex = &d3d->Texture[i];
 
@@ -97,11 +97,12 @@ void LoadTextureFormats(HWND hDlg, HWND hWnd)
 		auto bitsR = tex->rbpp;
 		auto bitsG = tex->gbpp;
 		auto bitsA = tex->abpp;
-		
+
 		CHAR v14[40];
-		wsprintfA(v14, "%d %s RGBA %d%d%d%d", tex->bpp, &gfStringWad[gfStringOffset[STR_BIT]], bitsR, bitsG, bitsB, bitsA);
-		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)v14);
-		
+		wsprintfA(v14, "%d %s RGBA %d%d%d%d", tex->bpp, &gfStringWad[gfStringOffset[STR_BIT]], bitsR, bitsG, bitsB,
+		          bitsA);
+		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM) v14);
+
 		if (software)
 		{
 			if (depth == 32 && bitsR == 8 && bitsB == 8 && bitsG == 8 && bitsA == 8)
@@ -138,7 +139,7 @@ void LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 
 		auto d3d = &App.DeviceInfo.DDInfo[appsettings.GraphicsAdapter].D3DInfo[appsettings.AccelAdapter];
 		int cbxI = 0;
-		
+
 		for (int i = 0; i < d3d->nDisplayMode; i++)
 		{
 			auto dmode = &d3d->DisplayMode[i];
@@ -149,14 +150,14 @@ void LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 
 			if (res_bit <= 8)
 				continue;
-			
+
 			char var28[44];
 			wsprintfA(var28, "%dx%d %d %s", res_w, res_h, res_bit, &gfStringWad[gfStringOffset[STR_BIT]]);
-			SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)var28);
+			SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM) var28);
 			SendMessageA(hWnd, CB_SETITEMDATA, cbxI, i);
 
 			if (!((software && res_w == 320 && res_h == 240 && res_bit == 16)
-				|| (!software && res_w == 640 && res_h == 480 && res_bit == 16)))
+			      || (!software && res_w == 640 && res_h == 480 && res_bit == 16)))
 			{
 				SendMessageA(hWnd, CB_SETCURSEL, cbxI, 0);
 				appsettings.Resolution = cbxI;
@@ -165,7 +166,7 @@ void LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 			++cbxI;
 		}
 	}
-	
+
 	if (App.DeviceInfo.DDInfo[appsettings.GraphicsAdapter].DDCaps.dwCaps2 & DDCAPS2_CANRENDERWINDOWED)
 	{
 		EnableWindow(GetDlgItem(hDlg, IDC_WINDOWED), TRUE);
@@ -213,7 +214,7 @@ void LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 	}
 
 	SendMessageA(GetDlgItem(hDlg, IDC_LOWTEXT), BM_SETCHECK, appsettings.LowQualityTextures, 0);
-	
+
 	if (appsettings.LowQualityTextures)
 	{
 		SendMessageA(GetDlgItem(hDlg, IDC_LOWBUMP), BM_SETCHECK, TRUE, 0);
@@ -224,7 +225,7 @@ void LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 		EnableWindow(GetDlgItem(hDlg, IDC_LOWBUMP), TRUE);
 		SendMessageA(GetDlgItem(hDlg, IDC_LOWBUMP), BM_SETCHECK, FALSE, 0);
 	}
-	
+
 	if (!appsettings.LowQualityBumpMap)
 	{
 		SendMessageA(GetDlgItem(hDlg, IDC_LOWBUMP), BM_SETCHECK, FALSE, 0);
@@ -243,7 +244,7 @@ void LoadAccelAdapters(HWND hDlg, HWND hWnd)
 
 	for (int i = 0; i < GET_DD(appsettings.GraphicsAdapter).nD3DInfo; i++)
 	{
-		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)GET_DD(appsettings.GraphicsAdapter).D3DInfo[i].About);
+		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM) GET_DD(appsettings.GraphicsAdapter).D3DInfo[i].About);
 	}
 
 	SendMessageA(hWnd, CB_SETCURSEL, 1, 0);
@@ -258,18 +259,18 @@ void LoadGraphicsAdapters(HWND hDlg, HWND hWnd)
 	for (int i = 0; i < App.DeviceInfo.nDDInfo; i++)
 	{
 		CHAR buf[256];
-		
+
 		wsprintfA(
-			buf,
-			"%s - %s (%d.%d.%02d.%04d)",
-			GET_DD(i).DDDevIdent.szDescription,
-			GET_DD(i).DDDevIdent.szDriver,
-			HIWORD(GET_DD(i).DDDevIdent.liDriverVersion.HighPart),
-			LOWORD(GET_DD(i).DDDevIdent.liDriverVersion.HighPart),
-			HIWORD(GET_DD(i).DDDevIdent.liDriverVersion.LowPart),
-			LOWORD(GET_DD(i).DDDevIdent.liDriverVersion.LowPart));
-		
-		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)buf);
+				buf,
+				"%s - %s (%d.%d.%02d.%04d)",
+				GET_DD(i).DDDevIdent.szDescription,
+				GET_DD(i).DDDevIdent.szDriver,
+				HIWORD(GET_DD(i).DDDevIdent.liDriverVersion.HighPart),
+				LOWORD(GET_DD(i).DDDevIdent.liDriverVersion.HighPart),
+				HIWORD(GET_DD(i).DDDevIdent.liDriverVersion.LowPart),
+				LOWORD(GET_DD(i).DDDevIdent.liDriverVersion.LowPart));
+
+		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM) buf);
 	}
 
 	SendMessageA(hWnd, CB_SETCURSEL, App.DeviceInfo.nDDInfo - 1, 0);
@@ -284,166 +285,185 @@ void LoadSoundAdapters(HWND hDlg, HWND hWnd)
 
 	for (int i = 0; i < App.DeviceInfo.nDSInfo; i++)
 	{
-		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)GET_DS(i).About);
+		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM) GET_DS(i).About);
 	}
-	
+
 	appsettings.SoundCard = 0;
-	
+
 	if (App.DeviceInfo.nDSInfo == 0)
 	{
-		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)&gfStringWad[gfStringOffset[STR_NO_SOUND_CARD_INSTALLED]]);
-		
+		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM) &gfStringWad[gfStringOffset[STR_NO_SOUND_CARD_INSTALLED]]);
+
 		EnableWindow(GetDlgItem(hDlg, IDC_NOSOUND), FALSE);
 		SendMessageA(GetDlgItem(hDlg, IDC_NOSOUND), BM_SETCHECK, TRUE, 0);
-		
+
 		EnableWindow(hWnd, FALSE);
 	}
-	
+
 	SendMessageA(hWnd, CB_SETCURSEL, 0, 0);
 }
 
 INT_PTR CALLBACK DialogFunc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)// (F)
 {
 	HGDIOBJ sysfont = NULL;
-	
-	switch(uMsg)
+
+	switch (uMsg)
 	{
-	case WM_INITDIALOG:
-		Log(LT_WindowMessage, "WM_INITDIALOG");
+		case WM_INITDIALOG:
+			Log(LT_WindowMessage, "WM_INITDIALOG");
 
-		if (Gameflow->Language == LNG_JAPAN)
-		{
-			sysfont = GetStockObject(SYSTEM_FONT);
-			SendMessageA(GetDlgItem(hDlg, IDC_GFXADAPTER), WM_SETFONT, 0, (LPARAM)sysfont);
-			SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), WM_SETFONT, 0, (LPARAM)sysfont);
-			SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTION), WM_SETFONT, 0, (LPARAM)sysfont);
-			SendMessageA(GetDlgItem(hDlg, IDC_TEXRES), WM_SETFONT, 0, (LPARAM)sysfont);
-			SendMessageA(GetDlgItem(hDlg, IDC_SNDADAPTER), WM_SETFONT, 0, (LPARAM)sysfont);
-		}
-
-		char buf[256];
-
-		SendMessageA(GetDlgItem(hDlg, IDC_GFXADAPTERTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_GRAPHICS_ADAPTER]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGSTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_OUTPUT_SETTINGS]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDOK), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_OK_BIS]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDCANCEL), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_CANCEL_BIS_BIS]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTIONTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_OUTPUT_RESOLUTION]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_BILINEAR), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_BILINEAR_FILTERING]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_BUMPMAP), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_BUMP_MAPPING]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_HARDACCEL), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_HARDWARE_ACCELERATION]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_SOFTWARE), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_SOFTWARE_MODE]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_SNDADAPTERTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_SOUND_DEVICE]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_NOSOUND), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_DISABLE]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_LOWTEXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_LOW_RESOLUTION_TEXTURES]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_LOWBUMP), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_LOW_RESOLUTION_BUMP_MAPS]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_TEXRESTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_TEXTURE_BIT_DEPTH]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_WINDOWED), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_WINDOWED]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_RENDEROPTIONS), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_RENDER_OPTIONS]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_VOLUMEFOG), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_VOLUMETRIC_FX]], buf));
-		SendMessageA(GetDlgItem(hDlg, IDC_NOFMV), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_NO_FMV]], buf));
-
-		LoadGraphicsAdapters(hDlg, GetDlgItem(hDlg, IDC_GFXADAPTER));
-		LoadSoundAdapters(hDlg, GetDlgItem(hDlg, IDC_SNDADAPTER));
-
-		return 1;
-
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
-		{
-		case IDC_NOSOUND:
-			if (!HIWORD(wParam))
+			if (Gameflow->Language == LNG_JAPAN)
 			{
-				EnableWindow(GetDlgItem(hDlg, IDC_SNDADAPTER),
-					SendMessageA(GetDlgItem(hDlg, wParam), BM_GETCHECK, 0, 0));
+				sysfont = GetStockObject(SYSTEM_FONT);
+				SendMessageA(GetDlgItem(hDlg, IDC_GFXADAPTER), WM_SETFONT, 0, (LPARAM) sysfont);
+				SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), WM_SETFONT, 0, (LPARAM) sysfont);
+				SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTION), WM_SETFONT, 0, (LPARAM) sysfont);
+				SendMessageA(GetDlgItem(hDlg, IDC_TEXRES), WM_SETFONT, 0, (LPARAM) sysfont);
+				SendMessageA(GetDlgItem(hDlg, IDC_SNDADAPTER), WM_SETFONT, 0, (LPARAM) sysfont);
 			}
 
-			return 0;
+			char buf[256];
 
-		case IDC_LOWTEXT:
-			if (!HIWORD(wParam))
+			SendMessageA(GetDlgItem(hDlg, IDC_GFXADAPTERTXT), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_GRAPHICS_ADAPTER]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGSTXT), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_OUTPUT_SETTINGS]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDOK), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_OK_BIS]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDCANCEL), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_CANCEL_BIS_BIS]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTIONTXT), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_OUTPUT_RESOLUTION]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_BILINEAR), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_BILINEAR_FILTERING]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_BUMPMAP), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_BUMP_MAPPING]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_HARDACCEL), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_HARDWARE_ACCELERATION]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_SOFTWARE), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_SOFTWARE_MODE]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_SNDADAPTERTXT), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_SOUND_DEVICE]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_NOSOUND), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_DISABLE]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_LOWTEXT), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_LOW_RESOLUTION_TEXTURES]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_LOWBUMP), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_LOW_RESOLUTION_BUMP_MAPS]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_TEXRESTXT), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_TEXTURE_BIT_DEPTH]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_WINDOWED), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_WINDOWED]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_RENDEROPTIONS), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_RENDER_OPTIONS]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_VOLUMEFOG), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_VOLUMETRIC_FX]], buf));
+			SendMessageA(GetDlgItem(hDlg, IDC_NOFMV), WM_SETTEXT, 0,
+			             (LPARAM) LoadToISO(&gfStringWad[gfStringOffset[STR_NO_FMV]], buf));
+
+			LoadGraphicsAdapters(hDlg, GetDlgItem(hDlg, IDC_GFXADAPTER));
+			LoadSoundAdapters(hDlg, GetDlgItem(hDlg, IDC_SNDADAPTER));
+
+			return 1;
+
+		case WM_COMMAND:
+			switch (LOWORD(wParam))
 			{
-				appsettings.LowQualityTextures = SendMessageA(GetDlgItem(hDlg, IDC_LOWTEXT), BM_GETCHECK, 0, 0);
+				case IDC_NOSOUND:
+					if (!HIWORD(wParam))
+					{
+						EnableWindow(GetDlgItem(hDlg, IDC_SNDADAPTER),
+						             SendMessageA(GetDlgItem(hDlg, wParam), BM_GETCHECK, 0, 0));
+					}
+
+					return 0;
+
+				case IDC_LOWTEXT:
+					if (!HIWORD(wParam))
+					{
+						appsettings.LowQualityTextures = SendMessageA(GetDlgItem(hDlg, IDC_LOWTEXT), BM_GETCHECK, 0, 0);
+					}
+
+					return 0;
+
+				case IDC_BUMPMAP:
+					if (!HIWORD(wParam))
+					{
+						appsettings.LowQualityBumpMap = SendMessageA(GetDlgItem(hDlg, IDC_BUMPMAP), BM_GETCHECK, 0, 0);
+					}
+
+					return 0;
+
+				case IDC_VOLUMEFOG:
+					if (!HIWORD(wParam))
+					{
+						appsettings.VolumetricFog = SendMessageA(GetDlgItem(hDlg, IDC_VOLUMEFOG), BM_GETCHECK, 0, 0);
+					}
+
+					return 0;
+
+				case IDC_BILINEAR:
+					if (!HIWORD(wParam))
+					{
+						appsettings.BilinearFiltering = SendMessageA(GetDlgItem(hDlg, IDC_BILINEAR), BM_GETCHECK, 0, 0);
+					}
+
+					return 0;
+
+				case IDC_SOFTWARE:
+					appsettings.AccelAdapter = 0;
+					SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), CB_SETCURSEL, 0, 0);
+					LoadResolutions(hDlg, GetDlgItem(hDlg, IDC_RESOLUTION), 1);
+
+					return 0;
+
+				case IDC_OUTSETTINGS:
+					if (HIWORD(wParam) == 1)
+					{
+						appsettings.AccelAdapter = SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), CB_GETCURSEL, 0, 0);
+						LoadResolutions(hDlg, GetDlgItem(hDlg, IDC_RESOLUTION), 1);
+					}
+
+					return 0;
+
+				case IDC_HARDACCEL:
+					if (!HIWORD(wParam))
+					{
+						appsettings.AccelAdapter = 1;
+						SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), CB_SETCURSEL, 1, 0);
+						LoadResolutions(hDlg, GetDlgItem(hDlg, IDC_RESOLUTION), 1);
+					}
+
+					return 0;
+
+				case IDC_GFXADAPTER:
+					if (HIWORD(wParam) == 1)
+					{
+						appsettings.GraphicsAdapter = SendMessageA(GetDlgItem(hDlg, IDC_GFXADAPTER), CB_GETCURSEL, 0,
+						                                           0);
+						LoadAccelAdapters(hDlg, GetDlgItem(hDlg, IDC_OUTSETTINGS));
+					}
+
+					return 0;
+
+				default:
+					switch (LOWORD(wParam))
+					{
+						case 1:
+							if (sysfont)
+								DeleteObject(sysfont);
+							SaveSettingsDialog(hDlg);
+							EndDialog(hDlg, 1);
+							return 1;
+						case 2:
+							if (sysfont)
+								DeleteObject(sysfont);
+							EndDialog(hDlg, 0);
+							return 1;
+						default:
+							return 0;
+					}
 			}
-
-			return 0;
-
-		case IDC_BUMPMAP:
-			if (!HIWORD(wParam))
-			{
-				appsettings.LowQualityBumpMap = SendMessageA(GetDlgItem(hDlg, IDC_BUMPMAP), BM_GETCHECK, 0, 0);
-			}
-
-			return 0;
-
-		case IDC_VOLUMEFOG:
-			if (!HIWORD(wParam))
-			{
-				appsettings.VolumetricFog = SendMessageA(GetDlgItem(hDlg, IDC_VOLUMEFOG), BM_GETCHECK, 0, 0);
-			}
-
-			return 0;
-
-		case IDC_BILINEAR:
-			if (!HIWORD(wParam))
-			{
-				appsettings.BilinearFiltering = SendMessageA(GetDlgItem(hDlg, IDC_BILINEAR), BM_GETCHECK, 0, 0);
-			}
-
-			return 0;
-
-		case IDC_SOFTWARE:
-			appsettings.AccelAdapter = 0;
-			SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), CB_SETCURSEL, 0, 0);
-			LoadResolutions(hDlg, GetDlgItem(hDlg, IDC_RESOLUTION), 1);
-
-			return 0;
-
-		case IDC_OUTSETTINGS:
-			if (HIWORD(wParam) == 1)
-			{
-				appsettings.AccelAdapter = SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), CB_GETCURSEL, 0, 0);
-				LoadResolutions(hDlg, GetDlgItem(hDlg, IDC_RESOLUTION), 1);
-			}
-
-			return 0;
-
-		case IDC_HARDACCEL:
-			if (!HIWORD(wParam))
-			{
-				appsettings.AccelAdapter = 1;
-				SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), CB_SETCURSEL, 1, 0);
-				LoadResolutions(hDlg, GetDlgItem(hDlg, IDC_RESOLUTION), 1);
-			}
-
-			return 0;
-
-		case IDC_GFXADAPTER:
-			if (HIWORD(wParam) == 1)
-			{
-				appsettings.GraphicsAdapter = SendMessageA(GetDlgItem(hDlg, IDC_GFXADAPTER), CB_GETCURSEL, 0, 0);
-				LoadAccelAdapters(hDlg, GetDlgItem(hDlg, IDC_OUTSETTINGS));
-			}
-
-			return 0;
-
-		default:
-			switch(LOWORD(wParam))
-			{
-			case 1:
-				if (sysfont)
-					DeleteObject(sysfont);
-				SaveSettingsDialog(hDlg);
-				EndDialog(hDlg, 1);
-				return 1;
-			case 2:
-				if (sysfont)
-					DeleteObject(sysfont);
-				EndDialog(hDlg, 0);
-				return 1;
-			default:
-				return 0;
-			}
-		}
 	}
 
 	return 0;
@@ -452,7 +472,7 @@ INT_PTR CALLBACK DialogFunc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)/
 bool InitSetupDialog()// (F)
 {
 	ShowCursor(true);
-	INT_PTR res = DialogBoxParamA(App.hInstance, (LPCSTR)IDD_SETUP, nullptr, DialogFunc, 0);
+	INT_PTR res = DialogBoxParamA(App.hInstance, (LPCSTR) IDD_SETUP, nullptr, DialogFunc, 0);
 	ShowCursor(false);
 
 	if (res == -1)
@@ -466,10 +486,11 @@ bool InitSetupDialog()// (F)
 
 BOOL CreateRegKeyRW(LPCSTR lpSubKey)// (F)
 {
-	return RegCreateKeyExA(HKEY_CURRENT_USER, lpSubKey, 0, reg_class, 0, KEY_ALL_ACCESS, nullptr, &reg_key, &reg_disp) == ERROR_SUCCESS;
+	return RegCreateKeyExA(HKEY_CURRENT_USER, lpSubKey, 0, reg_class, 0, KEY_ALL_ACCESS, nullptr, &reg_key,
+	                       &reg_disp) == ERROR_SUCCESS;
 }
 
-BOOL CreateKey(char* sub)// (F)
+BOOL CreateKey(const char* sub)// (F)
 {
 	if (sub == nullptr)
 		return CreateRegKeyRW(reg_path);
@@ -481,14 +502,14 @@ BOOL CreateKey(char* sub)// (F)
 
 void RegWrite(LPCSTR name, DWORD data)// (F)
 {
-	RegSetValueExA(reg_key, name, 0, 4, (BYTE*)&data, sizeof(DWORD));
+	RegSetValueExA(reg_key, name, 0, 4, (BYTE*) &data, sizeof(DWORD));
 }
 
 void RegWriteMulti(LPCSTR name, ...)// (F)
 {
 	va_list data;
-	va_start(data, name);
-	RegSetValueExA(reg_key, name, 0, 4, (BYTE*)data, 4);
+			va_start(data, name);
+	RegSetValueExA(reg_key, name, 0, 4, (BYTE*) data, 4);
 }
 
 bool RegReadBool(LPCSTR name, void* out, BYTE def)// (F)
@@ -496,15 +517,15 @@ bool RegReadBool(LPCSTR name, void* out, BYTE def)// (F)
 	DWORD cb = 4;
 	DWORD type;
 	DWORD buf;
-	if (RegQueryValueExA(reg_key, name, nullptr, &type, (BYTE*)&buf, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
+	if (RegQueryValueExA(reg_key, name, nullptr, &type, (BYTE*) &buf, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
 	{
-		*(BYTE*)out = buf != 0;
+		*(BYTE*) out = buf != 0;
 		return true;
 	}
 	else
 	{
 		RegWrite(name, def);
-		*(BYTE*)out = def;
+		*(BYTE*) out = def;
 		return false;
 	}
 }
@@ -513,14 +534,14 @@ bool RegReadInt(LPCSTR name, void* out, int def)// (F)
 {
 	DWORD cb = 4;
 	DWORD type;
-	if (RegQueryValueExA(reg_key, name, nullptr, &type, (BYTE*)out, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
+	if (RegQueryValueExA(reg_key, name, nullptr, &type, (BYTE*) out, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
 	{
 		return true;
 	}
 	else
 	{
 		RegWriteMulti(name, def);
-		*(int*)out = def;
+		*(int*) out = def;
 		return false;
 	}
 }
@@ -528,10 +549,11 @@ bool RegReadInt(LPCSTR name, void* out, int def)// (F)
 void SaveSettingsDialog(HWND hDlg)
 {
 	CreateKey("System");
-	
+
 	RegWriteMulti("DD", SendMessageA(GetDlgItem(hDlg, IDC_GFXADAPTER), CB_GETCURSEL, 0, 0));
 	RegWriteMulti("D3D", SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), CB_GETCURSEL, 0, 0));
-	RegWriteMulti("VMode", SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTION), CB_GETITEMDATA, SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTION), CB_GETCURSEL, 0, 0), 0));
+	RegWriteMulti("VMode", SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTION), CB_GETITEMDATA,
+	                                    SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTION), CB_GETCURSEL, 0, 0), 0));
 	RegWriteMulti("DS", SendMessageA(GetDlgItem(hDlg, IDC_SNDADAPTER), CB_GETCURSEL, 0, 0));
 	RegWriteMulti("TFormat", SendMessageA(GetDlgItem(hDlg, IDC_TEXRES), CB_GETCURSEL, 0, 0));
 
@@ -554,11 +576,11 @@ void SaveSettings()
 
 void CheckKeyConflicts()// (F)
 {
-	for(int i = 0; i < 18; i++)
+	for (int i = 0; i < 18; i++)
 	{
 		conflict[i] = false;
 
-		for(int j = 0; j < 18; j++)
+		for (int j = 0; j < 18; j++)
 		{
 			if (layout[1][i] == layout[0][i])
 			{
@@ -591,7 +613,7 @@ bool LoadSettings()// (F)
 		RegReadBool("BumpMap", &App.tBumpMap, 1);
 		RegReadBool("Filter", &App.tBilinearFilter, 1);
 		RegReadBool("DisableSound", &App.tDisableSound, 0);
-		RegReadBool("Volumetric" ,&App.tVolumetricShadows, 1);
+		RegReadBool("Volumetric", &App.tVolumetricShadows, 1);
 		RegReadBool("NoFMV", &appsettings.NoFMV, 0);
 
 		bool tmp = false;
@@ -617,7 +639,7 @@ bool LoadSettings()// (F)
 
 	CreateKey("Game");
 
-	for(int i = 0; i < 18; i++)
+	for (int i = 0; i < 18; i++)
 	{
 		int tmp;
 		char buf[6];

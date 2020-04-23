@@ -16,8 +16,11 @@ extern "C" {
 #endif
 
 extern bool game_running;
+
 unsigned __stdcall GameMain(void* data);
+
 void do_boot_screen(int language);
+
 void HWInitialise();
 
 #endif

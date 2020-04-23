@@ -24,9 +24,10 @@ DWORD dword_57A018;
 DWORD dword_51CE58 = 0;
 float flt_878658[32];
 PHD_VECTOR lookatpos;
+
 void InitFX()// (F)
 {
-	if (App.Flags & WA_BACK_BUFFER)  
+	if (App.Flags & WA_BACK_BUFFER)
 	{
 		num_snow_flakes = 2048;
 		num_rain_drops = 2048;
@@ -58,7 +59,7 @@ bool GameInitialise()
 
 	init_game_malloc();
 
-	d9ab34 = (WORD*)malloc(16384 * sizeof(WORD));
+	d9ab34 = (WORD*) malloc(16384 * sizeof(WORD));
 	memset(d9ab34, 0, 16384 * sizeof(WORD));
 
 	App.dword_D9AC38 = 0;
@@ -147,7 +148,7 @@ void HWInitialise()// (F)
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_MIPFILTER, D3DTFP_NONE);
-		
+
 	}
 	else
 	{
@@ -236,42 +237,45 @@ void do_boot_screen(int language)// (F)
 
 	switch (language)
 	{
-	case LNG_ENGLISH:
-	case LNG_DUTCH:
-		DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
-		S_DumpScreen();
-		DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
-		break;
-	case LNG_FRENCH:
-		DDCopyBitmap(App.lpBackBuffer, "france.bmp");
-		S_DumpScreen();
-		DDCopyBitmap(App.lpBackBuffer, "france.bmp");
-		break;
-	case LNG_GERMAN:
-		DDCopyBitmap(App.lpBackBuffer, "germany.bmp");
-		S_DumpScreen();
-		DDCopyBitmap(App.lpBackBuffer, "germany.bmp");
-		break;
-	case LNG_ITALIAN:
-		DDCopyBitmap(App.lpBackBuffer, "italy.bmp");
-		S_DumpScreen();
-		DDCopyBitmap(App.lpBackBuffer, "italy.bmp");
-		break;
-	case LNG_SPANISH:
-		DDCopyBitmap(App.lpBackBuffer, "spain.bmp");
-		S_DumpScreen();
-		DDCopyBitmap(App.lpBackBuffer, "spain.bmp");
-		break;
-	case LNG_US:
-		DDCopyBitmap(App.lpBackBuffer, "usa.bmp");
-		S_DumpScreen();
-		DDCopyBitmap(App.lpBackBuffer, "usa.bmp");
-		break;
-	case LNG_JAPAN:
-		DDCopyBitmap(App.lpBackBuffer, "japan.bmp");
-		S_DumpScreen();
-		DDCopyBitmap(App.lpBackBuffer, "japan.bmp");
-		break;
+		case LNG_ENGLISH:
+		case LNG_DUTCH:
+			DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
+			S_DumpScreen();
+			DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
+			break;
+		case LNG_FRENCH:
+			DDCopyBitmap(App.lpBackBuffer, "france.bmp");
+			S_DumpScreen();
+			DDCopyBitmap(App.lpBackBuffer, "france.bmp");
+			break;
+		case LNG_GERMAN:
+			DDCopyBitmap(App.lpBackBuffer, "germany.bmp");
+			S_DumpScreen();
+			DDCopyBitmap(App.lpBackBuffer, "germany.bmp");
+			break;
+		case LNG_ITALIAN:
+			DDCopyBitmap(App.lpBackBuffer, "italy.bmp");
+			S_DumpScreen();
+			DDCopyBitmap(App.lpBackBuffer, "italy.bmp");
+			break;
+		case LNG_SPANISH:
+			DDCopyBitmap(App.lpBackBuffer, "spain.bmp");
+			S_DumpScreen();
+			DDCopyBitmap(App.lpBackBuffer, "spain.bmp");
+			break;
+		case LNG_US:
+			DDCopyBitmap(App.lpBackBuffer, "usa.bmp");
+			S_DumpScreen();
+			DDCopyBitmap(App.lpBackBuffer, "usa.bmp");
+			break;
+		case LNG_JAPAN:
+			DDCopyBitmap(App.lpBackBuffer, "japan.bmp");
+			S_DumpScreen();
+			DDCopyBitmap(App.lpBackBuffer, "japan.bmp");
+			break;
+		default:
+			assert(false);
+			break;
 	}
 }
 

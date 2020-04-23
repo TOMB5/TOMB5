@@ -34,13 +34,18 @@
 #include <zlib.h>
 #include "CONTROL.H"
 #include "EFFECTS.H"
+#include "SAVEGAME.H"
+#include "PICTURE.H"
+#include "DRAW.H"
+#include "PCSETUP.H"
 
+/*
 #if DEBUG
 #pragma comment(lib, "zlibstaticd.lib")
 #else
 #pragma comment(lib, "zlibstatic.lib")
 #endif
-
+ */
 bool loadBarShown;
 int loadBarMax;
 float loadBarPercent;
@@ -52,13 +57,13 @@ void DebugPrint(const char* message)// (F)
 	static int logCount = 0;
 	char buf[1024];
 	time_t t = time(nullptr);
-	tm tm = *localtime(&t);
+	const tm tm = *localtime(&t);
 
 	sprintf(buf, "[%02d:%02d:%02d] [%6d] ", tm.tm_hour, tm.tm_min, tm.tm_sec, logCount++);
 
 	strcat(buf, message);
 
-	int len = strlen(buf);
+	const int len = strlen(buf);
 
 	if (buf[len - 1] != '\n')
 	{
@@ -73,10 +78,10 @@ void DebugPrint(const char* message)// (F)
 }
 
 
-int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)//7B210, 7D254
+void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number,
+                      long objheight)//7B210, 7D254
 {
 	UNIMPLEMENTED();
-	return 0;
 }
 
 
@@ -84,20 +89,19 @@ int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, sh
 //extern "C" {
 #endif
 
-	
 
 void S_Warn(const char* warning_message, ...)// (F)
 {
 	char buf[1024];
 	time_t t = time(nullptr);
-	tm tm = *localtime(&t);
+	const tm tm = *localtime(&t);
 
 	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
 
 	va_list argptr;
-	va_start(argptr, warning_message);
+			va_start(argptr, warning_message);
 	vsprintf(buf, warning_message, argptr);
-	va_end(argptr);
+			va_end(argptr);
 
 	Log_backend(LT_Info, buf);
 
@@ -124,8 +128,7 @@ void S_CDStop(void)
 		memset(wave_file_buf, 0, 225280);
 		ACMSoundBuffer->Stop();
 		ACMSoundBuffer->SetCurrentPosition(0);
-		while (byte_57A01C)
-			;
+		while (byte_57A01C);
 		fclose(acm_file_stream);
 		acm_file_stream = 0;
 		dword_57A018 = 0;
@@ -136,18 +139,13 @@ void S_CDStop(void)
 
 void S_SoundStopSample(sint32 handle)// (F)
 {
-	if (!sound_active)
-		return;
-
 	DS_StopSample(handle);
 }
 
 void S_SoundStopAllSamples(void)// (F)
 {
-	if (!sound_active)
-		return;
-
-	DS_StopAllSamples();
+	for (int i = 0; i < 32; i++)
+		DS_StopSample(i);
 }
 
 int WeirdWaitThingy()// (F)
@@ -156,9 +154,9 @@ int WeirdWaitThingy()// (F)
 	return Sync();
 }
 
-void		S_DumpScreenFrame()// (F)
+void S_DumpScreenFrame()// (F)
 {
-	int last = Sync();
+	const int last = Sync();
 	if (last < 1)
 	{
 		int rev = 1 - last;
@@ -176,10 +174,10 @@ void		S_DumpScreenFrame()// (F)
 	App.sceneDone = true;
 }
 
-long		S_DumpScreen()
+long S_DumpScreen()
 {
 	// todo
-	int last = Sync();
+	const int last = Sync();
 	int off = last;
 	if (last < 2)
 	{
@@ -195,7 +193,7 @@ long		S_DumpScreen()
 
 	if (!keymap[DIK_D])
 		DrawDebugPost();
-	
+
 	//ShowDebugInfo();
 
 	EndScene();
@@ -256,10 +254,12 @@ void UpdateLoadBar()// (F)
 {
 	loadBarPercent += 100.0 / loadBarMax;
 }
+
 void S_LoadBar()// (F)
 {
 	UpdateLoadBar();
 }
+
 void S_InitLoadBar(int size)// (F)
 {
 	loadBarPercent = 0.0;
@@ -284,42 +284,42 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tex.attribute = OT_ALL_OPAQUE;
 	tex.tile_and_flag = 0;
 
-	float xfactor = phd_winxmax / 640.0;
-	float yfactor = phd_winymax / 480.0;
+	const float xfactor = phd_winxmax / 640.0;
+	const float yfactor = phd_winymax / 480.0;
 
-	float real_x = x * xfactor;
-	float real_y = y * yfactor;
-	float real_w = w * xfactor;
-	float real_h = h * yfactor;
+	const float real_x = x * xfactor;
+	const float real_y = y * yfactor;
+	const float real_w = w * xfactor;
+	const float real_h = h * yfactor;
 
-	float real_y_middle = real_y + real_h / 2.0;
-	float real_y_bottom = real_y + real_h;
-	float real_x_right = real_x + real_w;
+	const float real_y_middle = real_y + real_h / 2.0;
+	const float real_y_bottom = real_y + real_h;
+	const float real_x_right = real_x + real_w;
 
-	float sznorm = pc / 100.0;
-	float w_filled = real_w * sznorm;
-	float real_x_right_fill = w_filled + real_x;
+	const float sznorm = pc / 100.0;
+	const float w_filled = real_w * sznorm;
+	const float real_x_right_fill = w_filled + real_x;
 
-	float rhw = f_persp / f_znear * f_oneopersp;
-	float rhw_2 = f_persp / (f_znear + 1.0) * f_oneopersp;
+	const float rhw = f_persp / f_znear * f_oneopersp;
+	const float rhw_2 = f_persp / (f_znear + 1.0) * f_oneopersp;
 
-	BYTE red1 = RGBA_GETRED(color1);
-	BYTE green1 = RGBA_GETGREEN(color1);
-	BYTE blue1 = RGBA_GETBLUE(color1);
+	const BYTE red1 = RGBA_GETRED(color1);
+	const BYTE green1 = RGBA_GETGREEN(color1);
+	const BYTE blue1 = RGBA_GETBLUE(color1);
 
-	int real_red1 = red1, real_green1 = green1, real_blue1 = blue1;
-	D3DCOLOR real_color1 = RGBONLY(real_red1, real_green1, real_blue1);
-	D3DCOLOR real_color1d = RGBONLY(real_red1 & ~1, real_green1 & ~1, real_blue1 & ~1);
+	const int real_red1 = red1, real_green1 = green1, real_blue1 = blue1;
+	const D3DCOLOR real_color1 = RGBONLY(real_red1, real_green1, real_blue1);
+	const D3DCOLOR real_color1d = RGBONLY(real_red1 & ~1, real_green1 & ~1, real_blue1 & ~1);
 
-	BYTE red2 = RGBA_GETRED(color2);
-	BYTE green2 = RGBA_GETGREEN(color2);
-	BYTE blue2 = RGBA_GETBLUE(color2);
+	const BYTE red2 = RGBA_GETRED(color2);
+	const BYTE green2 = RGBA_GETGREEN(color2);
+	const BYTE blue2 = RGBA_GETBLUE(color2);
 
-	int real_red2 = SCALE_CLR(red1, red2, sznorm);
-	int real_green2 = SCALE_CLR(green1, green2, sznorm);
-	int real_blue2 = SCALE_CLR(blue1, blue2, sznorm);
-	D3DCOLOR real_color2 = RGBONLY(real_red2, real_green2, real_blue2);
-	D3DCOLOR real_color2d = RGBONLY(real_red2 & ~1, real_green2 & ~1, real_blue2 & ~1);
+	const int real_red2 = SCALE_CLR(red1, red2, sznorm);
+	const int real_green2 = SCALE_CLR(green1, green2, sznorm);
+	const int real_blue2 = SCALE_CLR(blue1, blue2, sznorm);
+	const D3DCOLOR real_color2 = RGBONLY(real_red2, real_green2, real_blue2);
+	const D3DCOLOR real_color2d = RGBONLY(real_red2 & ~1, real_green2 & ~1, real_blue2 & ~1);
 
 	tlvert[0].sx = real_x;
 	tlvert[1].sx = real_x_right_fill;
@@ -330,7 +330,7 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tlvert[1].sy = real_y;
 	tlvert[2].sy = real_y_middle;
 	tlvert[3].sy = real_y_middle;
-	
+
 	tlvert[0].sz = f_znear; // todo, in the original they wrote that to sx which is wrong i guess
 	tlvert[1].sz = f_znear;
 	tlvert[2].sz = f_znear;
@@ -341,15 +341,15 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tlvert[2].specular = RGB_MAKE(0, 0, 0);
 	tlvert[3].specular = RGB_MAKE(0, 0, 0);
 
-	tlvert[0].rhw = rhw;	
+	tlvert[0].rhw = rhw;
 	tlvert[1].rhw = rhw;
-	tlvert[2].rhw = rhw;	
+	tlvert[2].rhw = rhw;
 	tlvert[3].rhw = rhw;
 
 	tlvert[0].color = real_color1d;
 	tlvert[1].color = real_color2d;
 	tlvert[2].color = real_color1;
-	tlvert[3].color = real_color2;	
+	tlvert[3].color = real_color2;
 
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 
@@ -358,14 +358,14 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tlvert[2].sy = real_y_bottom;
 	tlvert[3].sy = real_y_bottom;
 
-	tlvert[0].color = real_color1;	
+	tlvert[0].color = real_color1;
 	tlvert[1].color = real_color2;
 	tlvert[2].color = real_color1d;
 	tlvert[3].color = real_color2d;
 
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 
-	tlvert[0].sx = real_x; 
+	tlvert[0].sx = real_x;
 	tlvert[1].sx = real_x_right;
 	tlvert[2].sx = real_x;
 	tlvert[3].sx = real_x_right;
@@ -392,16 +392,16 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 
-	tlvert[0].sx = real_x - 1.0;	
+	tlvert[0].sx = real_x - 1.0;
 	tlvert[1].sx = real_x_right + 1.0;
 	tlvert[2].sx = real_x - 1.0;
 	tlvert[3].sx = real_x_right + 1.0;
-	
+
 	tlvert[0].sy = real_y - 1.0;
 	tlvert[1].sy = real_y - 1.0;
 	tlvert[2].sy = real_y_bottom + 1.0;
 	tlvert[3].sy = real_y_bottom + 1.0;
-	
+
 	tlvert[0].sz = f_znear + 2.0;
 	tlvert[1].sz = f_znear + 2.0;
 	tlvert[2].sz = f_znear + 2.0;
@@ -436,22 +436,22 @@ void SuperShowLogo()// (F)
 	tlvert[2].rhw = f_oneoznear;
 	tlvert[3].rhw = f_oneoznear;
 
-	float x = 64.0;
-	float y = 0.0;
-	float width = 256.0;
-	float height = 256.0;
+	const float x = 64.0;
+	const float y = 0.0;
+	const float width = 256.0;
+	const float height = 256.0;
 
-	float xfactor = phd_winxmax / 640.0;
-	float yfactor = phd_winymax / 480.0;
+	const float xfactor = phd_winxmax / 640.0;
+	const float yfactor = phd_winymax / 480.0;
 
-	float real_width = width * xfactor;
-	float real_height = height * yfactor;
+	const float real_width = width * xfactor;
+	const float real_height = height * yfactor;
 
-	float real_x = phd_winxmin + x * xfactor;
-	float real_x_right = real_x + real_width;
+	const float real_x = phd_winxmin + x * xfactor;
+	const float real_x_right = real_x + real_width;
 
-	float real_y = phd_winymin + y * yfactor;
-	float real_y_bottom = real_y + real_height;
+	const float real_y = phd_winymin + y * yfactor;
+	const float real_y_bottom = real_y + real_height;
 
 	tlvert[0].sx = real_x;
 	tlvert[1].sx = real_x_right;
@@ -487,7 +487,7 @@ void SuperShowLogo()// (F)
 
 	tex.attribute = OT_ALPHA_TESTING;
 	tex.new_flags = 0;
-	tex.tile_and_flag = false ? cur_tpage : (num_pages - 5);
+	tex.tile_and_flag = num_pages - 5;
 
 	tex.vertices[0].x = 1 / 256.0;
 	tex.vertices[0].y = 1 / 256.0;
@@ -535,7 +535,7 @@ void SuperShowLogo()// (F)
 
 	tex.attribute = OT_ALPHA_TESTING;
 	tex.new_flags = 0;
-	tex.tile_and_flag = false ? (cur_tpage + 1) : (num_pages - 4);
+	tex.tile_and_flag = num_pages - 4;
 
 	tex.vertices[0].x = 1 / 256.0;
 	tex.vertices[0].y = 1 / 256.0;
@@ -561,7 +561,7 @@ bool S_DrawLoadBar()
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
-	
+
 	DoBar(170, 480 - font_height, 300, 10, loadBar2, RGB_MAKE(0, 0, 16), RGB_MAKE(0, 0, 240));
 
 	SortPolyList(surfacenumbf, sort3d_bufferbf);
@@ -572,10 +572,7 @@ bool S_DrawLoadBar()
 
 	if (loadBar2 >= loadBarPercent)
 	{
-		if (loadBarMax > loadBarPercent)
-			return false;
-
-		return true;
+		return loadBarMax <= loadBarPercent;
 	}
 
 	loadBar2 += 2.0;
@@ -591,8 +588,8 @@ bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)// (F)
 	Zero(strm);
 	strm.avail_in = compSize;
 	strm.avail_out = uncompSize;
-	strm.next_out = (BYTE *)buf;
-	strm.next_in = (BYTE *)compressed;
+	strm.next_out = (BYTE*) buf;
+	strm.next_in = (BYTE*) compressed;
 
 	inflateInit(&strm);
 	inflate(&strm, Z_FINISH);
@@ -620,7 +617,7 @@ void SetFogColor(uint8_t r, uint8_t g, uint8_t b)// (F)
 
 void ClearFXFogBulbs()// (F)
 {
-	
+
 }
 
 DWORD dword_C87BF0;
@@ -658,11 +655,11 @@ void S_AnimateTextures(long nFrames)// to test
 
 	while (AnimComp > 5)
 	{
-		uint16_t* ptr = AnimTextureRanges;
+		uint16_t* ptr = App.AnimTextureRanges;
 
 		for (uint16_t i = *(ptr++); i > 0; i--, ptr++)
 		{
-			OBJECT_TEXTURE tmp = object_textures[*(ptr + 1)];
+			const OBJECT_TEXTURE tmp = object_textures[*(ptr + 1)];
 
 			for (uint16_t j = *ptr++; j > 0; j--, ptr++)
 			{
@@ -677,15 +674,15 @@ void S_AnimateTextures(long nFrames)// to test
 
 	if (gfUVRotate) // 19d8
 	{
-		uint16_t* t3 = AnimTextureRanges;
+		uint16_t* t3 = App.AnimTextureRanges;
 		AnimatingTexturesVOffset = (AnimatingTexturesVOffset - gfUVRotate * (nFrames / 2)) & 0x1f;
 		if (nAnimUVRanges > 0)
 		{
-			short(*t2)[8][3] = AnimatingTexturesV;
+			short(* t2)[8][3] = AnimatingTexturesV;
 
 			for (int i = 0; i < nAnimUVRanges; i++, t2++)
 			{
-				unsigned short num = *t3++;
+				const unsigned short num = *t3++;
 				if (num > 0)
 				{
 					short* t1 = t2[i][num];
@@ -694,7 +691,7 @@ void S_AnimateTextures(long nFrames)// to test
 					{
 
 						OBJECT_TEXTURE* v18 = &object_textures[*t3];
-						double v19 = AnimatingTexturesVOffset / 256.0;
+						const double v19 = AnimatingTexturesVOffset / 256.0;
 						v18->vertices[0].y = v19 + t1[3];
 						v18->vertices[1].y = v19 + t1[3];
 						v18->vertices[2].y = v19 + t1[3] + 0.125;
@@ -709,12 +706,12 @@ void S_AnimateTextures(long nFrames)// to test
 void DrawPsxTile(long a1, long a2, long a3)
 {
 	Log(LT_Enter, "DrawPsxTile %6d %6d %6d", a1, a2, a3);
-	
+
 	e4b100 = 6;
-	
+
 	uint16 blend; // si
 	unsigned int color; // eax
-	
+
 	if ((a3 & 0xFF000000) == 0x62000000)
 	{
 		blend = OT_ALPHA_BLENDING_INV;
@@ -733,12 +730,12 @@ void DrawPsxTile(long a1, long a2, long a3)
 		z += 10.0;
 		rhw += 50.0;
 	}
-	
-	double v10 = a2 + 1.0 + (a1 >> 16);
-	double v11 = (a2 >> 16) + 1.0 + a1;
+
+	const double v10 = a2 + 1.0 + (a1 >> 16);
+	const double v11 = (a2 >> 16) + 1.0 + a1;
 
 	D3DTLVERTEX v[4]; // [esp+1Ch] [ebp-A8h]
-	
+
 	v[0].sx = a1 >> 16;
 	v[1].sx = v10;
 	v[2].sx = v10;
@@ -758,22 +755,22 @@ void DrawPsxTile(long a1, long a2, long a3)
 	v[1].specular = ARGB(255, 0, 0, 0);
 	v[2].specular = ARGB(255, 0, 0, 0);
 	v[3].specular = ARGB(255, 0, 0, 0);
-	
+
 	v[0].rhw = rhw;
 	v[1].rhw = rhw;
 	v[2].rhw = rhw;
 	v[3].rhw = rhw;
-	
+
 	v[0].color = color;
 	v[1].color = color;
 	v[2].color = color;
 	v[3].color = color;
 
 	OBJECT_TEXTURE tex; // [esp+9Ch] [ebp-28h]
-	
+
 	tex.attribute = blend;
 	tex.new_flags = 0;
-	
+
 	tex.tile_and_flag = 0;
 
 	d9ab34[0] = 0;
@@ -787,7 +784,7 @@ void DrawPsxTile(long a1, long a2, long a3)
 void DoScreenFade()
 {
 	dword_C86BE8 += dword_C713D4;
-	if (dword_C713DC >= 8)
+	if (++dword_C713DC >= 8)
 		dword_C87BF0 = 2;
 
 	d9ab34[0] = 0;
@@ -869,7 +866,7 @@ void S_OutputPolyList()
 
 	if (FadeScreenHeight != 0)
 	{
-		int height = phd_winymax / 256.0 * FadeScreenHeight;
+		const int height = phd_winymax / 256.0 * FadeScreenHeight;
 		DrawPsxTile(0, phd_winwidth | (height << 16), RGBA(255, 255, 255, 0x62));
 		DrawPsxTile(phd_winheight - height, phd_winwidth | (height << 16), RGBA(255, 255, 255, 0x62));
 	}
@@ -898,7 +895,7 @@ void S_OutputPolyList()
 
 	if (++dword_921684 == 2)
 	{
-		if (keymap[DIK_B])                         
+		if (keymap[DIK_B])
 			App.tBumpMap = App.tBumpMap != 1;
 		dword_921684 = 0;
 	}
@@ -908,19 +905,28 @@ void S_OutputPolyList()
 	Log(LT_Info, "S_OutputPolyList - RENDER END");
 }
 
+ITEM_INFO stru_8796C8;
+int dword_87B0DC;
+
 void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
 {
-	Unimpl();
+	stru_8796C8.il.room_ambient.rgbcd = room->ambient.rgbcd;
+	stru_8796C8.ambient_light_pos.x = x;
+	stru_8796C8.ambient_light_pos.y = y;
+	stru_8796C8.ambient_light_pos.z = z;
+	stru_8796C8.room_number = CurrentRoom;
+	dword_87B0DC = shade;
+	dword_9158A8 = &stru_8796C8;
 }
 
 void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)// (F)
 {
-	
+
 }
 
 void S_CDLoop()// (F)
 {
-	
+
 }
 
 int S_LoadSave(int input, int in_inventory)
@@ -929,23 +935,67 @@ int S_LoadSave(int input, int in_inventory)
 	return 0;
 }
 
-int S_DisplayPauseMenu(int a1)
-{
-	Unimpl(); 
-	return 0;
-}
+DWORD dword_51CF20 = 0;
+DWORD dword_8FBDB8;
+DWORD dword_8FBDBC;
 
-	int S_PauseMenu()
+int S_PauseMenu()
 {
-	Unimpl();
-	return 0;
+	int v1; // esi
+
+	signed int v0 = 0;
+	CreateMonoScreen();
+	S_DisplayPauseMenu(1);
+	dword_51CF20 = 1;
+	dword_8FBDBC = 1;
+	do
+	{
+		GPU_BeginScene();
+		if (v0)
+			dbinput = 0;
+		else
+			S_UpdateInput();
+		SetDebounce = 1;
+		DisplayMonoScreen();
+		v1 = S_DisplayPauseMenu(0);
+		UpdatePulseColour();
+		S_OutputPolyList();
+		S_DumpScreen();
+
+		if (v1 == 1)
+			break;
+		if (v1 == 8)
+		{
+			v0 = 8;
+			v1 = 0;
+			SetFade(0, 255);
+		}
+		else if (!v0)
+		{
+			continue;
+		}
+		if (dword_C87BF0 == 2)
+		{
+			v1 = v0;
+			break;
+		}
+	} while (!thread_started);
+
+	dword_8FBDBC = 0;
+
+	TIME_Init();
+	FreeMonoScreen();
+
+	dword_51CF20 = 0;
+	return v1;
 }
 
 void S_DrawAirBar(int size)// (F)
 {
 	if (gfCurrentLevel != LVL5_TITLE)
 	{
-		DoBar(490 - font_height / 4, font_height / 2 + font_height / 4 + 32, 150, 12, size, RGBONLY(0, 0, 160), RGBONLY(0, 80, 160));
+		DoBar(490 - font_height / 4, font_height / 2 + font_height / 4 + 32, 150, 12, size, RGBONLY(0, 0, 160),
+		      RGBONLY(0, 80, 160));
 	}
 }
 
@@ -977,16 +1027,18 @@ void S_DrawHealthBar2(int size)// (F)
 
 void S_CDFade(int a1)// (F)
 {
-	
+
 }
 
-int		S_StartSyncedAudio(int num)
+void S_StartSyncedAudio(int num)// (F)
 {
-		Unimpl();
-		return 0;
+	S_CDStop();
+	S_CDPlay(num, 2);
 }
 
-LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *buf, void(*a5)(uchar *, uchar *, uchar *, uchar *), int bpp)
+LPDIRECTDRAWSURFACE4
+CreateTexturePage(int width, int height, int mipmaps, int* buf, void(* a5)(uchar*, uchar*, uchar*, uchar*),
+                  int bpp)
 {
 	DDSURFACEDESC2 desc;
 	DXInit(desc);
@@ -1023,13 +1075,13 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 	{
 		if (bpp == 0)
 		{
-			auto sptr = (BYTE*)desc.lpSurface;
+			auto sptr = (BYTE*) desc.lpSurface;
 
 			for (int y = 0; y < desc.dwHeight; y++)
 			{
 				for (int x = 0; x < desc.dwWidth; x++)
 				{
-					auto ptr = (BYTE*)buf;
+					auto ptr = (BYTE*) buf;
 
 					auto b = ptr[0];// todo inverted r&b in original
 					auto g = ptr[1];
@@ -1042,14 +1094,14 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 					}
 
 					DWORD color =
-						r >> (8 - CUR_TEX.rbpp) << CUR_TEX.rshift |
-						g >> (8 - CUR_TEX.gbpp) << CUR_TEX.gshift |
-						b >> (8 - CUR_TEX.bbpp) << CUR_TEX.bshift |
-						a >> (8 - CUR_TEX.abpp) << CUR_TEX.ashift;
+							r >> (8 - CUR_TEX.rbpp) << CUR_TEX.rshift |
+							g >> (8 - CUR_TEX.gbpp) << CUR_TEX.gshift |
+							b >> (8 - CUR_TEX.bbpp) << CUR_TEX.bshift |
+							a >> (8 - CUR_TEX.abpp) << CUR_TEX.ashift;
 
 					if (CUR_TEX.bpp > 0)
 					{
-						for(int i = 0; i < (CUR_TEX.bpp + 7) / 8; i++)
+						for (int i = 0; i < (CUR_TEX.bpp + 7) / 8; i++)
 						{
 							*sptr++ = color;
 							color >>= 8;
@@ -1064,8 +1116,8 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 		{
 			if (bpp == 2)
 			{
-				auto ptr = (WORD*)buf;
-				auto sptr = (WORD*)desc.lpSurface;
+				auto ptr = (WORD*) buf;
+				auto sptr = (WORD*) desc.lpSurface;
 
 				for (int y = 0; y < desc.dwHeight; y++)
 				{
@@ -1082,8 +1134,8 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 			}
 			else if (bpp == 1)
 			{
-				auto ptr = (DWORD*)buf;
-				auto sptr = (DWORD*)desc.lpSurface;
+				auto ptr = (DWORD*) buf;
+				auto sptr = (DWORD*) desc.lpSurface;
 
 				for (int y = 0; y < desc.dwHeight; y++)
 				{
@@ -1111,7 +1163,7 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 	return surf;
 }
 
-void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate)
+void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate, long* bone, int flag)
 {
 	UNIMPLEMENTED();
 }
@@ -1130,21 +1182,21 @@ enum
 };
 
 DWORD selected_menu_prev = 0;
+DWORD selected_menu = 1;
 DWORD dword_51CE44 = 0;
 DWORD dword_51CE0C = 0;
 DWORD unk_51CE3C = 0;
 DWORD dword_51CE40 = 0;
-DWORD selected_menu = 1;
 DWORD qword_5082F4 = 1;
 DWORD dword_51CE50 = 0;
 DWORD unk_51CE2A = 0;
 BYTE byte_5082C8[40] =
-{
-	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
-	0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
+		{
+				0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+				0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+				0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+		};
 
 int DoCredits()
 {
@@ -1200,13 +1252,15 @@ int TitleOptions()
 	{
 		if (dword_C87BF0 == 2)
 		{
+			gfLevelComplete = dword_51CE0C;
 			dword_51CE0C = 0;
+			const int res = dword_51CE44;
 			dword_51CE44 = 0;
 			unk_51CE3C = 0;
 			dword_51CE40 = 0;
-			gfLevelComplete = dword_51CE0C;
+
 			selected_menu = 1;
-			return dword_51CE44;
+			return res;
 		}
 		input = 0;
 		dbinput = 0;
@@ -1229,132 +1283,132 @@ int TitleOptions()
 	{
 		switch (dword_51CE40)
 		{
-		case 0:
-			goto LABEL_37;
-		case 1:
-			PrintString(
-				phd_centerx,
-				font_height + phd_winymin,
-				6,
-				&gfStringWad[gfStringOffset[STR_SELECT_LEVEL]],
-				FF_CENTER);
-			v5 = font_height + font_height + phd_winymin;
-			if (Gameflow->nLevels >= 10)
-			{
-				DWORD v7 = selected_menu;
-				i = 10;
-				int v8;
-				for (v8 = 0; v7; ++v8)
-					v7 >>= 1;
-				v6 = v8 - 9;
-				if (v8 - 9 >= 1)
+			case 0:
+				goto LABEL_37;
+			case 1:
+				PrintString(
+						phd_centerx,
+						font_height + phd_winymin,
+						6,
+						&gfStringWad[gfStringOffset[STR_SELECT_LEVEL]],
+						FF_CENTER);
+				v5 = font_height + font_height + phd_winymin;
+				if (Gameflow->nLevels >= 10)
 				{
-					if (v8 - 9 > 1)
+					DWORD v7 = selected_menu;
+					i = 10;
+					int v8;
+					for (v8 = 0; v7; ++v8)
+						v7 >>= 1;
+					v6 = v8 - 9;
+					if (v8 - 9 >= 1)
 					{
-						PrintString(32, v5 + font_height, 6, "\x18", 0);
-						PrintString(phd_winxmax - 48, v5 + font_height, 6, "\x18", 0);
+						if (v8 - 9 > 1)
+						{
+							PrintString(32, v5 + font_height, 6, "\x18", 0);
+							PrintString(phd_winxmax - 48, v5 + font_height, 6, "\x18", 0);
+						}
+					}
+					else
+					{
+						v6 = 1;
+					}
+					if (v8 != Gameflow->nLevels - 1)
+					{
+						PrintString(32, v5 + 10 * font_height, 6, "\x1A", 0);
+						PrintString(phd_winxmax - 48, v5 + 10 * font_height, 6, "\x1A", 0);
 					}
 				}
 				else
 				{
 					v6 = 1;
+					i = Gameflow->nLevels - 1;
 				}
-				if (v8 != Gameflow->nLevels - 1)
+				v22 = v6;
+				v26 = i + v6;
+				if (v6 < i + v6)
 				{
-					PrintString(32, v5 + 10 * font_height, 6, "\x1A", 0);
-					PrintString(phd_winxmax - 48, v5 + 10 * font_height, 6, "\x1A", 0);
+					int v9 = v6 - 1;
+					while (1)
+					{
+						v5 += font_height;
+						if (selected_menu & (1 << v9))
+							v24 = 1;
+						else
+							v24 = 3 - (byte_5082C8[v22 - 1] != 0);
+						PrintString(
+								phd_centerx,
+								v5,
+								v24,
+								&gfStringWad[gfStringOffset[gfLevelNames[v9 + 1]]],
+								FF_CENTER);
+						if (selected_menu & (1 << v9))
+							dword_51CE50 = v9;
+						++v9;
+						if (++v22 >= v26)
+							break;
+					}
 				}
-			}
-			else
-			{
-				v6 = 1;
-				i = Gameflow->nLevels - 1;
-			}
-			v22 = v6;
-			v26 = i + v6;
-			if (v6 < i + v6)
-			{
-				int v9 = v6 - 1;
-				while (1)
+				v1 = 0;
+				max_menu = 1i64 << (Gameflow->nLevels - 2);
+				break;
+			case 2:
+				if (Gameflow->LoadSaveEnabled)
 				{
-					v5 += font_height;
-					if (selected_menu & (1 << v9))
-						v24 = 1;
-					else
-						v24 = 3 - (byte_5082C8[v22 - 1] != 0);
-					PrintString(
-						phd_centerx,
-						v5,
-						v24,
-						&gfStringWad[gfStringOffset[gfLevelNames[v9 + 1]]],
-						FF_CENTER);
-					if (selected_menu & (1 << v9))
-						dword_51CE50 = v9;
-					++v9;
-					if (++v22 >= v26)
-						break;
+					const signed int v10 = DoLoadSave(0x800000);
+					if (v10 >= 0)
+					{
+						S_LoadGame(v10);
+						v1 = 2;
+					}
 				}
-			}
-			v1 = 0;
-			max_menu = 1i64 << (Gameflow->nLevels - 2);
-			break;
-		case 2:
-			if (Gameflow->LoadSaveEnabled)
-			{
-				signed int v10 = DoLoadSave(0x800000);
-				if (v10 >= 0)
+				else
 				{
-					S_LoadGame(v10);
-					v1 = 2;
-				}
-			}
-			else
-			{
-				SoundEffect(SFX_LARA_NO, nullptr, SFX_ALWAYS);
-				dword_51CE40 = 0;
-			LABEL_37:
-				const int v11 = phd_winymax - 4 * font_height;
-				SuperShowLogo();
-				Chris_Menu = 0;
+					SoundEffect(SFX_LARA_NO, nullptr, SFX_ALWAYS);
+					dword_51CE40 = 0;
+					LABEL_37:
+					const int v11 = phd_winymax - 4 * font_height;
+					SuperShowLogo();
+					Chris_Menu = 0;
 
-				PrintString(
-					phd_centerx, 
-					v11,
-					(selected_menu & 1) ? 1 : 2,
-					&gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], 
-					FF_CENTER);
-				
-				PrintString(
-					phd_centerx,
-					v11 + font_height,
-					(selected_menu & 2) ? 1 : 2,
-					&gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]],
-					FF_CENTER);
-				
-				PrintString(
-					phd_centerx,
-					v11 + 2 * font_height,
-					(selected_menu & 4) ? 1 : 2,
-					&gfStringWad[gfStringOffset[STR_OPTIONS]],
-					FF_CENTER);
-				
-				PrintString(
-					phd_centerx,
-					v11 + 2 * font_height + font_height,
-					(selected_menu & 8) ? 1 : 2,
-					&gfStringWad[gfStringOffset[STR_EXIT]],
-					FF_CENTER);
-				
-				max_menu = 8;
-			}
-			break;
-		case 3:
-			DoOptions();
-			break;
-		default:
-			break;
+					PrintString(
+							phd_centerx,
+							v11,
+							(selected_menu & 1) ? 1 : 2,
+							&gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]],
+							FF_CENTER);
+
+					PrintString(
+							phd_centerx,
+							v11 + font_height,
+							(selected_menu & 2) ? 1 : 2,
+							&gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]],
+							FF_CENTER);
+
+					PrintString(
+							phd_centerx,
+							v11 + 2 * font_height,
+							(selected_menu & 4) ? 1 : 2,
+							&gfStringWad[gfStringOffset[STR_OPTIONS]],
+							FF_CENTER);
+
+					PrintString(
+							phd_centerx,
+							v11 + 2 * font_height + font_height,
+							(selected_menu & 8) ? 1 : 2,
+							&gfStringWad[gfStringOffset[STR_EXIT]],
+							FF_CENTER);
+
+					max_menu = 8;
+				}
+				break;
+			case 3:
+				DoOptions();
+				break;
+			default:
+				break;
 		}
-		
+
 		if (dword_51CE40 < 2)
 		{
 			if (dbinput & IN_FORWARD)
@@ -1364,10 +1418,10 @@ int TitleOptions()
 					selected_menu >>= 1;
 					qword_5082F4 >>= 1;
 				}
-				
+
 				SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
 			}
-			
+
 			if (dbinput & IN_BACK)
 			{
 				if (selected_menu < max_menu)
@@ -1375,11 +1429,11 @@ int TitleOptions()
 					selected_menu <<= 1;
 					qword_5082F4 <<= 1;
 				}
-				
+
 				SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
 			}
 		}
-		
+
 		if (dbinput & IN_DESELECT)
 		{
 			v18 = dword_51CE40 == 0;
@@ -1391,7 +1445,7 @@ int TitleOptions()
 			SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
 		}
 		v18 = dword_51CE40 == 0;
-	LABEL_60:
+		LABEL_60:
 		if (v18)
 		{
 			const int v19 = GetCampaignCheatValue();
@@ -1427,35 +1481,35 @@ int TitleOptions()
 			{
 				switch (selected_menu)
 				{
-				case 1u:
-					if (Gameflow->PlayAnyLevel)
-					{
+					case 1u:
+						if (Gameflow->PlayAnyLevel)
+						{
+							selected_menu_prev = selected_menu;
+							dword_51CE40 = 1;
+						}
+						else
+						{
+							gfLevelComplete = 1;
+							v1 = 3;
+						}
+						break;
+					case 2u:
+						GetSaveLoadFiles();
 						selected_menu_prev = selected_menu;
-						dword_51CE40 = 1;
-					}
-					else
-					{
-						gfLevelComplete = 1;
-						v1 = 3;
-					}
-					break;
-				case 2u:
-					GetSaveLoadFiles();
-					selected_menu_prev = selected_menu;
-					dword_51CE40 = 2;
-					break;
-				case 3u:
-				case 5u:
-				case 6u:
-				case 7u:
-					break;
-				case 4u:
-					selected_menu_prev = selected_menu;
-					dword_51CE40 = 3;
-					break;
-				case 8u:
-					v1 = 4;
-					break;
+						dword_51CE40 = 2;
+						break;
+					case 3u:
+					case 5u:
+					case 6u:
+					case 7u:
+						break;
+					case 4u:
+						selected_menu_prev = selected_menu;
+						dword_51CE40 = 3;
+						break;
+					case 8u:
+						v1 = 4;
+						break;
 				}
 			}
 		}
@@ -1478,27 +1532,27 @@ void updateAnimFrame(PACKNODE* node, int flags, short* frame)// (F)
 {
 	frame[7] = 3 * node->yrot_run;
 
-	short x = 3 * node->xrot_run;
-	short z = 3 * node->zrot_run;
+	const short x = 3 * node->xrot_run;
+	const short z = 3 * node->zrot_run;
 
 	switch (cutrot)
 	{
-	case 0:
-		frame[6] = x;
-		frame[8] = z;
-		break;
-	case 1:
-		frame[6] = z;
-		frame[8] = -x;
-		break;
-	case 2:
-		frame[6] = -x;
-		frame[8] = -z;
-		break;
-	case 3:
-		frame[6] = -z;
-		frame[8] = x;
-		break;
+		case 0:
+			frame[6] = x;
+			frame[8] = z;
+			break;
+		case 1:
+			frame[6] = z;
+			frame[8] = -x;
+			break;
+		case 2:
+			frame[6] = -x;
+			frame[8] = -z;
+			break;
+		case 3:
+			frame[6] = -z;
+			frame[8] = x;
+			break;
 	}
 
 	short* next = frame + 9;
@@ -1506,12 +1560,12 @@ void updateAnimFrame(PACKNODE* node, int flags, short* frame)// (F)
 	for (int i = 1; i < flags; i++, next += 2)
 	{
 		short x = node[i].yrot_run;
-		short y = node[i].zrot_run;
-		short z = node[i].xrot_run;
+		const short y = node[i].zrot_run;
+		const short z = node[i].xrot_run;
 
 		if (cutrot && i == 1)
 		{
-			x = (x + ((short)cutrot << 8)) & 0x3FF;
+			x = (x + ((short) cutrot << 8)) & 0x3FF;
 		}
 
 		next[0] = (y | ((x | (z << 10)) << 10)) >> 16;
@@ -1533,35 +1587,497 @@ void PlayFmvNow(int num)
 {
 	switch (num)
 	{
-	case 0:
-		PlayFMV(0);
-		break;
-	case 1:
-		PlayFMV(1);
-		break;
-	case 2:
-		PlayFMV(2);
-		break;
-	case 3:
-		PlayFMV(3);
-		PlayFMV(4);
-		break;
-	case 4:
-		PlayFMV(5);
-		PlayFMV(6);
-		break;
-	case 5:
-		PlayFMV(7);
-		break;
-	case 6:
-		PlayFMV(8);
-		break;
+		case 0:
+			PlayFMV(0);
+			break;
+		case 1:
+			PlayFMV(1);
+			break;
+		case 2:
+			PlayFMV(2);
+			break;
+		case 3:
+			PlayFMV(3);
+			PlayFMV(4);
+			break;
+		case 4:
+			PlayFMV(5);
+			PlayFMV(6);
+			break;
+		case 5:
+			PlayFMV(7);
+			break;
+		case 6:
+			PlayFMV(8);
+			break;
 	}
 }
+
+void DoStatScreen()
+{
+	const DWORD y = phd_centery - 4 * font_height;
+	PrintString(
+			phd_centerx,
+			y,
+			6u,
+			&gfStringWad[gfStringOffset[STR_STATISTICS]],
+			FF_CENTER);
+	PrintString(
+			phd_centerx,
+			y + 2 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[gfLevelNames[gfCurrentLevel]]],
+			FF_CENTER);
+	PrintString(
+			phd_centerx >> 2,
+			y + 2 * font_height + font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_TIME_TAKEN]],
+			FF_NONE);
+	PrintString(
+			phd_centerx >> 2,
+			y + 4 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_DISTANCE_TRAVELLED]],
+			FF_NONE);
+	PrintString(
+			phd_centerx >> 2,
+			y + 5 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_AMMO_USED]],
+			FF_NONE);
+	PrintString(
+			phd_centerx >> 2,
+			y + 6 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_HEALTH_PACKS_USED]],
+			FF_NONE);
+	PrintString(
+			phd_centerx >> 2,
+			y + 7 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_SECRETS_FOUND]],
+			FF_NONE);
+	char string[40]; // [esp+8h] [ebp-28h]
+	const auto total_sec = GameTimer / 30;
+	const auto seconds = total_sec % 60;
+	const auto minutes = (total_sec / 60) % 60;
+	const auto hours = total_sec / 3600;
+	sprintf(
+			string,
+			"%02d:%02d:%02d", hours, minutes, seconds);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 2 * font_height + font_height, 6u, string, FF_NONE);
+	sprintf(string, "%dm", savegame.Game.Distance / 419);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 4 * font_height, 6u, string, FF_NONE);
+	sprintf(string, "%d", savegame.Game.AmmoUsed);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 4 * font_height + font_height, 6u, string, FF_NONE);
+	sprintf(string, "%d", savegame.Game.HealthUsed);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 6 * font_height, 6u, string, FF_NONE);
+	sprintf(string, "%d / 36", savegame.Game.Secrets);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 7 * font_height, 6u, string, FF_NONE);
+}
+
+int S_DisplayPauseMenu(int a1)
+{
+	static int selected_menu_pause = 1;
+
+	if (dword_8FBDB8)
+	{
+		if (dword_8FBDB8 == 1)
+		{
+			DoOptions();
+
+			if (!(dbinput & IN_DESELECT))
+				return 0;
+		}
+		else
+		{
+			if (dword_8FBDB8 != 2)
+				return 0;
+
+			DoStatScreen();
+
+			if (!(dbinput & IN_DESELECT))
+				return 0;
+		}
+
+		dword_8FBDB8 = 0;
+		SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+
+		return 0;
+	}
+
+	if (a1)
+	{
+		selected_menu_pause = a1;
+		dword_8FBDB8 = 0;
+		return 0;
+	}
+
+	const unsigned __int16 v2 = phd_centery - font_height;
+	PrintString(
+			phd_centerx,
+			v2 - (3 * font_height >> 1),
+			6u,
+			&gfStringWad[gfStringOffset[STR_PAUSED]],
+			FF_CENTER);
+	PrintString(
+			phd_centerx,
+			v2,
+			2 - ((selected_menu_pause & 1) != 0),
+			&gfStringWad[gfStringOffset[STR_STATISTICS]],
+			FF_CENTER);
+	PrintString(
+			phd_centerx,
+			v2 + font_height,
+			2 - ((selected_menu_pause & 2) != 0),
+			&gfStringWad[gfStringOffset[STR_OPTIONS]],
+			FF_CENTER);
+	PrintString(
+			phd_centerx,
+			v2 + 2 * font_height,
+			2 - ((selected_menu_pause & 4) != 0),
+			&gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]],
+			FF_CENTER);
+
+	if (dbinput & IN_FORWARD)                   // UP
+	{
+		if (selected_menu_pause > 1)
+			selected_menu_pause >>= 1;
+		SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
+	}
+
+	if (dbinput & IN_BACK)                           // DOWN
+	{
+		if (selected_menu_pause < 4)
+			selected_menu_pause <<= 1;
+
+		SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
+	}
+
+	if (dbinput & IN_DESELECT)
+	{
+		SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+		return 1;
+	}
+
+	if (dbinput & IN_SELECT && !keymap[DIK_LMENU])
+	{
+		SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+
+		if (selected_menu_pause & 1)
+		{
+			dword_8FBDB8 = 2;
+			return 0;
+		}
+
+		if (selected_menu_pause & 2)
+		{
+			dword_8FBDB8 = 1;
+			return 0;
+		}
+
+		if (selected_menu_pause & 4)
+			return 8;
+	}
+
+	return 0;
+}
+
 
 void WadeSplash(struct ITEM_INFO* item, int water_height, int water_depth)
 {
 	UNIMPLEMENTED();
+}
+
+int S_GetObjectBounds(bounding_box_s* bbox)// (F)
+{
+	if (phd_mxptr[M23] >= phd_zfar && !outside)
+		return 0;
+
+	tr5_vertex verts[8] =
+			{
+					{bbox->x_minp, bbox->y_minp, bbox->z_minp},
+					{bbox->x_maxp, bbox->y_minp, bbox->z_minp},
+					{bbox->x_maxp, bbox->y_maxp, bbox->z_minp},
+					{bbox->x_minp, bbox->y_maxp, bbox->z_minp},
+					{bbox->x_minp, bbox->y_minp, bbox->z_maxp},
+					{bbox->x_maxp, bbox->y_minp, bbox->z_maxp},
+					{bbox->x_maxp, bbox->y_maxp, bbox->z_maxp},
+					{bbox->x_minp, bbox->y_maxp, bbox->z_maxp}
+			};
+
+	int num = 0;
+
+	float minY = 1073741800.0; // ~= 2^30
+	float minX = 1073741800.0;
+
+	float maxX = -1073741800.0;
+	double maxY = -1073741800.0;
+
+	for (int i = 0; i < 8; i++)
+	{
+		const double normsq =
+				phd_mxptr[M20] * verts[i].x +
+				phd_mxptr[M21] * verts[i].y +
+				phd_mxptr[M22] * verts[i].z +
+				phd_mxptr[M23];
+
+		if (normsq > phd_znear && normsq < phd_zfar)
+		{
+			num++;
+
+			double normalized = normsq / phd_persp;
+
+			if (normalized == 0.0)
+				normalized = 1.0;
+
+			const double x = (
+					                 phd_mxptr[M00] * verts[i].x +
+					                 phd_mxptr[M01] * verts[i].y +
+					                 phd_mxptr[M02] * verts[i].z +
+					                 phd_mxptr[M03])
+			                 / normalized;
+
+			if (x < minX)
+				minX = x;
+			if (x > maxX)
+				maxX = x;
+
+			const double y = (
+					                 phd_mxptr[M10] * verts[i].x +
+					                 phd_mxptr[M11] * verts[i].y +
+					                 phd_mxptr[M12] * verts[i].z +
+					                 phd_mxptr[M13])
+			                 / normalized;
+
+			if (y < minY)
+				minY = y;
+			if (y > maxY)
+				maxY = y;
+		}
+	}
+
+	const float left = phd_centerx + minX;
+	const float right = phd_centerx + maxX;
+	const float top = phd_centery + minY;
+	const float bottom = phd_centery + maxY;
+
+	if (num < 8 || left < 0.0 || top < 0.0 || phd_winxmax < right || phd_winymax < bottom)
+		return -1;
+
+	if (num == 0 || phd_right < left || phd_bottom < top || phd_left > right || phd_top > bottom)
+		return 0;
+
+	return 1;
+}
+
+int CalcVolume(int volume)
+{
+	int v1 = 8000 - (10000 - volume * 10000 / 32767.0);
+	if ( v1 <= 0 )
+	{
+		if ( v1 < -10000 )
+			v1 = -10000;
+	}
+	else
+	{
+		v1 = 0;
+	}
+	int result = v1 + 10 * (5 * opt_SFXVolume - 500);
+	if ( result > 0 )
+		return 0;
+	if ( result < -10000 )
+		result = -10000;
+	return result;
+}
+
+sint32 S_SoundPlaySample(int nSample, uint16 wVol, int nPitch, sint16 wPan)
+{
+	return DS_StartSample(nSample, CalcVolume(wVol), nPitch, wPan, 0);
+}
+sint32 S_SoundPlaySampleLooped(int nSample, uint16 wVol, int nPitch, sint16 wPan)
+{
+	return DS_StartSample(nSample, CalcVolume(wVol), nPitch, wPan, DSBPLAY_LOOPING);
+}
+
+int GetTrackWord(unsigned long off, char* packed, unsigned char packmethod)
+{
+	int a0 = off * packmethod;
+	int v0 = a0 >> 3;
+	packed = &packed[v0];
+	a0 &= 7;
+	unsigned int at = ((unsigned char*)packed)[0] | (((unsigned char*)packed)[1] << 8) | (((unsigned char*)packed)[2] << 16) | (((unsigned char*)packed)[3] << 24);
+	at = at >> a0;
+	unsigned int v1 = (1 << packmethod) - 1;
+	at &= v1;
+	packmethod -= 1;
+	v0 = (1 << packmethod);
+	v0 = at & v0;
+
+	if (v0 != 0)
+	{
+		v0 = v1 ^ -1;///@CHECKME nor     $v0, $zero, $v1
+		at |= v0;
+	}
+	else
+	{
+		v0 = v1 ^ -1;///@CHECKME nor     $v0, $zero, $v1
+	}
+	//loc_90DC0
+	v0 = at << 16;
+	v0 >>= 16;
+
+	return v0;
+}
+
+int DecodeTrack(char* packed, struct RTDECODE* decode)//90BD8(<), ?
+{
+	int t0 = 0;
+	int v0 = 0;
+
+	if (decode->decodetype == 0)
+	{
+		t0 = GetTrackWord(decode->off, packed, decode->packmethod);
+
+		if (!(t0 & 0x20))
+		{
+			decode->decodetype = 2;
+
+			if ((t0 & 0x10))
+			{
+				GetTrackWord(decode->off + 1, packed, decode->packmethod);
+				decode->counter = ((t0 & 7) << 5) | (GetTrackWord(decode->off + 1, packed, decode->packmethod) & 0x1F);
+				decode->data = GetTrackWord(decode->off + 2, packed, decode->packmethod);
+				decode->off += 3;
+				decode->length -= 3;
+			}
+			else
+			{
+				//loc_90C70
+				decode->data = GetTrackWord(decode->off + 1, packed, decode->packmethod);
+				decode->counter = t0 & 0x7;
+				decode->off += 2;
+				decode->length -= 2;
+			}
+		}
+		else
+		{
+			//loc_90CA0
+			if (!(t0 & 0xF))
+			{
+				decode->counter = 16;
+			}
+			else
+			{
+				decode->counter = (t0 & 0xF);
+			}
+
+			//loc_90CAC
+			decode->decodetype = 1;
+			decode->off += 1;
+			decode->length -= 1;
+		}
+	}
+	//loc_90CD0
+	if (decode->decodetype == 2)
+	{
+		if (--decode->counter == 0)
+		{
+			decode->decodetype = 0;
+		}
+
+		//loc_90CFC
+		return decode->data;
+	}
+
+	//loc_90D08
+	v0 = GetTrackWord(decode->off, packed, decode->packmethod);
+
+	decode->counter -= 1;
+	decode->off += 1;
+	decode->length -= 1;
+
+	if (!(decode->counter & 0xFFFF))
+	{
+		decode->decodetype = 0;
+	}
+	//loc_90D48
+	v0 <<= 16;
+	v0 >>= 16;
+
+	return v0;
+}
+
+void DecodeAnim(struct PACKNODE* node, int a1, int frame, unsigned short a3)//90A88(<), ?
+{
+	int t4 = 0;
+
+	if (frame == 0)
+	{
+		t4 = 0;
+		if (a1 > 0)
+		{
+			//loc_90AA8
+			do
+			{
+				t4++;
+
+				node->decode_x.off = 0;
+				node->decode_x.counter = 0;
+				node->decode_x.data = 0;
+				node->decode_x.decodetype = 0;
+
+				node->decode_y.off = 0;
+				node->decode_y.counter = 0;
+				node->decode_y.data = 0;
+				node->decode_y.decodetype = 0;
+
+				node->decode_z.off = 0;
+				node->decode_z.counter = 0;
+				node->decode_z.data = 0;
+				node->decode_z.decodetype = 0;
+
+				node->xrot_run = (unsigned short)node->xkey;
+				node->yrot_run = (unsigned short)node->ykey;
+				node->zrot_run = (unsigned short)node->zkey;
+
+				node->decode_x.length = node->xlength;
+				node->decode_y.length = node->ylength;
+				node->decode_z.length = node->zlength;
+				node++;
+			} while (t4 < a1);
+		}
+		//loc_90BD0
+		return;
+	}
+	else
+	{
+		//loc_90B14
+		node->xrot_run += DecodeTrack(node->xpacked, &node->decode_x);
+		node->yrot_run += DecodeTrack(node->ypacked, &node->decode_y);
+		node->zrot_run += DecodeTrack(node->zpacked, &node->decode_z);
+		t4 = 1;
+		node++;
+		if (t4 >= a1)
+		{
+			return;
+		}
+	}
+
+	//loc_90B6C
+	do
+	{
+		int xrot_run = ((unsigned short)node->xrot_run + DecodeTrack(node->xpacked, &node->decode_x)) & a3;
+		int yrot_run = ((unsigned short)node->yrot_run + DecodeTrack(node->ypacked, &node->decode_y)) & a3;
+		int zrot_run = ((unsigned short)node->zrot_run + DecodeTrack(node->zpacked, &node->decode_z)) & a3;
+
+		node->xrot_run = xrot_run;
+		node->yrot_run = yrot_run;
+		node->zrot_run = zrot_run;
+		t4++;
+		node++;
+	} while (t4 < a1);
 }
 
 #ifdef __cplusplus

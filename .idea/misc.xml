@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
+  <component name="CidrRootsConfiguration">
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/SPEC_PC" />
+      <file path="$PROJECT_DIR$/SPEC_PSX" />
+      <file path="$PROJECT_DIR$/SPEC_PSXPC" />
+      <file path="$PROJECT_DIR$/SPEC_PSXPC_N" />
+    </excludeRoots>
+  </component>
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES6" />
+  </component>
+</project>

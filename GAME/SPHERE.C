@@ -23,7 +23,11 @@ int TestCollision(struct ITEM_INFO* item, struct ITEM_INFO* laraitem)//55C3C(<),
 	int x;
 	int y;
 	int z;
-	int r;
+#if PC_VERSION
+	int r = 0;
+#else
+	int r; // @TODO: uninitialized
+#endif
 	int i;
 	int j;
 	unsigned long flags;

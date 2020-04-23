@@ -5,7 +5,7 @@
 short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C (F)
 {
 	int rate;
-	short* frmptr[2];	
+	short* frmptr[2];
 	int frac = GetFrames(item, frmptr, &rate);
 
 	if (frac == 0)

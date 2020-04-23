@@ -287,7 +287,7 @@ int GetFreeSpark()//8B2F8(<), 8D33C(<) (F)
 		{
 
 			next_spark = (free + 1) & 0x7F;
-			sptr->Def = objects[DEFAULT_SPRITES].mesh_index;
+			sptr->Def = objects[DEFAULT_SPRITES].mesh_index + SPRITE_UNK0;
 			sptr->extras = 0;
 			sptr->Dynamic = -1;
 			return free;
@@ -315,7 +315,7 @@ int GetFreeSpark()//8B2F8(<), 8D33C(<) (F)
 	}
 
 	next_spark = (free + 1) & 0x7F;
-	fsptr->Def = objects[DEFAULT_SPRITES].mesh_index;
+	fsptr->Def = objects[DEFAULT_SPRITES].mesh_index + SPRITE_UNK0;
 	fsptr->extras = 0;
 	fsptr->Dynamic = -1;
 
@@ -532,7 +532,7 @@ void TriggerExplosionBubble(int x, int y, int z, short room_num)// (F)
 		sptr->Flags = 2058;
 		sptr->Scalar = 3;
 		sptr->Gravity = 0;
-		sptr->Def = objects[DEFAULT_SPRITES].mesh_index + 13;
+		sptr->Def = objects[DEFAULT_SPRITES].mesh_index + SPRITE_BUBBLE;
 		sptr->MaxYvel = 0;
 		size = (GetRandomControl() & 7) + 63;
 		sptr->sSize = size >> 1;
@@ -659,7 +659,7 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 		sptr->b = b;
 		sptr->life = life;
 
-		SoundEffect(SFX_IMP_STONE_HIT, pos, 0);
+		SoundEffect(SFX_IMP_STONE_HIT, pos, SFX_DEFAULT);
 	}
 }
 
@@ -925,7 +925,7 @@ void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 void Richochet(struct GAME_VECTOR* pos)// (F)
 {
 	TriggerRicochetSpark(pos, mGetAngle(pos->z, pos->x, lara_item->pos.z_pos, lara_item->pos.x_pos) >> 4, 3, 0);
-	SoundEffect(SFX_LARA_RICOCHET, (struct PHD_3DPOS*)pos, 0);
+	SoundEffect(SFX_LARA_RICOCHET, (struct PHD_3DPOS*)pos, SFX_DEFAULT);
 }
 
 void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7)
@@ -994,9 +994,9 @@ void TriggerSmallSplash(int x, int y, int z, int num)// (F)
 
 		angle = GetRandomControl() << 3;
 
-		sptr->Xvel = -SIN(angle) >> 5;		
+		sptr->Xvel = -SIN(angle) >> 3;		
 		sptr->Yvel = -640 - (GetRandomControl() & 0xFF);
-		sptr->Zvel = COS(angle) >> 5;
+		sptr->Zvel = COS(angle) >> 3;
 
 		sptr->Friction = 5;	
 		sptr->Flags = 0;

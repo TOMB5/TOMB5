@@ -136,7 +136,7 @@ void CrowDoveSwitchControl(short item_number)//58674(<), 58B14 (F)
 	if ((item->mesh_bits & 2))
 	{
 		ExplodeItemNode(item, 1, 0, 0x100);
-		SoundEffect(SFX_RAVENSWITCH_EXP, &item->pos, 0);
+		SoundEffect(SFX_RAVENSWITCH_EXP, &item->pos, SFX_DEFAULT);
 		item->mesh_bits = 5;
 		RemoveActiveItem(item_number);
 	}
@@ -222,8 +222,8 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 				item->anim_number = objects[item->object_number].anim_index + 4;
 				item->frame_number = anims[item->anim_number].frame_base;
 				item->item_flags[0] = 1;
-				ForcedFixedCamera.x = item->pos.x_pos - (1024 * SIN(item->pos.y_rot) >> W2V_SHIFT);
-				ForcedFixedCamera.z = item->pos.z_pos - (1024 * COS(item->pos.y_rot) >> W2V_SHIFT);
+				ForcedFixedCamera.x = item->pos.x_pos - (256 * SIN(item->pos.y_rot) >> W2V_SHIFT);
+				ForcedFixedCamera.z = item->pos.z_pos - (256 * COS(item->pos.y_rot) >> W2V_SHIFT);
 				lara.IsMoving = 0;
 				lara.head_y_rot = 0;
 				lara.head_x_rot = 0;
@@ -256,12 +256,12 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 			{
 				if (MoveLaraPosition(&TurnSwitchPos, item, l))
 				{
-					l->anim_number = 319;
+					l->anim_number = ANIMATION_LARA_ROUND_HANDLE_GRAB_CLOCKWISE;
 					flag = 1;
-					l->frame_number = anims[319].frame_base;
+					l->frame_number = anims[ANIMATION_LARA_ROUND_HANDLE_GRAB_CLOCKWISE].frame_base;
 					item->item_flags[0] = 2;
-					ForcedFixedCamera.x = item->pos.x_pos + (1024 * SIN(item->pos.y_rot) >> W2V_SHIFT);
-					ForcedFixedCamera.z = item->pos.z_pos + (1024 * COS(item->pos.y_rot) >> W2V_SHIFT);
+					ForcedFixedCamera.x = item->pos.x_pos + (256 * SIN(item->pos.y_rot) >> W2V_SHIFT);
+					ForcedFixedCamera.z = item->pos.z_pos + (256 * COS(item->pos.y_rot) >> W2V_SHIFT);
 				}
 				else
 				{

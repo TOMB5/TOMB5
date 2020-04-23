@@ -10,7 +10,7 @@
 #include "SETUP.H"
 #endif
 
-int hair_wind;
+int hair_wind = 0;
 int hair_wind_angle = 2048;
 int hair_dwind_angle = 2048;
 int first_hair[2];

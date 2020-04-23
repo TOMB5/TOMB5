@@ -33,20 +33,18 @@ extern int mouse_vkeys;
 extern "C" {
 #endif
 
-	// The global input variable
-	extern sint32 input;
-	extern sint32 dbinput;
-	extern sint32 inputBusy;
+// The global input variable
+extern sint32 input;
+extern sint32 dbinput;
+extern sint32 inputBusy;
 
 
-	extern int bLaraOn;
-	extern int bRoomOn;
-	extern int bObjectOn;
-	extern int bAObjectOn;
-	extern int bEffectOn;
+extern int bLaraOn;
+extern int bRoomOn;
+extern int bObjectOn;
+extern int bAObjectOn;
+extern int bEffectOn;
 
-
-	
 
 #ifdef __cplusplus
 }
@@ -62,9 +60,6 @@ extern unsigned char keymap[];
 extern int32_t conflict[];
 extern int16_t layout[2][18];
 #define rawkey(A) (keymap[A] & 0x80)
-
-
-
 
 
 #endif

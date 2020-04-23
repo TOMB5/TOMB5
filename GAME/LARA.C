@@ -29,6 +29,7 @@
 
 #if PC_VERSION
 #include "GLOBAL.H"
+#include "DRAWPRIMITIVE.H"
 #endif
 
 
@@ -361,8 +362,8 @@ void lara_as_pbleapoff(struct ITEM_INFO* item, struct COLL_INFO* coll)//1D244, 1
 
 	if (item->frame_number == anims[item->anim_number].frame_end)
 	{
-		item->pos.x_pos += 2800 * SIN(item->pos.y_rot) >> W2V_SHIFT;
-		item->pos.x_pos += 2800 * COS(item->pos.y_rot) >> W2V_SHIFT;
+		item->pos.x_pos += 700 * SIN(item->pos.y_rot) >> W2V_SHIFT;
+		item->pos.z_pos += 700 * COS(item->pos.y_rot) >> W2V_SHIFT;
 
 		item->anim_number = ANIMATION_LARA_TRY_HANG_SOLID;
 		item->frame_number = anims[ANIMATION_LARA_TRY_HANG_SOLID].frame_base;
@@ -633,7 +634,7 @@ void ResetLook()//1C920, 1CA54 (F)
 
 void lara_col_jumper(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C860(<), 1C994(<) (F)
 {
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
 
@@ -650,7 +651,7 @@ void lara_col_jumper(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C860(<), 
 		item->fallspeed = 0;
 		item->gravity_status = 0;
 
-		if (coll->mid_floor != -32512)
+		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -670,7 +671,7 @@ void lara_col_wade(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C61C, 1C750
 {
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
 
@@ -722,7 +723,7 @@ void lara_col_wade(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C61C, 1C750
 
 		if (coll->mid_floor < 50)
 		{
-			if (coll->mid_floor != -32512)
+			if (coll->mid_floor != BAD_HEIGHT)
 				item->pos.y_pos += coll->mid_floor;
 		}
 		else
@@ -736,7 +737,7 @@ void lara_col_fastdive(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C558(<)
 {
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
 
@@ -753,7 +754,7 @@ void lara_col_fastdive(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C558(<)
 		item->fallspeed = 0;
 		item->gravity_status = 0;
 
-		if (coll->mid_floor != -32512)
+		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -762,7 +763,7 @@ void lara_col_swandive(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C4A0(<)
 {
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
 
@@ -776,7 +777,7 @@ void lara_col_swandive(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C4A0(<)
 		item->fallspeed = 0;
 		item->gravity_status = 0;
 
-		if (coll->mid_floor != -32512)
+		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -792,7 +793,7 @@ void lara_col_roll2(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C384, 1C4B
 
 	coll->slopes_are_walls = 1;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
 
@@ -804,7 +805,7 @@ void lara_col_roll2(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C384, 1C4B
 		{
 			ShiftItem(item, coll);
 
-			if (coll->mid_floor != -32512)
+			if (coll->mid_floor != BAD_HEIGHT)
 				item->pos.y_pos += coll->mid_floor;
 		}
 		else
@@ -825,7 +826,7 @@ void lara_col_roll(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C2B0, 1C3E4
 {
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
 
@@ -845,7 +846,7 @@ void lara_col_roll(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C2B0, 1C3E4
 			{
 				ShiftItem(item, coll);
 
-				if (coll->mid_floor != -32512)
+				if (coll->mid_floor != BAD_HEIGHT)
 					item->pos.y_pos += coll->mid_floor;
 			}
 		}
@@ -862,7 +863,7 @@ void lara_col_fallback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C1B4(<)
 {
 	lara.move_angle = item->pos.y_rot - ANGLE(180);
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
 
@@ -879,7 +880,7 @@ void lara_col_fallback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C1B4(<)
 		item->fallspeed = 0;
 		item->gravity_status = 0;
 
-		if (coll->mid_floor != -32512)
+		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -924,7 +925,7 @@ void lara_col_stepright(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BFB0, 
 	item->fallspeed = 0;
 
 	if (lara.water_status == LW_WADE)
-		coll->bad_pos = 32512;
+		coll->bad_pos = -BAD_HEIGHT;
 	else
 		coll->bad_pos = 128;
 
@@ -941,7 +942,7 @@ void lara_col_stepright(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BFB0, 
 		if (LaraDeflectEdge(item, coll))
 			LaraCollideStop(item, coll);
 
-		if (!LaraFallen(item, coll) && !TestLaraSlide(item, coll) && coll->mid_floor != -32512)
+		if (!LaraFallen(item, coll) && !TestLaraSlide(item, coll) && coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -954,7 +955,7 @@ void lara_col_back(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BE38, 1BF6C
 	lara.move_angle = item->pos.y_rot - ANGLE(180);
 
 	if (lara.water_status == LW_WADE)
-		coll->bad_pos = 32512;
+		coll->bad_pos = -BAD_HEIGHT;
 	else
 		coll->bad_pos = 384;
 
@@ -987,7 +988,7 @@ void lara_col_back(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BE38, 1BF6C
 				}
 			}
 
-			if (!TestLaraSlide(item, coll) && coll->mid_floor != -32512)
+			if (!TestLaraSlide(item, coll) && coll->mid_floor != BAD_HEIGHT)
 				item->pos.y_pos += coll->mid_floor;
 		}
 	}
@@ -998,8 +999,8 @@ void lara_col_compress(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BD30, 1
 	item->fallspeed = 0;
 	item->gravity_status = FALSE;
 
-	coll->bad_pos = 32512;
-	coll->bad_neg = -32512;
+	coll->bad_pos = -BAD_HEIGHT;
+	coll->bad_neg = BAD_HEIGHT;
 	coll->bad_ceiling = 0;
 
 	GetLaraCollisionInfo(item, coll);
@@ -1054,7 +1055,7 @@ void lara_col_fastfall(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BB88, 1
 {
 	item->gravity_status = TRUE;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
 
@@ -1080,7 +1081,7 @@ void lara_col_fastfall(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BB88, 1
 		item->fallspeed = 0;
 		item->gravity_status = FALSE;
 
-		if (coll->mid_floor != -32512)
+		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -1101,7 +1102,7 @@ void lara_col_death(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BADC(<), 1
 	item->hit_points = -1;
 	lara.air = -1;
 
-	if (coll->mid_floor != -32512)
+	if (coll->mid_floor != BAD_HEIGHT)
 		item->pos.y_pos += coll->mid_floor;
 }
 
@@ -1127,7 +1128,7 @@ void lara_col_turn_r(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B9C4, 1BA
 
 	if (coll->mid_floor <= 100)
 	{
-		if (!TestLaraSlide(item, coll) && coll->mid_floor != -32512)
+		if (!TestLaraSlide(item, coll) && coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 	else
@@ -1151,7 +1152,7 @@ void lara_col_fastback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B89C, 1
 	coll->slopes_are_walls = 0;
 	coll->slopes_are_pits = 1;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
 
@@ -1164,7 +1165,7 @@ void lara_col_fastback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B89C, 1
 			if (LaraDeflectEdge(item, coll))
 				LaraCollideStop(item, coll);
 
-			if (!TestLaraSlide(item, coll) && coll->mid_floor != -32512)
+			if (!TestLaraSlide(item, coll) && coll->mid_floor != BAD_HEIGHT)
 				item->pos.y_pos += coll->mid_floor;
 		}
 		else
@@ -1190,7 +1191,7 @@ void lara_col_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B64C, 1B780 
 {
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
 
@@ -1232,7 +1233,7 @@ void lara_col_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B64C, 1B780 
 		{
 			if (coll->mid_floor >= -384 && coll->mid_floor < -128)
 			{
-				if (coll->front_floor == -32512 || coll->front_floor < -384 || coll->front_floor >= -128)
+				if (coll->front_floor == BAD_HEIGHT || coll->front_floor < -384 || coll->front_floor >= -128)
 				{
 					coll->mid_floor = 0;
 				}
@@ -1255,7 +1256,7 @@ void lara_col_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B64C, 1B780 
 			{
 				if (coll->mid_floor < 50)
 				{
-					if (coll->mid_floor != -32512)
+					if (coll->mid_floor != BAD_HEIGHT)
 						item->pos.y_pos += coll->mid_floor;
 				}
 				else
@@ -1312,7 +1313,7 @@ void lara_col_walk(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B3E8, 1B51C
 		{
 			if (coll->mid_floor > 128)
 			{
-				if (coll->front_floor == -32512 || coll->front_floor <= 128)
+				if (coll->front_floor == BAD_HEIGHT || coll->front_floor <= 128)
 				{
 					coll->mid_floor = 0;
 				}
@@ -1332,7 +1333,7 @@ void lara_col_walk(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B3E8, 1B51C
 			}
 			if (coll->mid_floor >= -384 && coll->mid_floor < -128)
 			{
-				if (coll->front_floor == -32512 || 
+				if (coll->front_floor == BAD_HEIGHT || 
 					coll->front_floor < -384 || 
 					coll->front_floor >= -128)
 				{
@@ -1353,7 +1354,7 @@ void lara_col_walk(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B3E8, 1B51C
 				}
 			}
 
-			if (!TestLaraSlide(item, coll) && coll->mid_floor != -32512)
+			if (!TestLaraSlide(item, coll) && coll->mid_floor != BAD_HEIGHT)
 				item->pos.y_pos += coll->mid_floor;
 		}
 	}
@@ -1621,7 +1622,7 @@ void lara_as_pickupflare(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB5C(
 	camera.target_angle = ANGLE(130);
 	camera.target_elevation = ANGLE(-15);
 	camera.target_distance = SECTOR(1);
-	if (item->frame_number = anims[item->anim_number].frame_end - 1)
+	if (item->frame_number == anims[item->anim_number].frame_end - 1)
 		lara.gun_status = LG_NO_ARMS;
 }
 
@@ -2251,7 +2252,7 @@ void lara_as_fastfall(struct ITEM_INFO* item, struct COLL_INFO* coll)//198BC(<),
 {
 	item->speed = (item->speed * 95) / 100;
 	if (item->fallspeed == 154)
-		SoundEffect(SFX_LARA_FALL, &item->pos, 0);
+		SoundEffect(SFX_LARA_FALL, &item->pos, SFX_DEFAULT);
 }
 
 void lara_as_death(struct ITEM_INFO* item, struct COLL_INFO* coll)//19830(<), 19964(<) (F)
@@ -2535,7 +2536,7 @@ void lara_col_reach(struct ITEM_INFO* item, struct COLL_INFO* coll)//18D0C, 18E4
 
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = 0;
 	coll->bad_ceiling = 192;
 
@@ -2685,7 +2686,7 @@ void lara_col_forwardjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//18B88
 	else
 		lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
 
@@ -2714,7 +2715,7 @@ void lara_col_forwardjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//18B88
 		item->fallspeed = 0;
 		item->speed = 0;
 
-		if (coll->mid_floor != -32512)
+		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -2768,7 +2769,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
 
@@ -2916,7 +2917,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 		item->gravity_status = FALSE;
 		item->fallspeed = 0;
 
-		if (coll->mid_floor != -32512)
+		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -2953,7 +2954,7 @@ void lara_col_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//18444(<), 18
 			{
 				ShiftItem(item, coll);
 
-				if (coll->mid_floor != -32512)
+				if (coll->mid_floor != BAD_HEIGHT)
 					item->pos.y_pos += coll->mid_floor;
 			}
 		}
@@ -2962,8 +2963,8 @@ void lara_col_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//18444(<), 18
 
 void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 (F)
 {
-	short fheight = -32512;
-	short rheight = -32512;
+	short fheight = BAD_HEIGHT;
+	short rheight = BAD_HEIGHT;
 
 	if (item->hit_points <= 0)
 	{
@@ -3058,7 +3059,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 			{
 				lara.move_angle = item->pos.y_rot;
 
-				coll->bad_pos = 32512;
+				coll->bad_pos = -BAD_HEIGHT;
 				coll->bad_neg = -384;
 				coll->bad_ceiling = 0;
 
@@ -3106,7 +3107,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 		{
 			lara.move_angle = item->pos.y_rot;
 
-			coll->bad_pos = 32512;
+			coll->bad_pos = -BAD_HEIGHT;
 			coll->bad_neg = -384;
 			coll->bad_ceiling = 0;
 
@@ -3181,8 +3182,8 @@ void lara_col_ropefwd(struct ITEM_INFO* item, struct COLL_INFO* coll)//17B74, 17
 			else
 				Vel = 0;
 
-			ApplyVelocityToRope(lara.RopeSegment - 2, 
-				item->pos.y_rot + (lara.RopeDirection != 0 ? 0 : ANGLE(180)), 
+			ApplyVelocityToRope(lara.RopeSegment - 2,
+				item->pos.y_rot + (lara.RopeDirection != 0 ? 0 : ANGLE(180)),
 				Vel >> 5);
 		}
 
@@ -3392,7 +3393,7 @@ void lara_col_poledown(struct ITEM_INFO* item, struct COLL_INFO* coll)//171A0, 1
 	if (((input & IN_BACK) ^ (input & IN_ACTION)) || item->hit_points <= 0)
 		item->goal_anim_state = STATE_LARA_POLE_IDLE;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
 
@@ -3435,7 +3436,7 @@ void lara_col_poledown(struct ITEM_INFO* item, struct COLL_INFO* coll)//171A0, 1
 		item->item_flags[2] += 256;
 	}
 
-	SoundEffect(SFX_LARA_ROPEDOWN_LOOP, &item->pos, 0);
+	SoundEffect(SFX_LARA_ROPEDOWN_LOOP, &item->pos, SFX_DEFAULT);
 
 	item->item_flags[2] = CLAMP(item->item_flags[2], 0, ANGLE(90));
 
@@ -3497,7 +3498,7 @@ void lara_col_polestat(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DFC, 1
 
 	if (item->anim_number == ANIMATION_LARA_POLE_IDLE)
 	{
-		coll->bad_pos = 32512;
+		coll->bad_pos = -BAD_HEIGHT;
 		coll->bad_neg = -384;
 		coll->bad_ceiling = 192;
 
@@ -3553,8 +3554,8 @@ void lara_col_polestat(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DFC, 1
 		}
 		else
 		{
-			item->pos.x_pos -= (256 * SIN(item->pos.y_rot)) >> W2V_SHIFT;
-			item->pos.z_pos -= (256 * COS(item->pos.y_rot)) >> W2V_SHIFT;
+			item->pos.x_pos -= (64 * SIN(item->pos.y_rot)) >> W2V_SHIFT;
+			item->pos.z_pos -= (64 * COS(item->pos.y_rot)) >> W2V_SHIFT;
 		}
 	}
 }
@@ -3588,7 +3589,7 @@ void lara_col_hangturnlr(struct ITEM_INFO* item, struct COLL_INFO* coll)//16C94(
 {
 	if ((input & IN_ACTION) && lara.CanMonkeySwing)
 	{
-		coll->bad_pos = 32512;
+		coll->bad_pos = -BAD_HEIGHT;
 		coll->bad_neg = -384;
 		coll->bad_ceiling = 0;
 
@@ -3722,8 +3723,8 @@ void lara_col_monkeyswing(struct ITEM_INFO* item, struct COLL_INFO* coll)//16828
 {
 	if (input & IN_ACTION && lara.CanMonkeySwing)
 	{
-		coll->bad_pos = 32512;
-		coll->bad_neg = -32512;
+		coll->bad_pos = -BAD_HEIGHT;
+		coll->bad_neg = BAD_HEIGHT;
 		coll->bad_ceiling = 0;
 
 		lara.move_angle = item->pos.y_rot;
@@ -3817,8 +3818,8 @@ void lara_col_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//163DC, 1651
 
 	if (lara.CanMonkeySwing)
 	{
-		coll->bad_pos = 32512;
-		coll->bad_neg = -32512;
+		coll->bad_pos = -BAD_HEIGHT;
+		coll->bad_neg = BAD_HEIGHT;
 		coll->bad_ceiling = 0;
 
 		coll->slopes_are_walls = 0;
@@ -3940,7 +3941,7 @@ void lara_as_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//1630C(<), 16
 short TestMonkeyRight(struct ITEM_INFO* item, struct COLL_INFO* coll)//161EC(<), 16320(<) (F)
 {
 	short oct;
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
 	lara.move_angle = item->pos.y_rot + ANGLE(90);
@@ -3971,8 +3972,8 @@ short TestMonkeyRight(struct ITEM_INFO* item, struct COLL_INFO* coll)//161EC(<),
 short TestMonkeyLeft(struct ITEM_INFO* item, struct COLL_INFO* coll)//160CC(<), 16200(<) (F)
 {
 	short oct;
-	coll->bad_pos = 32512;
-	coll->bad_neg = -32512;
+	coll->bad_pos = -BAD_HEIGHT;
+	coll->bad_neg = BAD_HEIGHT;
 	coll->bad_ceiling = 0;
 	lara.move_angle = item->pos.y_rot - ANGLE(90);
 	coll->slopes_are_walls = 0;
@@ -4037,7 +4038,7 @@ void lara_col_dashdive(struct ITEM_INFO* item, struct COLL_INFO* coll)//15E5C, 1
 	else
 		lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -256;
 	coll->bad_ceiling = 192;
 
@@ -4077,7 +4078,7 @@ void lara_col_dashdive(struct ITEM_INFO* item, struct COLL_INFO* coll)//15E5C, 1
 
 		ShiftItem(item, coll);
 
-		if (coll->mid_floor != -32512)
+		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -4095,7 +4096,7 @@ void lara_col_dash(struct ITEM_INFO* item, struct COLL_INFO* coll)//15C50, 15D84
 {
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
 
@@ -4142,7 +4143,7 @@ void lara_col_dash(struct ITEM_INFO* item, struct COLL_INFO* coll)//15C50, 15D84
 			{
 				if (coll->mid_floor < 50)
 				{
-					if (coll->mid_floor != -32512)
+					if (coll->mid_floor != BAD_HEIGHT)
 						item->pos.y_pos += coll->mid_floor;
 				}
 				else
@@ -4233,7 +4234,7 @@ void lara_col_crawl2hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//15770,
 		item->fallspeed = 512;
 		item->pos.y_pos += 255;
 
-		coll->bad_pos = 32512;
+		coll->bad_pos = -BAD_HEIGHT;
 		coll->bad_neg = -384;
 		coll->bad_ceiling = 192;
 
@@ -4363,7 +4364,7 @@ void lara_col_crawlb(struct ITEM_INFO* item, struct COLL_INFO* coll)//15614, 157
 	{
 		ShiftItem(item, coll);
 
-		if (coll->mid_floor != -32512 && coll->mid_floor > -CLICK)
+		if (coll->mid_floor != BAD_HEIGHT && coll->mid_floor > -CLICK)
 			item->pos.y_pos += coll->mid_floor;
 
 		lara.move_angle = item->pos.y_rot;
@@ -4432,7 +4433,7 @@ void lara_col_all4turnlr(struct ITEM_INFO* item, struct COLL_INFO* coll)//153FC,
 
 	if (!TestLaraSlide(item, coll))
 	{
-		if (coll->mid_floor != -32512 && coll->mid_floor > -256)
+		if (coll->mid_floor != BAD_HEIGHT && coll->mid_floor > -256)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -4491,7 +4492,7 @@ void lara_col_crawl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1523C, 1537
 	{
 		ShiftItem(item, coll);
 
-		if (coll->mid_floor != -32512 && coll->mid_floor > -256)
+		if (coll->mid_floor != BAD_HEIGHT && coll->mid_floor > -256)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -4572,7 +4573,7 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 			lara.keep_ducked = coll->mid_ceiling >= -362;
 			ShiftItem(item, coll);
 
-			if (coll->mid_floor != -32512 && coll->mid_floor > -256)
+			if (coll->mid_floor != BAD_HEIGHT && coll->mid_floor > -256)
 				item->pos.y_pos += coll->mid_floor;
 
 			if (input & IN_DUCK || lara.keep_ducked &&
@@ -4593,20 +4594,20 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 						short heightl = 0;
 						short heightr = 0;
 
-						if (height != -32512 && height <= 256)
+						if (height != BAD_HEIGHT && height <= 256)
 						{
 							if (input & IN_ACTION)
 							{
 								long x = item->pos.x_pos;
 								long z = item->pos.z_pos;
 
-								item->pos.x_pos += 512 * SIN(item->pos.y_rot - ANGLE(90)) >> W2V_SHIFT;
-								item->pos.z_pos += 512 * COS(item->pos.y_rot - ANGLE(90)) >> W2V_SHIFT;
+								item->pos.x_pos += 128 * SIN(item->pos.y_rot - ANGLE(90)) >> W2V_SHIFT;
+								item->pos.z_pos += 128 * COS(item->pos.y_rot - ANGLE(90)) >> W2V_SHIFT;
 
 								heightl = LaraFloorFront(item, item->pos.y_rot, -300);
 
-								item->pos.x_pos += 1024 * SIN(item->pos.y_rot + ANGLE(90)) >> W2V_SHIFT;
-								item->pos.z_pos += 1024 * COS(item->pos.y_rot + ANGLE(90)) >> W2V_SHIFT;
+								item->pos.x_pos += 256 * SIN(item->pos.y_rot + ANGLE(90)) >> W2V_SHIFT;
+								item->pos.z_pos += 256 * COS(item->pos.y_rot + ANGLE(90)) >> W2V_SHIFT;
 
 								heightr = LaraFloorFront(item, item->pos.y_rot, -300);
 
@@ -4631,8 +4632,8 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 										long x = item->pos.x_pos;
 										long z = item->pos.z_pos;
 
-										item->pos.x_pos -= 400 * SIN(coll->facing) >> W2V_SHIFT;
-										item->pos.z_pos -= 400 * SIN(coll->facing) >> W2V_SHIFT;
+										item->pos.x_pos -= 100 * SIN(coll->facing) >> W2V_SHIFT;
+										item->pos.z_pos -= 100 * SIN(coll->facing) >> W2V_SHIFT;
 
 										//tmp = GetCollidedObjects(item, 100, 1, wat, wat, 0);
 										S_Warn("[lara_col_all4s] - Warning: Core Design function call shittery\n");
@@ -4712,7 +4713,7 @@ void lara_as_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14970, 14A78
 	if (input & IN_JUMP)
 	{
 		if (LaraFloorFront(item, item->pos.y_rot, 768) >= 512 && 
-			LaraCeilingFront(item, item->pos.y_rot, 768, 512) != -32512 &&
+			LaraCeilingFront(item, item->pos.y_rot, 768, 512) != BAD_HEIGHT &&
 			LaraCeilingFront(item, item->pos.y_rot, 768, 512) <= 0)
 		{
 			struct GAME_VECTOR s, d;
@@ -4724,9 +4725,9 @@ void lara_as_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14970, 14A78
 			s.z = lara_item->pos.z_pos;
 			s.room_number = lara_item->room_number;
 
-			d.x = s.x + (3072 * SIN(lara_item->pos.y_rot) >> W2V_SHIFT);
+			d.x = s.x + (768 * SIN(lara_item->pos.y_rot) >> W2V_SHIFT);
 			d.y = s.y + 160;
-			d.z = s.z + (3072 * COS(lara_item->pos.y_rot) >> W2V_SHIFT);
+			d.z = s.z + (768 * COS(lara_item->pos.y_rot) >> W2V_SHIFT);
 
 			if (LOS(&s, &d))
 			{
@@ -4791,7 +4792,7 @@ void lara_col_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//147C4, 148CC
 
 			ShiftItem(item, coll);
 
-			if (coll->mid_floor != -32512)
+			if (coll->mid_floor != BAD_HEIGHT)
 			{
 				item->pos.y_pos += coll->mid_floor;
 			}
@@ -4926,7 +4927,7 @@ void lara_col_ducklr(struct ITEM_INFO* item, struct COLL_INFO* coll)//14534, 145
 
 		ShiftItem(item, coll);
 
-		if (coll->mid_floor != -32512)
+		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
 }
@@ -5023,7 +5024,7 @@ int TestHangSwingIn(struct ITEM_INFO* item, short angle)//14104, 141B4 (F)
 	h = GetHeight(floor, x, y, z);
 	c = GetCeiling(floor, x, y, z);
 
-	return h != -32512 && h - y > 0 && c - y < -400 && y - c - 819 > -72;
+	return h != BAD_HEIGHT && h - y > 0 && c - y < -400 && y - c - 819 > -72;
 }
 
 int LaraHangLeftCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//13C24, 13CD4
@@ -5061,7 +5062,7 @@ int IsValidHangPos(struct ITEM_INFO* item, struct COLL_INFO* coll)//135BC, 1366C
 		break;
 	}
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -512;
 	coll->bad_ceiling = 0;
 
@@ -5197,8 +5198,8 @@ void LaraSlideEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12B18, 1
 		break;
 
 	case CT_CLAMP:
-		item->pos.z_pos -= (400 * COS(coll->facing)) >> W2V_SHIFT;	
-		item->pos.x_pos -= (400 * SIN(coll->facing)) >> W2V_SHIFT;
+		item->pos.z_pos -= (100 * COS(coll->facing)) >> W2V_SHIFT;	
+		item->pos.x_pos -= (100 * SIN(coll->facing)) >> W2V_SHIFT;
 
 		item->speed = 0;
 
@@ -5261,8 +5262,8 @@ void LaraDeflectEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12904,
 		item->pos.y_rot -= ANGLE(5);
 		break;
 	case CT_CLAMP:
-		item->pos.x_pos -= (100 * 4 * SIN(coll->facing)) >> W2V_SHIFT;
-		item->pos.z_pos -= (100 * 4 * COS(coll->facing)) >> W2V_SHIFT;
+		item->pos.x_pos -= (100 * SIN(coll->facing)) >> W2V_SHIFT;
+		item->pos.z_pos -= (100 * COS(coll->facing)) >> W2V_SHIFT;
 
 		item->speed = 0;
 		coll->mid_floor = 0;
@@ -5276,7 +5277,7 @@ void LaraDeflectEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12904,
 
 void lara_slide_slope(struct ITEM_INFO* item, struct COLL_INFO* coll)//127BC, 1286C (F)
 {
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -512;
 	coll->bad_ceiling = 0;
 
@@ -5411,7 +5412,7 @@ int TestWall(struct ITEM_INFO* item, long front, long right, long down)//12550, 
 	h = GetHeight(floor, x, y, z);
 	c = GetCeiling(floor, x, y, z);
 
-	if (h == -32512)
+	if (h == BAD_HEIGHT)
 		return 1;
 
 	if (y >= h || y <= c)
@@ -5624,7 +5625,7 @@ int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll)//11998, 11A48
 
 	if (coll->tilt_z > 2 && coll->tilt_z > ABS(coll->tilt_x))
 		ang = ANGLE(-180);
-	else if (coll->tilt_z < -2 && -coll->tilt_z > ABS(coll->tilt_x))
+	else if ((coll->tilt_z < -2) && (-coll->tilt_z > ABS(coll->tilt_x)))
 		ang = 0;
 
 	static short old_ang = 1; // a0634
@@ -5678,7 +5679,7 @@ short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h)//11
 
 	height = GetCeiling(GetFloor(x, y, z, &room), x, y, z);
 
-	if (height != -32512)
+	if (height != BAD_HEIGHT)
 	{
 		height -= item->pos.y_pos - h;
 	}
@@ -5694,7 +5695,7 @@ short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h)//11
 
 	long height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
 
-	if (height != -32512)
+	if (height != BAD_HEIGHT)
 		height += h - item->pos.y_pos;
 
 	return height;
@@ -5718,7 +5719,7 @@ short LaraFloorFront(struct ITEM_INFO* item/*s3*/, short ang, long dist)//117B0,
 	//loc_11848
 	height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
 
-	if (height != -32512)
+	if (height != BAD_HEIGHT)
 	{
 		height -= item->pos.y_pos;
 	}//loc_1187C
@@ -5728,13 +5729,13 @@ short LaraFloorFront(struct ITEM_INFO* item/*s3*/, short ang, long dist)//117B0,
 #elif PC_VERSION
 	short room = item->room_number;
 
-	long x = item->pos.x_pos + ((dist * 4 * SIN(ang)) >> W2V_SHIFT);
+	long x = item->pos.x_pos + ((dist * SIN(ang)) >> W2V_SHIFT);
 	long y = item->pos.y_pos - 762;
-	long z = item->pos.z_pos + ((dist * 4 * COS(ang)) >> W2V_SHIFT);
+	long z = item->pos.z_pos + ((dist * COS(ang)) >> W2V_SHIFT);
 
 	long height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
 
-	if (height != -32512)
+	if (height != BAD_HEIGHT)
 		height -= item->pos.y_pos;
 
 	return height;
@@ -5800,15 +5801,26 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 
 	flags = 0;
 
+#if PC_VERSION
+	room_number = lara_item->room_number;
+	GetFloor(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, &room_number);
+	byte_57A468 = room[room_number].flags & RF_FILL_WATER;
+#endif
+
 	//loc_85988
 	for (current_joint = 14; current_joint >= 0; current_joint--)
 	{
 		GetLaraJointPos(&joint, current_joint);
 
+#if PC_VERSION
+		if (lara_mesh_sweetness_table[current_joint] == 7)
+			joint.y -= 120;
+		else if (lara_mesh_sweetness_table[current_joint] == 14)
+			joint.y -= 60;
+#endif
+
 		room_number = lara_item->room_number;
 		GetFloor(joint.x, joint.y, joint.z, &room_number);
-
-		// TODO: Missing code here on PC
 		
 		r = &room[room_number];
 		LaraNodeUnderwater[current_joint] = r->flags & RF_FILL_WATER;

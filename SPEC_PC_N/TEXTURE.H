@@ -24,6 +24,6 @@ struct DXTEXTURE
 };
 #pragma pack(pop)
 
-extern  DXTEXTURE DXTextureList[MAX_D3D_TEXTURES];
+extern DXTEXTURE DXTextureList[MAX_D3D_TEXTURES];
 
 #endif

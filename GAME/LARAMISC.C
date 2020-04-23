@@ -45,7 +45,7 @@
 #endif
 
 #if DEBUG_VERSION
-char* states[131] =
+const char* states[131] =
 {
 	"WALK", "RUN", "STOP", "F JUMP", "POSE", "FASTBACK", "TURN R", "TURN L", "DEATH", 
 	"FASTFALL", "HANG", "REACH", "SPLAT", "TREAD", "LAND", "COMPRESS", "BACK", "SWIM", 
@@ -68,32 +68,32 @@ char* states[131] =
 	"CROWDOVE", "TROPEUNDOFALL", "PBARS_SPIN", "PBARS_LEAPOFF", "LAST"
 };
 
-char* quadrant_names[4] =
+const char* quadrant_names[4] =
 {
 	"NORTH", "EAST", "SOUTH", "WEST"
 };
 
-char* gunstates[6] =
+const char* gunstates[6] =
 {
 	"ARMLESS", "HANDSBUSY", "DRAW", "UNDRAW", "READY", "SPECIAL"
 };
 
-char* waterstates[5] =
+const char* waterstates[5] =
 {
 	"ABOVEWATER", "UNDERWATER", "SURFACE", "CHEAT", "WADE"
 };
 
-char* guntypes[9] =
+const char* guntypes[9] =
 {
 	"UNARMED", "PISTOLS", "MAGNUMS", "UZIS", "SHOTGUN", "M16", "ROCKET", "HARPOON", "FLARE"
 };
 
-char* coll_typess[8] =
+const char* coll_typess[8] =
 {
 	"NONE", "FRONT", "LEFT", "RIGHT", "TOP", "TOPBOTTOM", "TOPFRONT", "CLAMP"
 };
 
-char* htypes[4] =
+const char* htypes[4] =
 {
 	"WALL", "SMALL_SLOPE", "BIG_SLOPE", "DIAGONAL"
 };
@@ -220,8 +220,8 @@ void LaraControl(short item_number)//4A838, 4AC9C
 	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
 	wh = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
 
-	hfw = -32512;
-	if (wh != -32512)
+	hfw = BAD_HEIGHT;
+	if (wh != BAD_HEIGHT)
 	{
 		hfw = item->pos.y_pos - wh;
 	}//loc_4A9F0
@@ -440,10 +440,10 @@ void LaraControl(short item_number)//4A838, 4AC9C
 		//v1 = room_number
 		//a0 = room
 		//v1 = room[room_number].flags
-		//v0 = -32512
+		//v0 = BAD_HEIGHT
 
 		//a0 = item
-		if (wd != -32512 && ABS(hfw) < 0x100
+		if (wd != BAD_HEIGHT && ABS(hfw) < 0x100
 			&& !(room[room_number].flags & RF_FILL_WATER)
 			&& item->anim_number != 0x72
 			&& item->anim_number != 0x77)
@@ -473,11 +473,11 @@ void LaraControl(short item_number)//4A838, 4AC9C
 		else
 		{
 			//loc_4AE70
-			//v0 = -32512
+			//v0 = BAD_HEIGHT
 			if (room_water_state == 0)
 			{
 				//a2 = &lara
-				if (wd != -32512)
+				if (wd != BAD_HEIGHT)
 				{
 					if (hfw < 0)
 					{

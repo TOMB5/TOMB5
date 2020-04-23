@@ -436,7 +436,7 @@ short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short(*gene
 
 void CreatureUnderwater(struct ITEM_INFO* item, long depth)//?, 2468C(<) (F)
 {
-	long water_level;
+	long water_level; // @TODO: unused
 	long floorheight;
 	short room_number;
 
@@ -548,7 +548,7 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 	crinfo->joint_rotation[joint] += change;
 
-	if (crinfo->joint_rotation[joint] < 0x3001)
+	if (crinfo->joint_rotation[joint] < 0x3001) // @TODO: angle 67.5°
 	{
 		crinfo->joint_rotation[joint] -= 0x3000;
 	}
@@ -1108,6 +1108,7 @@ int StalkBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)/
 	zrange = ((box->right - box->left) << 10) + 3072;
 	xrange = ((box->bottom - box->top) << 10) + 3072;
 
+	z = ((box->left + box->right) << 9) - enemy->pos.z_pos;
 	x = ((box->top + box->bottom) << 9) - enemy->pos.x_pos;
 
 	if (xrange < x || x < -xrange || zrange < z || z < -zrange)

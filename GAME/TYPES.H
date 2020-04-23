@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedGlobalDeclarationInspection"
 #ifndef GTYPES_H
 #define GTYPES_H
 
@@ -61,8 +63,13 @@ typedef struct MATRIX3D MatrixThing;
 // Game used 182, so maybe our code will be more precise %)
 #define ANGLE(x) (short)((x) * 65536.0 / 360.0)
 
+#if PC_VERSION
+#define SIN(x) (4 * rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
+#define COS(x) (4 * rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
+#else
 #define SIN(x) (rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
 #define COS(x) (rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
+#endif
 
 #define TRIGMULT2(a, b) (((a) * (b)) >> W2V_SHIFT)
 #define TRIGMULT2F(a, b) (((a) * (b)) / 16384.0f)
@@ -106,7 +113,7 @@ inline int phd_atan(long x, long y)
 
 inline int phd_atan(long x, long y)
 {
-	return (int)(atan2(x, y) * 32768.0 / 3.14159265359);
+	return (int)(atan2(y, x) * 32768.0 / 3.14159265359);
 }
 #endif
 #endif
@@ -131,7 +138,7 @@ inline int phd_atan(long x, long y)
 #define UNIT_SHADOW 256
 #define UNIT_SHADOW_SHIFT 8
 
-
+#define BAD_HEIGHT (-32512)
 
 #define LARA_HITPOINTS 1000
 
@@ -479,22 +486,22 @@ struct lara_info {
 	short dpoisoned; // size=0, offset=50
 	unsigned char Anxiety; // size=0, offset=52
 	unsigned char wet[15]; // size=15, offset=53
-	unsigned short flare_control_left : 1; // offset=68.0
-	unsigned short Unused1 : 1; // offset=68.1
-	unsigned short look : 1; // offset=68.2
-	unsigned short burn : 1; // offset=68.3
-	unsigned short keep_ducked : 1; // offset=68.4
-	unsigned short IsMoving : 1; // offset=68.5
-	unsigned short CanMonkeySwing : 1; // offset=68.6
-	unsigned short BurnBlue : 2; // offset=68.7
-	unsigned short Gassed : 1; // offset=69.1
-	unsigned short BurnSmoke : 1; // offset=69.2
-	unsigned short IsDucked : 1; // offset=69.3
-	unsigned short has_fired : 1; // offset=69.4
-	unsigned short Busy : 1; // offset=69.5
-	unsigned short LitTorch : 1; // offset=69.6
-	unsigned short IsClimbing : 1; // offset=69.7
-	unsigned short Fired : 1; // offset=70.0
+	unsigned short flare_control_left : 1; // offset=68.0 - 0x0001
+	unsigned short Unused1 : 1; // offset=68.1 - 0x0002
+	unsigned short look : 1; // offset=68.2 - 0x0004
+	unsigned short burn : 1; // offset=68.3 - 0x0008
+	unsigned short keep_ducked : 1; // offset=68.4 - 0x0010
+	unsigned short IsMoving : 1; // offset=68.5 - 0x0020
+	unsigned short CanMonkeySwing : 1; // offset=68.6 - 0x0040
+	unsigned short BurnBlue : 2; // offset=68.7 - 0x0080 | 0x0100
+	unsigned short Gassed : 1; // offset=69.1 - 0x0200
+	unsigned short BurnSmoke : 1; // offset=69.2 - 0x0400
+	unsigned short IsDucked : 1; // offset=69.3 - 0x0800
+	unsigned short has_fired : 1; // offset=69.4 - 0x1000
+	unsigned short Busy : 1; // offset=69.5 - 0x2000
+	unsigned short LitTorch : 1; // offset=69.6 - 0x4000
+	unsigned short IsClimbing : 1; // offset=69.7 - 0x8000
+	unsigned short Fired : 1; // offset=70.0 - 0x0001
 	long water_surface_dist; // size=0, offset=72
 	struct PHD_VECTOR last_pos; // size=12, offset=76
 	struct FX_INFO* spaz_effect; // size=44, offset=88
@@ -745,11 +752,19 @@ struct TWOGUN_INFO
 
 struct CHARDEF
 {
+#if PC_VERSION
+	float u;
+	float v;
+	short w;
+	short h;
+	short YOffset;
+#else
 	unsigned char u; // size=0, offset=0
 	unsigned char v; // size=0, offset=1
 	unsigned char w; // size=0, offset=2
 	unsigned char h; // size=0, offset=3
 	char YOffset; // size=0, offset=4
+#endif
 	unsigned char TopShade; // size=0, offset=5
 	unsigned char BottomShade; // size=0, offset=6
 };
@@ -1529,3 +1544,5 @@ struct tr_room_portal  // 32 bytes
 #pragma pack(pop)
 #endif
 #endif
+
+#pragma clang diagnostic pop

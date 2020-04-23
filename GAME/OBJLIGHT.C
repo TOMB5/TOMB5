@@ -68,7 +68,7 @@ void ControlPulseLight(short item_number)//5D254(<), 5D6D0 (F)
 		return;
 
 	item->item_flags[0] -= 1024;
-	sin = ABS(SIN((item->pos.y_pos & 0x3FFF) << 2) << 16 >> 14);
+	sin = ABS(SIN((item->pos.y_pos & 0x3FFF) << 2) << 16 >> 14); // @TODO: wrong W2V?
 
 	if (sin > 255)
 	{
