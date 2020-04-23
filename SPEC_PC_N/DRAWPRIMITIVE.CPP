@@ -1,3 +1,5 @@
+#include <SOUND.H>
+#include <d3d9types.h>
 #include "DRAWPRIMITIVE.H"
 #include "GLOBAL.H"
 #include "DELSTUFF.H"
@@ -1710,9 +1712,120 @@ void CreateFXBulbs()// (F)
 
 }
 
-void SkyDrawPhase()
+void OutputSky()
+{
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, false);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, true);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, false);
+	DrawBuckets();
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, true);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, true);
+	SortPolyList(surfacenumbf, sort3d_bufferbf);
+	//RestoreFPCW();
+	//sub_40110E(0);
+	DrawSortList();
+	//sub_40110E(1058642330);                       // 0.6
+	//MungeFPCW((int)&word_878654);
+	InitBuckets();
+	InitialiseSortList();
+}
+
+void DrawFlatSky(CVECTOR color, short position, int a3, int a4)
 {
 	Unimpl();
+}
+
+void SkyDrawPhase()
+{
+	static short thunder_timer = 0;
+
+	if (outside)
+	{
+		if (objects[HORIZON].loaded)
+		{
+			if (BinocularRange)
+				AlterFOV(14560 - BinocularRange);
+
+			phd_PushMatrix();
+			phd_TranslateAbs(camera.pos.x, camera.pos.y, camera.pos.z);
+
+			if (gfLevelFlags & GF_LVOP_LIGHTNING)
+			{
+				if (LightningCount || LightningRand)
+				{
+					UpdateSkyLightning();
+
+					if (thunder_timer > -1)
+						thunder_timer--;
+
+					if (thunder_timer == 0)
+						SoundEffect(SFX_THUNDER_RUMBLE, 0, SFX_DEFAULT);
+				}
+				else if (!(GetRandomDraw() & 0x7F))
+				{
+					LightningCount = (GetRandomDraw() & 0x1F) + 16;
+					dLightningRand = (GetRandomDraw() & 0xFF) + 256;
+					thunder_timer = (GetRandomDraw() & 3) + 12;
+				}
+			}
+
+			e4b100 = 6;
+
+			DrawBuckets();
+			DrawSortList();
+			phd_PushMatrix();
+
+			if (gfLevelFlags & GF_LVOP_LAYER1_USED)
+			{
+				phd_RotY(32760);
+
+				if (gfLevelFlags & GF_LVOP_LIGHTNING)
+				{
+					DrawFlatSky(
+						CVECTOR(LightningRGBs[0], LightningRGBs[1], LightningRGBs[2], 0x2C),
+						SkyPos,
+						-1536,
+						4);
+				}
+				else
+				{
+					DrawFlatSky(gfLayer1Col, SkyPos, -1536, 4);
+				}
+			}
+
+			if (gfLevelFlags & GF_LVOP_LAYER2_USED)
+				DrawFlatSky(gfLayer2Col.with_alpha(255), SkyPos2, -1536, 2);
+
+			if (gfLevelFlags & (GF_LVOP_LAYER2_USED | GF_LVOP_LAYER1_USED))
+				OutputSky();
+
+			phd_PopMatrix();
+
+			if (gfLevelFlags & GF_LVOP_HORIZON)
+			{
+				int mesh;
+
+				if (gfCurrentLevel || !jobyfrigger)
+					mesh = objects[HORIZON].mesh_index;
+				else
+					mesh = objects[CHEF_MIP].mesh_index;
+
+				phd_PutPolygonsSkyMesh(meshes[mesh]);
+				OutputSky();
+			}
+
+			phd_PopMatrix();
+
+			if (BinocularRange)
+				AlterFOV(14560 - 7 * BinocularRange);
+		}
+		else
+		{
+			outside = -1;
+		}
+	}
 }
 
 void DrawLara__1(ITEM_INFO* item, int a2)
@@ -3136,6 +3249,11 @@ void SuperResetLights()// (F)
 void ClearDynamicLighting()// (F)
 {
 
+}
+
+void phd_PutPolygonsSkyMesh(short* mptr)
+{
+	Unimpl();
 }
 
 void phd_PutPolygons(short* mptr)

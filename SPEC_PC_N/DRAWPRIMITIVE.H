@@ -73,6 +73,8 @@ int32_t DrawPhaseGame();
 
 void phd_PutPolygons(short* mptr);
 
+void phd_PutPolygonsSkyMesh(short* mptr);
+
 void DrawStaticObjects(short current_room);
 
 void DrawEffect(short fx);
