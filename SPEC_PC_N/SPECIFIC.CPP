@@ -37,6 +37,7 @@
 #include "SAVEGAME.H"
 #include "PICTURE.H"
 #include "DRAW.H"
+#include "PCSETUP.H"
 
 /*
 #if DEBUG
@@ -138,18 +139,13 @@ void S_CDStop(void)
 
 void S_SoundStopSample(sint32 handle)// (F)
 {
-	if (!sound_active)
-		return;
-
 	DS_StopSample(handle);
 }
 
 void S_SoundStopAllSamples(void)// (F)
 {
-	if (!sound_active)
-		return;
-
-	DS_StopAllSamples();
+	for (int i = 0; i < 32; i++)
+		DS_StopSample(i);
 }
 
 int WeirdWaitThingy()// (F)
@@ -1874,6 +1870,35 @@ int S_GetObjectBounds(bounding_box_s* bbox)// (F)
 		return 0;
 
 	return 1;
+}
+
+int CalcVolume(int volume)
+{
+	int v1 = 8000 - (10000 - volume * 10000 / 32767.0);
+	if ( v1 <= 0 )
+	{
+		if ( v1 < -10000 )
+			v1 = -10000;
+	}
+	else
+	{
+		v1 = 0;
+	}
+	int result = v1 + 10 * (5 * opt_SFXVolume - 500);
+	if ( result > 0 )
+		return 0;
+	if ( result < -10000 )
+		result = -10000;
+	return result;
+}
+
+sint32 S_SoundPlaySample(int nSample, uint16 wVol, int nPitch, sint16 wPan)
+{
+	return DS_StartSample(nSample, CalcVolume(wVol), nPitch, wPan, 0);
+}
+sint32 S_SoundPlaySampleLooped(int nSample, uint16 wVol, int nPitch, sint16 wPan)
+{
+	return DS_StartSample(nSample, CalcVolume(wVol), nPitch, wPan, DSBPLAY_LOOPING);
 }
 
 #ifdef __cplusplus
