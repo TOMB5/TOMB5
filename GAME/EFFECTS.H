@@ -47,7 +47,7 @@ extern void finish_level_effect(struct ITEM_INFO* item);
 extern void void_effect(struct ITEM_INFO* item);
 extern void WaterFall(short item_number);
 extern void SoundEffects();
-extern long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2);
+extern long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int flags);
 extern void StopSoundEffect(short sample_index);
 extern void LaraBubbles(struct ITEM_INFO* item);
 extern void AddFootprint(struct ITEM_INFO* item);
