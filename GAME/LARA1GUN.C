@@ -239,7 +239,7 @@ void FireCrossbow(struct PHD_3DPOS* Start)//42E18(<), 4326C(<) (F)
 
 		if (item_number != -1)
 		{
-			item = &item[item_number];
+			item = &items[item_number];
 
 			item->object_number = CROSSBOW_BOLT;
 			item->shade = -15856;

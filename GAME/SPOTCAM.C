@@ -580,7 +580,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 
 			//loc_38214
 			sp = cp - (cs >> 1);
-			cs = s7;
+			cs = s7; // @TODO: uninitialized!
 
 			if (sp < 0)
 			{
