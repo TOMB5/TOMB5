@@ -176,7 +176,7 @@ void UpdateSkyLightning()//2C0D0(<), ? (F)
 	//loc_2C18C
 	for (lp = 2; lp >= 0; lp--)
 	{
-		LightningRGBs[lp] += ((LightningRGBs[lp] * LightningRand) >> 8);
+		LightningRGBs[lp] = LightningRGB[lp] + ((LightningRGB[lp] * LightningRand) >> 8);
 		if ((LightningRGBs[lp] & 0xFFFF) > 255)
 		{
 			LightningRGBs[lp] = 255;
