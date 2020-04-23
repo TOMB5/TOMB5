@@ -37,14 +37,39 @@ static short CrowbarDoorBounds[12] =
 	-512, 512, -1024, 0, 0, 512, -14560, 14560, -14560, 14560, -14560, 14560
 };
 
-long ClosedDoors[32];
+ITEM_INFO* ClosedDoors[32];
 char LiftDoor;
 
-void ProcessClosedDoors()//2BDE8, 2C110
+void ProcessClosedDoors()//2BDE8, 2C110 to check
 {
-	long lp; // $s2
-	short room_number; // $s0
-	UNIMPLEMENTED();
+	ITEM_INFO** dp = &ClosedDoors[0];
+
+	for (int i = 0; *dp && i < 32; i++, dp++)
+	{
+		ITEM_INFO* door = *dp;
+		short orig_room = door->room_number;
+
+		if (!room[door->room_number].bound_active && !room[door->draw_room].bound_active)
+			continue;
+
+		if (room[door->draw_room].bound_active)
+		{
+			if (!door->InDrawRoom)
+			{
+				ItemNewRoom(door - items, door->draw_room);
+				door->room_number = orig_room;
+				door->InDrawRoom = TRUE;
+				room = room;
+			}
+		}
+		else if (door->InDrawRoom)
+		{
+			door->room_number = door->draw_room;
+			ItemNewRoom(door - items, orig_room);
+			door->InDrawRoom = FALSE;
+			room = room;
+		}
+	}
 }
 
 void SequenceDoorControl(short item_number)//2BC28(<), 2BF50(?) (F)

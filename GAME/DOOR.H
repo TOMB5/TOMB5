@@ -2,9 +2,10 @@
 #define DOOR_H
 
 #include "STYPES.H"
+#include "SPECTYPES.H"
 
 extern char LiftDoor;
-extern long ClosedDoors[32];
+extern ITEM_INFO* ClosedDoors[32];
 
 extern void ProcessClosedDoors();
 extern void SequenceDoorControl(short item_number);

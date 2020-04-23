@@ -4933,6 +4933,4 @@ void InitialiseClosedDoors()//?(<), BB498(<) (F)
 	{
 		ClosedDoors[i] = 0;
 	}
-
-	return;
 }
