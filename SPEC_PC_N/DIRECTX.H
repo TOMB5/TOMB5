@@ -63,14 +63,6 @@ bool DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD2, HWND WindowHandle, int Flags);
 
 #define KEYDOWN(key) ((key) & 0x80)
 
-struct dx_sample
-{
-	LPDIRECTSOUNDBUFFER buffer;
-	DWORD samples_per_sec;
-};
-
-extern dx_sample dx_samples[256];
-
 extern int NumSamplesTable[3];
 extern int NumSamples;
 extern bool ACMInited;

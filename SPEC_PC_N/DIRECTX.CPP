@@ -8,6 +8,7 @@
 #include <msacm.h>
 #include "INPUT.H"
 #include "FILE.H"
+#include "DS.H"
 
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
@@ -1605,8 +1606,6 @@ void StreamOpen()// (F)
 		Log(LT_Error, "Prepare Stream %d", dword_86BEC4);
 }
 
-dx_sample dx_samples[256];
-
 bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id)
 {
 	Log(LT_Sound, "DXCreateSampleADPCM");
@@ -1651,8 +1650,8 @@ bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id)
 
 	DX_TRY(dsbuf->Unlock(ptr, bytes, nullptr, 0));
 
-	dx_samples[id].samples_per_sec = stream_fmt.nSamplesPerSec;
-	dx_samples[id].buffer = dsbuf;
+	L_DSBuffer[id].samples_per_sec = stream_fmt.nSamplesPerSec;
+	L_DSBuffer[id].buf = dsbuf;
 
 	return true;
 }

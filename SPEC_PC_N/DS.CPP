@@ -1,13 +1,11 @@
 #include "INCLUDE.H"
+#include "GLOBAL.H"
+#include "DS.H"
 
 #pragma comment (lib, "dsound.lib")
 
-#define NUMBER_SOUND_BUFFERS 256
-#define NUMBER_SOUND_PLAY_BUFFERS 32
+sound_thing LaPlayBuffer[NUMBER_SOUND_PLAY_BUFFERS], L_DSBuffer[NUMBER_SOUND_BUFFERS];
 
-local IDirectSoundBuffer* LaPlayBuffer[NUMBER_SOUND_PLAY_BUFFERS];
-local int LnSamplePlaying[NUMBER_SOUND_PLAY_BUFFERS];
-local int LanSampleFrequency[NUMBER_SOUND_BUFFERS];
 void DS_StopSample(int nHandle)// (F)
 {
 	if (nHandle >= 0)
