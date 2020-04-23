@@ -910,7 +910,7 @@ int dword_87B0DC;
 
 void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
 {
-	stru_8796C8.il.room_ambient.rgbcd = room->ambient.rgbcd;
+	stru_8796C8.il.room_ambient = room->ambient;
 	stru_8796C8.ambient_light_pos.x = x;
 	stru_8796C8.ambient_light_pos.y = y;
 	stru_8796C8.ambient_light_pos.z = z;

@@ -2042,7 +2042,7 @@ void CalcAmbientLight(ITEM_INFO* item)// (F)
 	const CVECTOR icol = item->il.room_ambient;
 	const CVECTOR rcol = room[r].ambient;
 
-	if (icol.rgbcd != rcol.rgbcd)
+	if (icol.get_rgb() != rcol.get_rgb())
 	{
 		if (item->il.room_num == -1)
 		{

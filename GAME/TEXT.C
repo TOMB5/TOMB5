@@ -154,8 +154,8 @@ void InitFont()//115EC(<), 1169C(<) (F) (D) (ND)
 			c1 |= 0xFF000000;
 			c2 |= 0xFF000000;
 			
-			FontShades[i][j].color.rgbcd = c1;
-			FontShades[i][j].specular.rgbcd = c2;
+			FontShades[i][j].color = CVECTOR(c1);
+			FontShades[i][j].specular = CVECTOR(c2);
 #else
 			//loc_116F8
 			FontShades[i][j].r = r;

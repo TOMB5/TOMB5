@@ -341,15 +341,15 @@ void DrawChar(uint16_t x, uint16_t y, uint16_t colourFlag, const CHARDEF* a4)// 
 
 			f_znear, d9ab34);
 
-	tlvert[0].color = FontShades[colourFlag][a4->TopShade].color.rgbcd;
-	tlvert[1].color = FontShades[colourFlag][a4->TopShade].color.rgbcd;
-	tlvert[2].color = FontShades[colourFlag][a4->BottomShade].color.rgbcd;
-	tlvert[3].color = FontShades[colourFlag][a4->BottomShade].color.rgbcd;
+	tlvert[0].color = FontShades[colourFlag][a4->TopShade].color.get_rgb();
+	tlvert[1].color = FontShades[colourFlag][a4->TopShade].color.get_rgb();
+	tlvert[2].color = FontShades[colourFlag][a4->BottomShade].color.get_rgb();
+	tlvert[3].color = FontShades[colourFlag][a4->BottomShade].color.get_rgb();
 
-	tlvert[0].specular = FontShades[colourFlag][a4->TopShade].specular.rgbcd;
-	tlvert[1].specular = FontShades[colourFlag][a4->TopShade].specular.rgbcd;
-	tlvert[2].specular = FontShades[colourFlag][a4->BottomShade].specular.rgbcd;
-	tlvert[3].specular = FontShades[colourFlag][a4->BottomShade].specular.rgbcd;
+	tlvert[0].specular = FontShades[colourFlag][a4->TopShade].specular.get_rgb();
+	tlvert[1].specular = FontShades[colourFlag][a4->TopShade].specular.get_rgb();
+	tlvert[2].specular = FontShades[colourFlag][a4->BottomShade].specular.get_rgb();
+	tlvert[3].specular = FontShades[colourFlag][a4->BottomShade].specular.get_rgb();
 
 	OBJECT_TEXTURE tex;
 

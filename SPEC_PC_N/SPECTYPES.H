@@ -59,14 +59,7 @@ struct SVECTOR
 
 struct CVECTOR
 {        /* color type vector */
-	union
-	{
-		struct
-		{
-			unsigned char b, g, r, cd;
-		};
-		uint32_t rgbcd{};
-	};
+	unsigned char r, g, b, cd;
 
 	CVECTOR() = default;
 
@@ -79,7 +72,27 @@ struct CVECTOR
 			: b(b), g(g), r(r), cd(cd)
 	{
 	}
+
+	inline int get_rgb() const
+	{
+		return (((((cd << 8) | r) << 8) | g) << 8) | b;
+	}
+
+	inline CVECTOR with_alpha(BYTE alpha) const
+	{
+		return CVECTOR(this->r, this->g, this->b, alpha);
+	}
+
+	CVECTOR(int rgb)
+		: r(RGBA_GETRED(rgb)), g(RGBA_GETGREEN(rgb)), b(RGBA_GETBLUE(rgb)), cd(RGBA_GETALPHA(rgb))
+	{
+	}
 };
+
+inline bool operator==(const CVECTOR& a, const CVECTOR& b)
+{
+	return a.get_rgb() == b.get_rgb();
+}
 
 typedef CVECTOR BGRCOL;
 struct light_thing_2

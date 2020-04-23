@@ -379,8 +379,8 @@ void UpdatePulseColour()
 		c1 |= 0xFF000000;
 		c2 |= 0xFF000000;
 
-		FontShades[1][i].color.rgbcd = c1;
-		FontShades[1][i].specular.rgbcd = c2;
+		FontShades[1][i].color = CVECTOR(c1);
+		FontShades[1][i].specular = CVECTOR(c2);
 	}
 }
 
