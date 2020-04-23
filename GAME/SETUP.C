@@ -171,9 +171,10 @@ int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundDa
 
 void InitialiseAnimatedTextures()//?(<), B4904(<)
 {
+#if 0
 	int i;
 	unsigned short* animTexRange = &App.AnimTextureRanges[0];
-#if 0
+
 	//000B4B50 3C03000A lui     v1, $A
 	//v0 = nAnimUVRanges;
 	//a1 = AnimTextureRanges;
