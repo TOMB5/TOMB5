@@ -1,7 +1,8 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnusedGlobalDeclarationInspection"
 #ifndef GAMEFLOW_H
 #define GAMEFLOW_H
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedGlobalDeclarationInspection"
 
 #include "STYPES.H"
 #if PC_VERSION
@@ -549,6 +550,6 @@ extern char* gfScriptFile;
 extern const char* screens[5];
 #endif
 
-#endif
-
 #pragma clang diagnostic pop
+
+#endif

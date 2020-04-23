@@ -1,7 +1,8 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnusedGlobalDeclarationInspection"
 #ifndef GTYPES_H
 #define GTYPES_H
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedGlobalDeclarationInspection"
 
 #ifndef MATRIX_WRAPPER
 #define MATRIX_WRAPPER
@@ -1543,6 +1544,7 @@ struct tr_room_portal  // 32 bytes
 #if PC_VERSION || PSXPC_VERSION || PSXPC_TEST
 #pragma pack(pop)
 #endif
-#endif
 
 #pragma clang diagnostic pop
+
+#endif
