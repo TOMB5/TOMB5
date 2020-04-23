@@ -2160,11 +2160,6 @@ int docop2(int op) {
         SY2 = int(Lm_G2(F((long long)OFY + ((long long)IR2 * h_over_sz3)) >> 16));
 
 #if defined(PGXP)
-        if (pgxp_vertex_index == 871)
-        {
-            int test = 0;
-            test++;
-        }
         pgxp_vertex_buffer[pgxp_vertex_index].originalSXY2 = SXY2;
         pgxp_vertex_buffer[pgxp_vertex_index].x = (Lm_G1_ia((long long)OFX + (long long)(IR1 * h_over_sz3))) / (float)(1 << 16);
         pgxp_vertex_buffer[pgxp_vertex_index].y = (Lm_G2_ia((long long)OFY + (long long)(IR2 * h_over_sz3))) / (float)(1 << 16);

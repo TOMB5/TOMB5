@@ -79,10 +79,6 @@
 #include <GLES3/gl3.h>
 #endif
 #include <EGL/egl.h>
-#elif defined(VK)
-#include <SDL_syswm.h>
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan/vulkan.h>
 #elif defined(D3D9)
 #include <Windows.h>
 #include <d3d9.h>
