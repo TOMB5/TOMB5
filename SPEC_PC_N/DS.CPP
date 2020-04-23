@@ -76,6 +76,32 @@ void DS_AdjustPan(int nHandle,int nPan)// (F)
 	}
 }
 
+int DS_StartSample(int nSample, int nVolume, int nPitch, int nPan, DWORD dwFlags)// (F)
+{
+	int nChannel=DS_GetFreeChannel();
+	if (nChannel<0)
+		return -1;
+
+	IDirectSoundBuffer* pBuffer;
+	if (DX_TRY(App.lpDS->DuplicateSoundBuffer(L_DSBuffer[nSample].buf,&pBuffer)))
+		return -1;
+
+	if (DX_TRY(pBuffer->SetVolume(nVolume)) ||
+		DX_TRY(pBuffer->SetCurrentPosition(0)))
+		return -1;
+
+	LaPlayBuffer[nChannel].buf=pBuffer;
+	LaPlayBuffer[nChannel].samplePlaying=nSample;
+
+	DS_AdjustPitch(nChannel, nPitch);
+	DS_AdjustPan(nChannel, nPan);
+
+	pBuffer->Stop();
+	DX_TRY(pBuffer->Play(0, 0, dwFlags));
+
+	return nChannel;
+}
+
 void CDDA_SetMasterVolume(int nVolume) // (F)
 {
 
