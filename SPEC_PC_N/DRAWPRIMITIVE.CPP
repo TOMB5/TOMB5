@@ -1,5 +1,4 @@
 #include <SOUND.H>
-#include <d3d9types.h>
 #include "DRAWPRIMITIVE.H"
 #include "GLOBAL.H"
 #include "DELSTUFF.H"
