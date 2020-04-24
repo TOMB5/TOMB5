@@ -3235,9 +3235,7 @@ void SuperResetLights()// (F)
 	dword_87B110 = 0;
 	dword_87B114 = 0;
 
-	stru_87AD04.b = 0;
-	stru_87AD04.g = 0;
-	stru_87AD04.r = 0;
+	stru_87AD04 = {0, 0, 0};
 
 	D3DMultMatrix(&res, &a, &b);
 
@@ -3251,9 +3249,86 @@ void ClearDynamicLighting()// (F)
 
 }
 
+float dword_91F3B0;
+
 void phd_PutPolygonsSkyMesh(short* mptr)
 {
-	Unimpl();
+	const auto mesh = (tr4_mesh*)mptr;
+
+	dword_91F3B0 = 0.0;
+	SetViewMatrix();
+	SuperResetLights();
+	ClearDynamicLighting();
+	ClearObjectLighting();
+	stru_87AD04 = {128, 128, 128};
+	room_left_flt = clip_xmin;
+	room_right_flt = clip_xmax;
+	room_bottom_flt = clip_ymax;
+	room_top_flt = clip_ymin;
+	TransformLightClipMesh(mesh);
+
+	tr4_mesh_face4* rect = &mesh->rectangles[0];
+	for (int i = 0; i < mesh->num_rectangles; i++, rect++)
+	{
+		auto tex = &object_textures[rect->Texture];
+		auto old_attr = tex->attribute;
+
+		if (rect->Effects & 1)
+		{
+			if (gfLevelFlags & GF_LVOP_COL_ADD_HORIZON)
+			{
+				tex->attribute = OT_ALPHA_BLENDING;
+			}
+			else
+			{
+				if (App.lpZBuffer)
+				{
+					vert_buf[rect->Vertices[0]].color = 0;
+					vert_buf[rect->Vertices[1]].color = 0;
+					vert_buf[rect->Vertices[2]].color = RGBA_MAKE(0, 0, 0, 255);
+					vert_buf[rect->Vertices[3]].color = RGBA_MAKE(0, 0, 0, 255);
+					tex->attribute = OT_ALPHA_BLENDING_INV;
+				}
+				else
+				{
+					vert_buf[rect->Vertices[0]].color = 0;
+					vert_buf[rect->Vertices[1]].color = 0;
+					vert_buf[rect->Vertices[2]].color = 0;
+					vert_buf[rect->Vertices[3]].color = 0;
+					tex->attribute = OT_ALL_OPAQUE;
+				}
+			}
+		}
+		else
+		{
+			tex->attribute = OT_ALPHA_TESTING_DEPTHLESS;
+		}
+
+		for (int j = 0; j < 4; j++)
+			vert_buf[rect->Vertices[i]].rhw = f_persp / f_zfar * f_oneopersp;
+
+		AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3], tex, 0);
+
+		for (int j = 0; j < 4; j++)
+			if (vert_buf[rect->Vertices[j]].sy > dword_91F3B0)
+				dword_91F3B0 = vert_buf[rect->Vertices[j]].sy;
+
+		tex->attribute = old_attr;
+	}
+
+	tr4_mesh_face3* tri = &mesh->triangles[0];
+	for (int i = 0; i < mesh->num_triangles; i++, tri++)
+	{
+		auto tex = &object_textures[tri->Texture];
+		auto old_attr = tex->attribute;
+		tex->attribute = OT_ALPHA_TESTING_DEPTHLESS;
+
+		AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], tex, 0);
+
+		tex->attribute = old_attr;
+	}
+
+	dword_91F3B0 = phd_centery;
 }
 
 void phd_PutPolygons(short* mptr)
