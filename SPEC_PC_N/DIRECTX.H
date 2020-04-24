@@ -35,9 +35,9 @@
 
 #define GENRGB(r, g, b) DXRGB(&App.DeviceInfo, &App.DXConfig, r, g, b)
 
-#define RGB_MAKE(r, g, b) RGBA_MAKE(r, g, b, 255)
+#define RGBOPAQUE(r, g, b) RGBA_MAKE(r, g, b, 255)
 
-#define RGB_MULT(col, k) RGB_MAKE((k) * RGB_GETRED(col), (k) * RGB_GETGREEN(col), (k) * RGB_GETBLUE(col))
+#define RGB_MULT(col, k) RGBA_MAKE((k) * RGB_GETRED(col), (k) * RGB_GETGREEN(col), (k) * RGB_GETBLUE(col), RGBA_GETALPHA(col))
 
 #define SCALE_CLR(begin, end, perc) ((begin) + ((end) - (begin)) * (perc))
 

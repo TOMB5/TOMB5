@@ -336,10 +336,10 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tlvert[2].sz = f_znear;
 	tlvert[3].sz = f_znear;
 
-	tlvert[0].specular = RGB_MAKE(0, 0, 0);
-	tlvert[1].specular = RGB_MAKE(0, 0, 0);
-	tlvert[2].specular = RGB_MAKE(0, 0, 0);
-	tlvert[3].specular = RGB_MAKE(0, 0, 0);
+	tlvert[0].specular = RGBOPAQUE(0, 0, 0);
+	tlvert[1].specular = RGBOPAQUE(0, 0, 0);
+	tlvert[2].specular = RGBOPAQUE(0, 0, 0);
+	tlvert[3].specular = RGBOPAQUE(0, 0, 0);
 
 	tlvert[0].rhw = rhw;
 	tlvert[1].rhw = rhw;
@@ -412,10 +412,10 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tlvert[2].rhw = f_persp / (f_znear + 2.0) * f_oneopersp;
 	tlvert[3].rhw = f_persp / (f_znear + 2.0) * f_oneopersp;
 
-	tlvert[0].color = RGB_MAKE(255, 255, 255);
-	tlvert[1].color = RGB_MAKE(255, 255, 255);
-	tlvert[2].color = RGB_MAKE(255, 255, 255);
-	tlvert[3].color = RGB_MAKE(255, 255, 255);
+	tlvert[0].color = RGBOPAQUE(255, 255, 255);
+	tlvert[1].color = RGBOPAQUE(255, 255, 255);
+	tlvert[2].color = RGBOPAQUE(255, 255, 255);
+	tlvert[3].color = RGBOPAQUE(255, 255, 255);
 
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 }
@@ -468,20 +468,20 @@ void SuperShowLogo()// (F)
 	tlvert[2].sz = 0.0;
 	tlvert[3].sz = 0.0;
 
-	tlvert[0].specular = RGB_MAKE(0, 0, 0);
-	tlvert[1].specular = RGB_MAKE(0, 0, 0);
-	tlvert[2].specular = RGB_MAKE(0, 0, 0);
-	tlvert[3].specular = RGB_MAKE(0, 0, 0);
+	tlvert[0].specular = RGBOPAQUE(0, 0, 0);
+	tlvert[1].specular = RGBOPAQUE(0, 0, 0);
+	tlvert[2].specular = RGBOPAQUE(0, 0, 0);
+	tlvert[3].specular = RGBOPAQUE(0, 0, 0);
 
 	tlvert[0].rhw = f_oneoznear;
 	tlvert[1].rhw = f_oneoznear;
 	tlvert[2].rhw = f_oneoznear;
 	tlvert[3].rhw = f_oneoznear;
 
-	tlvert[0].color = RGB_MAKE(255, 255, 255);
-	tlvert[1].color = RGB_MAKE(255, 255, 255);
-	tlvert[2].color = RGB_MAKE(255, 255, 255);
-	tlvert[3].color = RGB_MAKE(255, 255, 255);
+	tlvert[0].color = RGBOPAQUE(255, 255, 255);
+	tlvert[1].color = RGBOPAQUE(255, 255, 255);
+	tlvert[2].color = RGBOPAQUE(255, 255, 255);
+	tlvert[3].color = RGBOPAQUE(255, 255, 255);
 
 	OBJECT_TEXTURE tex;
 
@@ -518,20 +518,20 @@ void SuperShowLogo()// (F)
 	tlvert[2].sz = 0.0;
 	tlvert[3].sz = 0.0;
 
-	tlvert[0].specular = RGB_MAKE(0, 0, 0);
-	tlvert[1].specular = RGB_MAKE(0, 0, 0);
-	tlvert[2].specular = RGB_MAKE(0, 0, 0);
-	tlvert[3].specular = RGB_MAKE(0, 0, 0);
+	tlvert[0].specular = RGBOPAQUE(0, 0, 0);
+	tlvert[1].specular = RGBOPAQUE(0, 0, 0);
+	tlvert[2].specular = RGBOPAQUE(0, 0, 0);
+	tlvert[3].specular = RGBOPAQUE(0, 0, 0);
 
 	tlvert[0].rhw = f_oneoznear;
 	tlvert[1].rhw = f_oneoznear;
 	tlvert[2].rhw = f_oneoznear;
 	tlvert[3].rhw = f_oneoznear;
 
-	tlvert[0].color = RGB_MAKE(255, 255, 255);
-	tlvert[1].color = RGB_MAKE(255, 255, 255);
-	tlvert[2].color = RGB_MAKE(255, 255, 255);
-	tlvert[3].color = RGB_MAKE(255, 255, 255);
+	tlvert[0].color = RGBOPAQUE(255, 255, 255);
+	tlvert[1].color = RGBOPAQUE(255, 255, 255);
+	tlvert[2].color = RGBOPAQUE(255, 255, 255);
+	tlvert[3].color = RGBOPAQUE(255, 255, 255);
 
 	tex.attribute = OT_ALPHA_TESTING;
 	tex.new_flags = 0;
@@ -562,7 +562,7 @@ bool S_DrawLoadBar()
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
 
-	DoBar(170, 480 - font_height, 300, 10, loadBar2, RGB_MAKE(0, 0, 16), RGB_MAKE(0, 0, 240));
+	DoBar(170, 480 - font_height, 300, 10, loadBar2, RGBONLY(0, 0, 16), RGBONLY(0, 0, 240));
 
 	SortPolyList(surfacenumbf, sort3d_bufferbf);
 	//RestoreFPCW();

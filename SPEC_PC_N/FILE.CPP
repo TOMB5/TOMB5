@@ -907,7 +907,7 @@ void ProcessMeshData(int nmeshes)
 						mesh_info->lights[j] = mesh_info->vert[j].f6 = v36;
 					}
 
-					mesh_info->attributes |= 2;
+					mesh_info->attributes |= MA_LIGHTS;
 				}
 				else
 				{
@@ -949,7 +949,7 @@ void ProcessMeshData(int nmeshes)
 				{
 					if (mesh_info->rectangles[j].Effects & 2)
 					{
-						mesh_info->attributes |= 1;
+						mesh_info->attributes |= MA_ATTR1;
 						break;
 					}
 				}
@@ -967,7 +967,7 @@ void ProcessMeshData(int nmeshes)
 				{
 					if (mesh_info->triangles[j].Effects & 2)
 					{
-						mesh_info->attributes |= 1;
+						mesh_info->attributes |= MA_ATTR1;
 						break;
 					}
 				}

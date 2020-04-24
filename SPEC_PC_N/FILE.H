@@ -69,6 +69,12 @@ struct tr4_mesh
 	mesh_thing* vert;
 	bounding_box_f bbox;
 };
+
+enum MESH_ATTRIBUTE
+{
+	MA_ATTR1 = 1,
+	MA_LIGHTS = 2
+};
 #pragma pack(pop)
 
 #endif

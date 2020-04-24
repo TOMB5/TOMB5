@@ -149,7 +149,7 @@ void InitFont()//115EC(<), 1169C(<) (F) (D) (ND)
 			}
 #if PC_VERSION
 			uint32_t c1, c2;
-			CalcColorSplit(RGB_MAKE(r, g, b), &c1, &c2);
+			CalcColorSplit(RGBONLY(r, g, b), &c1, &c2);
 
 			c1 |= 0xFF000000;
 			c2 |= 0xFF000000;

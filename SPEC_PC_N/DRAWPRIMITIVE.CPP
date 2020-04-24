@@ -1307,7 +1307,7 @@ void DrawEffect(short fx_num)
 
 			if (gfCurrentLevel == LVL5_COLOSSEUM && fx->object_number == BODY_PART)
 			{
-				SetGlobalAmbient(RGB_MAKE(40, 32, 32));
+				SetGlobalAmbient(RGBOPAQUE(40, 32, 32));
 			}
 
 			//S_CalculateLight(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, fx->room_number, &stru_E71352);
@@ -2054,8 +2054,8 @@ void DrawBubbles()// (F)
 
 				for (int j = 0; j < 4; j++)
 				{
-					v[j].color = RGB_MAKE(v17, v17, v17);
-					v[j].specular = RGB_MAKE(0, 0, 0);
+					v[j].color = RGBOPAQUE(v17, v17, v17);
+					v[j].specular = RGBOPAQUE(0, 0, 0);
 				}
 
 				OBJECT_TEXTURE tex;
@@ -3402,9 +3402,9 @@ void phd_PutPolygons(short* mptr)
 			if (mesh->num_rectangles > 0)
 			{
 				auto rect = mesh->rectangles;
-				for (int v81 = 0; v81 < mesh->num_rectangles; v81++, rect++)
+				for (int i = 0; i < mesh->num_rectangles; i++, rect++)
 				{
-					char v80 = 0;
+					bool env_mapping = false;
 					const int v11 = rect->Texture;
 					OBJECT_TEXTURE* v12 = v86 = &object_textures[v11];
 					const uint16 v83 = object_textures[v11].attribute;
@@ -3415,7 +3415,7 @@ void phd_PutPolygons(short* mptr)
 						tex.attribute = OT_ALPHA_BLENDING;
 						tex.new_flags = v12->new_flags;
 						tex.tile_and_flag = num_pages - 3;
-						v80 = 1;
+						env_mapping = true;
 
 						for (int j = 0; j < 4; j++)
 						{
@@ -3424,7 +3424,7 @@ void phd_PutPolygons(short* mptr)
 
 						v8 = 2 * (rect->EnvMappingStrength & 0x3E);
 					}
-					if (dword_506D3C == RGB_MAKE(0, 0, 0))
+					if (dword_506D3C == RGBA_MAKE(0, 0, 0, 255))
 					{
 						if (v12->attribute == OT_ALL_OPAQUE)
 						{
@@ -3436,7 +3436,7 @@ void phd_PutPolygons(short* mptr)
 							AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2],
 							         rect->Vertices[3], v12, 0);
 						}
-						if (v80)
+						if (env_mapping)
 						{
 							D3DCOLOR old_color[4];
 							D3DCOLOR old_specular[4];
@@ -3478,7 +3478,7 @@ void phd_PutPolygons(short* mptr)
 				for (int v82 = 0; v82 < mesh->num_triangles; v82++, tri++)
 				{
 					const int v52 = tri->Texture;
-					char v53 = 0;
+					bool env_mapping = false;
 					const uint16 v84 = object_textures[v52].attribute;
 					OBJECT_TEXTURE* v56 = &object_textures[v52];
 					if (tri->AlphaBlending)
@@ -3489,13 +3489,13 @@ void phd_PutPolygons(short* mptr)
 						tex.attribute = OT_ALPHA_BLENDING;
 						tex.new_flags = v56->new_flags;
 						tex.tile_and_flag = num_pages - 3;
-						v53 = 1;
+						env_mapping = true;
 						for (int j = 0; j < 3; j++)
 						{
 							tex.vertices[j] = stru_920E18[tri->Vertices[j]];
 						}
 					}
-					if (dword_506D3C == RGB_MAKE(0, 0, 0))
+					if (dword_506D3C == RGBOPAQUE(0, 0, 0))
 					{
 						if (v56->attribute == OT_ALL_OPAQUE)
 						{
@@ -3505,7 +3505,7 @@ void phd_PutPolygons(short* mptr)
 						{
 							AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
 						}
-						if (v53)
+						if (env_mapping)
 						{
 							D3DCOLOR old_color[3];
 							D3DCOLOR old_specular[3];
