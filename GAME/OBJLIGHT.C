@@ -99,8 +99,6 @@ void ControlColouredLight(short item_number)//5D368(<), 5D7E4 (F)
 	b = (item->trigger_flags << 23) >> 17 & 0xF8;
 
 	TriggerDynamic(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 24, r, g, b);
-
-	UNIMPLEMENTED();
 }
 
 void ControlElectricalLight(short item_number)//5D3F8, 5D874

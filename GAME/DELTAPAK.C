@@ -3206,7 +3206,6 @@ void init_cutseq_actors(char* data, int resident)//2D944(<), 2DBD4 (F)
 	duff_item.pos.z_rot = 0;
 	// @TODO: ?
 #if !PC_VERSION
-	duff_item.il.
 	duff_item.il.Light[3].pad = 0;
 	duff_item.room_number = lara_item->room_number;
 #endif

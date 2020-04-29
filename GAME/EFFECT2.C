@@ -154,7 +154,7 @@ void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC
 
 void DetatchSpark(long num, long type)//32D8C, 3328C (F)
 {
-#if 0///@FIXME this is trashing memory!
+#if 0///@FIXME this is trashing memory on PSX/PSXPC!
 	struct FX_INFO* fx = &effects[num];
 	struct ITEM_INFO* item = &items[num];	
 	struct SPARKS* sptr = &spark[0];
