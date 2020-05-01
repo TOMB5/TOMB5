@@ -1379,11 +1379,6 @@ void sub_2CL1(struct ITEM_INFO* item)
     //loc_278
     for (i = 0; i < 0xE; i++)
     {
-        if (i == 7)
-        {
-            int test = 0;
-            test++;
-        }
         //v0 = 1 << 0xE
         //v0 = lara_item->mesh_bits & (1 << 0xE)
 
