@@ -390,19 +390,19 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 #if !AUG_VERSION && !JULY_VERSION
 			switch (LaraDrawType)
 			{
-			case 0:
+			case 1:
 				DrawLaraL1();
 				break;
-			case 1:
+			case 2:
 				DrawLaraL2();
 				break;
-			case 2:
+			case 3:
 				DrawLaraL3();
 				break;
-			case 3:
+			case 4:
 				DrawLaraL4();
 				break;
-			case 4:
+			case 5:
 				DrawLaraL5();
 				break;
 			}
