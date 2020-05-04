@@ -14,15 +14,231 @@
 #include "TOMB4FX.H"
 #include "HAIR.H"
 #include "LOAD_LEV.H"
+#include "ROOMLOAD.H"
+#include <assert.h>
 
 static int scratchPad[256];
 
-void sub_1978L4()
+int dword_2C[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+void sub_1A48L4()//(F)
 {
-    UNIMPLEMENTED();
+    if (!lara.skelebob)
+    {
+        return;
+    }
+
+    int* mesh = (int*)meshes + objects[LARA].mesh_index;//$v1
+    lara.mesh_ptrs[14] = (short*)mesh[28];
+    lara.back_gun = Sback_gun;
+    lara.mesh_ptrs[10] = SRhandPtr;
+    lara.mesh_ptrs[13] = SLhandPtr;
+    lara.mesh_ptrs[7] = (short*)mesh[14];
 }
 
-void sub_FC0L4(int x, int y, int z)
+int* sub_B44L4(int* v0, short* a0, int* a2, int* v1)//(F)
+{
+    int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+    int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+    int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+    int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+    int t4 = R33;
+    int t5 = 0xFFFF0000;
+    int t6 = t0 & t5;
+    int t7 = t2 & t5;
+    t0 &= 0xFFFF;
+    int at = t1 & t5;
+    t0 |= at;
+    t2 &= 0xFFFF;
+    at = t3 & t5;
+    t2 |= at;
+    t1 &= 0xFFFF;
+    t1 |= t7;
+    t3 &= 0xFFFF;
+    t3 |= t6;
+
+    L11 = t0 & 0xFFFF;
+    L12 = (t0 >> 16) & 0xFFFF;
+    L13 = t3 & 0xFFFF;
+    L21 = (t3 >> 16) & 0xFFFF;
+    L22 = t2 & 0xFFFF;
+    L23 = (t2 >> 16) & 0xFFFF;
+    L31 = t1 & 0xFFFF;
+    L32 = (t1 >> 16) & 0xFFFF;
+    L33 = t4;
+
+    //t9 = LightPos
+    t0 = ((int*)&LightPos)[0];
+    t1 = ((int*)&LightPos)[1];
+    VX0 = t0 & 0xFFFF;
+    VY0 = (t0 >> 16) & 0xFFFF;
+    VZ0 = t1;
+
+    docop2(0x4A6012);
+    t0 = ((int*)&LightPos)[2];
+    t1 >>= 16;
+    at = t0 << 16;
+    t1 |= at;
+    t0 >>= 16;
+
+    VX1 = t1 & 0xFFFF;
+    VY1 = (t1 >> 16) & 0xFFFF;
+    VZ1 = t0;
+
+    t0 = IR1;
+    t2 = IR2;
+    t1 = IR3;
+    
+    docop2(0x4AE012);
+    VX2 = ((int*)&LightPos)[3] & 0xFFFF;
+    VY2 = (((int*)&LightPos)[3] >> 16) & 0xFFFF;
+    VZ2 = ((int*)&LightPos)[4];
+
+    t0 &= 0xFFFF;
+    t2 <<= 16;
+    t0 |= t2;
+    t1 &= 0xFFFF;
+
+    t3 = IR1;
+    t2 = IR2;
+    t4 = IR3;
+
+    docop2(0x4B6012);
+
+    t3 <<= 16;
+    t1 |= t3;
+    t2 &= 0xFFFF;
+    t4 <<= 16;
+    t2 |= t4;
+
+    t3 = IR1;
+    t5 = IR2;
+    t4 = IR3;
+
+    t3 &= 0xFFFF;
+    t5 <<= 16;
+    t3 |= t5;
+
+    L11 = t0 & 0xFFFF;
+    L12 = (t0 >> 16) & 0xFFFF;
+    L13 = t1 & 0xFFFF;
+    L21 = (t1 >> 16) & 0xFFFF;
+    L22 = t2 & 0xFFFF;
+    L23 = (t2 >> 16) & 0xFFFF;
+    L31 = t3 & 0xFFFF;
+    L32 = (t3 >> 16) & 0xFFFF;
+    L33 = t4;
+
+    at = *v0 << 3;
+    *v1 = *v0;
+
+    int* a3 = (int*)&a0[at >> 1];
+
+    t0 = ((int*)a0)[0];
+    t1 = ((int*)a0)[1];
+    t2 = ((int*)a0)[2];
+    t3 = ((int*)a0)[3];
+    t4 = ((int*)a0)[4];
+    t5 = ((int*)a0)[5];
+
+    //loc_C78
+    do
+    {
+        VX0 = t0 & 0xFFFF;
+        VY0 = (t0 >> 16) & 0xFFFF;
+        VZ0 = t1;
+
+        VX1 = t2 & 0xFFFF;
+        VY1 = (t2 >> 16) & 0xFFFF;
+        VZ1 = t3;
+
+        VX2 = t4 & 0xFFFF;
+        VY2 = (t4 >> 16) & 0xFFFF;
+        VZ2 = t5;
+
+        a0 += 12;
+        *v0 -= 3;
+
+        docop2(0x280030);
+
+        t0 = ((int*)a0)[0];
+        t1 = ((int*)a0)[1];
+        t2 = ((int*)a0)[2];
+        t3 = ((int*)a0)[3];
+        t4 = ((int*)a0)[4];
+        t5 = ((int*)a0)[5];
+
+        a2[0] = SXY0;
+        a2[1] = SZ1;
+        a2[2] = SXY1;
+        a2[3] = SZ2;
+        a2[4] = SXY2;
+        a2[5] = SZ3;
+
+        a2 += 6;
+    } while (*v0 > 0);
+
+    return a3;
+}
+
+void sub_1978L4()//(F)
+{
+    if (!lara.skelebob)
+    {
+        return;
+    }
+
+    //loc_1990
+    int* mesh = (int*)meshes + objects[LARA_EXTRA_MESH2].mesh_index;//$v0
+    int t1 = mesh[20];
+    int t2 = mesh[26];
+
+    lara.mesh_ptrs[14] = (short*)mesh[28];//
+
+    Sback_gun = lara.back_gun;
+    SRhandPtr = lara.mesh_ptrs[10];
+    SLhandPtr = lara.mesh_ptrs[13];
+
+    lara.mesh_ptrs[7] = (short*)mesh[14];
+
+    if (lara.back_gun)
+    {
+        if (lara.back_gun == 4)
+        {
+            lara.back_gun = 2;
+        }
+        else if (lara.back_gun == 5)
+        {
+            lara.back_gun = 1;
+        }
+    }
+    //loc_19F0
+    if (lara.gun_type == 6)
+    {
+        mesh = (int*)meshes + objects[CROSSBOW_ANIM].mesh_index;
+
+        if (lara.mesh_ptrs[10] == (short*)mesh[20])
+        {
+            mesh = (int*)meshes + objects[UZI_ANIM].mesh_index;
+            t1 = mesh[20];
+        }
+    }
+    else if (lara.gun_type == 5)//loc_1A0C
+    {
+        mesh = (int*)meshes + objects[HK_ANIM].mesh_index;
+
+        if (lara.mesh_ptrs[10] == (short*)mesh[20])
+        {
+            mesh = (int*)meshes + objects[PISTOLS_ANIM].mesh_index;
+            t1 = mesh[20];
+        }
+    }
+
+    lara.mesh_ptrs[13] = (short*)t2;
+    lara.mesh_ptrs[10] = (short*)t1;
+}
+
+void sub_FC0L4(int x, int y, int z)//(F)
 {
     int t0 = TRX;
     int t1 = TRY;
@@ -128,7 +344,7 @@ void sub_FC0L4(int x, int y, int z)
     TRZ = t2;
 }
 
-void sub_1358L4(int x, int y, int z)
+void sub_1358L4(int x, int y, int z)//(F)
 {
     int t4 = y >> 15;
 
@@ -232,7 +448,7 @@ void sub_1358L4(int x, int y, int z)
     TRZ = t2;
 }
 
-void sub_C1CL4(int a0)
+void sub_C1CL4(int a0)//(F)
 {
     int* a00 = (int*)&tsv_buffer[(((a0 << 1) + a0) << 2)];
     char* a1 = (char*)&SkinVertNums[(((a0 << 1) + a0) << 2)];
@@ -246,9 +462,11 @@ void sub_C1CL4(int a0)
         if (v0 >= 0)
         {
             int* a2 = &scratchPad[v0 << 1];
+            short* a3 = (short*)&dword_2C[v0];
             a00[0] = a2[0];
             a00[1] = a2[1];
-            a00 += 2;
+            a00[2] = a3[0];
+            a00 += 4;
         }
         else
         {
@@ -258,7 +476,7 @@ void sub_C1CL4(int a0)
     //locret_C64
 }
 
-void sub_C6CL4(int a0)
+void sub_C6CL4(int a0)//(F)
 {
     int* a00 = (int*)&tsv_buffer[(((a0 << 1) + a0) << 2)];
     char* a2 = (char*)&ScratchVertNums[(((a0 << 1) + a0) << 2)];
@@ -272,9 +490,11 @@ void sub_C6CL4(int a0)
         if (v0 >= 0)
         {
             int* a1 = &scratchPad[v0 << 1];
+            short* t3 = (short*)&dword_2C[v0];
             a1[0] = a00[0];
             a1[1] = a00[1];
-            a00 += 2;
+            t3[0] = a00[2];
+            a00 += 4;
         }
         else
         {
@@ -284,7 +504,7 @@ void sub_C6CL4(int a0)
     //locret_CB4
 }
 
-void sub_CBCL4(int a0)
+void sub_CBCL4(int a0)//(F)
 {
     a0 >>= 2;
     a0 &= 0x3FFC;
@@ -349,7 +569,7 @@ void sub_CBCL4(int a0)
     }
 }
 
-void sub_D7CL4(int y_rot)
+void sub_D7CL4(int y_rot)//(F)
 {
     y_rot >>= 2;
     y_rot &= 0x3FFC;
@@ -408,7 +628,7 @@ void sub_D7CL4(int y_rot)
     }
 }
 
-void sub_1244L4(int y_rot, int x_rot, int z_rot)
+void sub_1244L4(int y_rot, int x_rot, int z_rot)//(F)
 {
     sub_D7CL4(y_rot);
     sub_CBCL4(x_rot);
@@ -482,7 +702,7 @@ void sub_1244L4(int y_rot, int x_rot, int z_rot)
 
 }
 
-void sub_BACL4(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
+void sub_BACL4(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)//(F)
 {
     *t2 = *t6 >> 7;
     *t2 &= *a3;
@@ -492,7 +712,13 @@ void sub_BACL4(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
     *t6 &= 0xF8;
     *t6 |= *t3;
     *t6 |= *t2;
+#if BETA_VERSION
+    *t2 = RGB2;
+#endif
     *at >>= 24;
+#if BETA_VERSION
+    *at |= *t2;
+#endif
     *at <<= 24;
     *t6 |= *at;
     *t2 = *t7 >> 7;
@@ -513,178 +739,28 @@ void sub_BACL4(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
     *t8 |= *t2;
 }
 
-int* sub_658L4(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
+int* sub_1554L4(int v0, short* meshp, int* s5, int s6, unsigned int* a1)//(F)
 {
-    unsigned int t00;
     int t0;
     int t1;
     int t2;
     int t3;
     int t4;
     int t5;
-    int t6;
-    int t7;
     int t8;
     int t9;
+    int t7;
+    int t6;
     int at;
+    int* a2 = &scratchPad[0];
     int v1;
     int* a3;
     int* a0;
-
-    int v0 = ((int*)meshp)[2];
-    meshp += 6;
-    unsigned int* a1 = (unsigned int*)&meshp[v0 >> 17];
-    v0 &= 0xFF;
-    int* a2 = &scratchPad[0];
+    int t00;
 
     if (v0 != 0)
     {
-        t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-        t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-        t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-        t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
-        t4 = (R33 & 0xFFFF);
-
-        t5 = 0xFFFF0000;
-        t6 = t0 & t5;
-        t7 = t2 & t5;
-        t0 &= 0xFFFF;
-        at = t1 & t5;
-        t0 |= at;
-        t2 &= 0xFFFF;
-        at = t3 & t5;
-        t2 |= at;
-        t1 &= 0xFFFF;
-        t1 |= t7;
-        t3 &= 0xFFFF;
-        t3 |= t6;
-
-        L11 = t0 & 0xFFFF;
-        L12 = (t0 >> 16) & 0xFFFF;
-        L13 = t3 & 0xFFFF;
-        L21 = (t3 >> 16) & 0xFFFF;
-        L22 = t2 & 0xFFFF;
-        L23 = (t2 >> 16) & 0xFFFF;
-        L31 = t1 & 0xFFFF;
-        L32 = (t1 >> 16) & 0xFFFF;
-        L33 = t4 & 0xFFFF;
-
-        //t9 = &LightPos
-
-        t0 = ((int*)&LightPos)[0];
-        t1 = ((int*)&LightPos)[1];
-        VX0 = (t0 & 0xFFFF);
-        VY0 = (t0 >> 16) & 0xFFFF;
-        VZ0 = (t1 & 0xFFFF);
-        docop2(0x4A6012);
-        t0 = ((int*)&LightPos)[2];
-        t1 >>= 16;
-        at = t0 << 16;
-        t1 |= at;
-        t0 >>= 16;
-
-        VX1 = t1 & 0xFFFF;
-        VY1 = (t1 >> 16) & 0xFFFF;
-        VZ1 = t0;
-
-        t0 = IR1;
-        t2 = IR2;
-        t1 = IR3;
-
-        docop2(0x4AE012);
-        VX2 = ((int*)&LightPos)[3] & 0xFFFF;
-        VY2 = (((int*)&LightPos)[3] >> 16) & 0xFFFF;
-        VZ2 = ((int*)&LightPos)[4] & 0xFFFF;
-
-        t0 &= 0xFFFF;
-        t2 <<= 16;
-        t0 |= t2;
-        t1 &= 0xFFFF;
-
-        t3 = IR1;
-        t2 = IR2;
-        t4 = IR3;
-
-        docop2(0x4B6012);
-
-        t3 <<= 16;
-        t1 |= t3;
-        t2 &= 0xFFFF;
-        t4 <<= 16;
-        t2 |= t4;
-
-        t3 = IR1;
-        t5 = IR2;
-        t4 = IR3;
-
-        t3 &= 0xFFFF;
-        t5 <<= 16;
-        t3 |= t5;
-
-        L11 = t0 & 0xFFFF;
-        L12 = (t0 >> 16) & 0xFFFF;
-
-        L13 = t1 & 0xFFFF;
-        L21 = (t1 >> 16) & 0xFFFF;
-
-        L22 = t2 & 0xFFFF;
-        L23 = (t2 >> 16) & 0xFFFF;
-
-        L31 = t3 & 0xFFFF;
-        L32 = (t3 >> 16) & 0xFFFF;
-
-        L33 = t4;
-
-        at = v0 << 3;
-        v1 = v0;
-
-        a3 = (int*)&meshp[v0 << 2];
-
-        t0 = ((int*)meshp)[0];
-        t1 = ((int*)meshp)[1];
-        t2 = ((int*)meshp)[2];
-        t3 = ((int*)meshp)[3];
-        t4 = ((int*)meshp)[4];
-        t5 = ((int*)meshp)[5];
-
-        //loc_7AC
-        do
-        {
-            VX0 = t0 & 0xFFFF;
-            VY0 = (t0 >> 16) & 0xFFFF;
-            VZ0 = t1 & 0xFFFF;
-
-            VX1 = t2 & 0xFFFF;
-            VY1 = (t2 >> 16) & 0xFFFF;
-            VZ1 = t3 & 0xFFFF;
-
-            VX2 = t4 & 0xFFFF;
-            VY2 = (t4 >> 16) & 0xFFFF;
-            VZ2 = t5 & 0xFFFF;
-
-            meshp += 12;
-            v0 -= 3;
-
-            docop2(0x280030);
-
-            t0 = ((int*)meshp)[0];
-            t1 = ((int*)meshp)[1];
-            t2 = ((int*)meshp)[2];
-            t3 = ((int*)meshp)[3];
-            t4 = ((int*)meshp)[4];
-            t5 = ((int*)meshp)[5];
-
-            a2[0] = SXY0;
-            a2[1] = SZ1;
-            a2[2] = SXY1;
-            a2[3] = SZ2;
-            a2[4] = SXY2;
-            a2[5] = SZ3;
-
-            a2 += 6;
-        } while (v0 > 0);
-
-
+        a3 = sub_B44L4(&v0, meshp, a2, &v1);
         t0 = TRZ;
         t1 = 0;
         t0 -= 0x3000;
@@ -719,10 +795,12 @@ int* sub_658L4(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
             t0 = ORGB;
             ((short*)a2)[-1] = t0;
         } while (v1 != 0);
-
     }
+
     //loc_85C
+    at = lara.skelebob;
     a0 = &scratchPad[0];
+    RGB2 = at;
     PSXTEXTSTRUCT* a22 = psxtextinfo;
     v0 = a1[0];
     int a33 = 0xF80000;
@@ -797,10 +875,9 @@ int* sub_658L4(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
                             t4 = ((int*)t5)[2];
                             at = t4 << 8;
                             sub_BACL4(&t2, &t6, &a33, &t3, &at, &t7, &t8);
-                            at = DQB;
+
                             t2 = ((int*)t5)[0];
                             t3 = ((int*)t5)[1];
-                            t2 -= at;
 #if defined(USE_32_BIT_ADDR)
                             ((int*)s5)[3] = SXY0;
                             ((int*)s5)[6] = SXY1;
@@ -944,11 +1021,9 @@ int* sub_658L4(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
                             t4 = ((int*)t5)[2];
                             at = t4;
                             sub_BACL4(&t2, &t6, &a33, &t3, &at, &t7, &t8);
-                            at = DQB;
                             t2 = ((int*)t5)[0];
                             t3 = ((int*)t5)[1];
                             t5 = ((int*)t5)[3];
-                            t2 -= at;
 
 #if defined(USE_32_BIT_ADDR)
                             s5[2] = t6;
@@ -1002,7 +1077,475 @@ int* sub_658L4(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
     return s5;
 }
 
-void sub_1184L4()
+int* sub_658L4(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)//(F)
+{
+    unsigned int t00;
+    char* t000;
+    int t0;
+    int t1;
+    int t2;
+    int t3;
+    int t4;
+    int t5;
+    int t6;
+    int t7;
+    int t8;
+    int t9;
+    int at;
+    int v1;
+    int* a3;
+    int* a0;
+
+    int v0 = ((int*)meshp)[2];
+    v1 = lara.skelebob;
+    meshp += 6;
+    unsigned int* a1 = (unsigned int*)&meshp[v0 >> 17];
+    at = v0 & 0xC00;
+    v0 &= 0xFF;
+
+    if (v1 != 0 || at == 0)
+    {
+        return sub_1554L4(v0, meshp, s5, s6, a1);
+    }
+
+    int* a2 = &scratchPad[0];
+
+    if (v0 != 0)
+    {
+        a3 = sub_B44L4(&v0, meshp, a2, &v1);
+
+        t0 = TRZ;
+        t1 = 0;
+        t0 -= 0x3000;
+        at = v0 << 3;
+
+        if (t0 > 0)
+        {
+            t1 = t0 >> 1;
+        }
+
+        //loc_820
+        IR0 = t1;
+        t4 = envmap_data[3];
+        a2 = &scratchPad[0];
+        t000 = (char*)&dword_2C[0];
+        t3 = t4 >> 8;
+        t4 &= 0xFF;
+        t1 = a3[0];
+        t2 = a3[1];
+
+        //loc_830
+        do
+        {
+            VX0 = t1 & 0xFFFF;
+            VY0 = (t1 >> 16) & 0xFFFF;
+            VZ0 = t2 & 0xFFFF;
+
+            a3 += 2;
+            docop2(0x486012);
+            v1--;
+            a2 += 2;
+
+            t5 = MAC1;
+            t6 = MAC2;
+
+            docop2(0xE80413);
+
+            t1 = a3[0];
+            t2 = a3[1];
+
+            t5 >>= 7;
+            t6 >>= 7;
+
+            t5 += t4;
+            t6 += t3;
+
+            t000[0] = t5;
+            t000[1] = t6;
+
+            ORGB = LIM(IR1 >> 7, 0x1F, 0, 0) | (LIM(IR2 >> 7, 0x1F, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1F, 0, 0) << 10);
+            at = ORGB;
+            t000 += 2;
+            ((short*)a2)[-1] = at;
+        } while (v1 != 0);
+
+    }
+    //loc_85C
+    at = envmap_data[2];
+    RGB2 = at;
+    a0 = &scratchPad[0];
+    PSXTEXTSTRUCT* a22 = psxtextinfo;
+    v0 = a1[0];
+    int a33 = 0xF80000;
+    at = v0 >> 16;
+    DQA = at;
+    v0 &= 0xFFFF;
+    a1++;
+
+    if (v0 != 0)
+    {
+        t00 = a1[0];
+
+    loc_884:
+        a1++;
+        v1 = 3;
+
+    loc_88C:
+        t1 = a1[0];
+        v0--;
+
+        RGB0 = t1;
+
+        t8 = (t1 >> 13) & 0x7F8;
+        t8 += (int)a0;
+        t7 = (t1 >> 5) & 0x7F8;
+        t7 += (int)a0;
+        t6 = (t1 << 3) & 0x7F8;
+        t6 += (int)a0;
+
+        SXY0 = ((int*)t6)[0];
+        SXY1 = ((int*)t7)[0];
+        SXY2 = ((int*)t8)[0];
+
+        t5 = t00 & 0xFF;
+        t00 >>= 8;
+        docop2(0x1400006);
+
+        t6 = ((int*)t6)[1];
+        t7 = ((int*)t7)[1];
+        t8 = ((int*)t8)[1];
+
+        SZ1 = t6;
+        SZ2 = t7;
+        SZ3 = t8;
+
+        t1 >>= 16;
+        t1 &= 0xF00;
+        at = MAC0;
+        docop2(0x158002D);
+        t5 |= t1;
+        t5 <<= 4;
+
+        if (at >= 0)
+        {
+            t5 += (int)a22;
+            t1 = SXY0;
+            t2 = SXY1;
+            t3 = SXY2;
+
+            if (!(t1 & 0xFE00) || !(t2 & 0xFE00) || !(t3 & 0xFE00))
+            {
+                //loc_92C
+                at = t1 & t2;
+                at &= t3;
+
+                if (at >= 0)
+                {
+                    if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0)
+                    {
+                        t1 = OTZ;
+                        if (t1 < 0xA01)
+                        {
+                            t1 <<= 2;
+                            t4 = ((int*)t5)[2];
+                            at = t4 << 8;
+                            sub_BACL4(&t2, &t6, &a33, &t3, &at, &t7, &t8);
+
+#if defined(USE_32_BIT_ADDR)
+                            ((int*)s5)[3] = SXY0;
+                            ((int*)s5)[6] = SXY1;
+                            ((int*)s5)[9] = SXY2;
+                            ((int*)s5)[2] = t6;
+                            ((int*)s5)[5] = t7;
+                            ((int*)s5)[8] = t8;
+                            at = RGB0 >> 27;
+                            if (at != 0)
+                            {
+                                at = RGB0;
+                                t5 = (int)&dword_2C[0];
+                                t8 = at >> 15;
+                                t8 &= 0x1FE;
+                                t8 += t5;
+                                t7 = at >> 7;
+                                t7 &= 0x1FE;
+                                t7 += t5;
+                                t6 = at << 1;
+                                t6 &= 0x1FE;
+                                t6 += t5;
+                                t6 = ((unsigned short*)t6)[0];
+                                t7 = ((unsigned short*)t7)[0];
+                                t8 = ((unsigned short*)t8)[0];
+                                at = RGB2;
+                                ((short*)s5)[8] = t6;
+                                ((short*)s5)[14] = t7;
+                                ((short*)s5)[20] = t8;
+                                ((short*)s5)[9] = at;
+                                ((short*)s5)[15] = at >> 16;
+                            }
+                            else
+                            {
+                                t2 = ((int*)t5)[0];
+                                t3 = ((int*)t5)[1];
+                                ((int*)s5)[4] = t2;
+                                ((int*)s5)[7] = t3;
+                                ((int*)s5)[10] = t4;
+                            }
+                            
+                            t1 *= 2;
+                            t1 += s6;
+                            setlen(s5, 9);
+                            addPrim(t1, s5);
+                            
+#else
+                            ///@TODO update addrs to original
+                            ((int*)s5)[3] = SXY0;
+                            ((int*)s5)[6] = SXY1;
+                            ((int*)s5)[9] = SXY2;
+                            ((int*)s5)[2] = t6;
+                            ((int*)s5)[5] = t7;
+                            ((int*)s5)[8] = t8;
+                            at = RGB0 >> 27;
+                            if (at != 0)
+                            {
+                                at = RGB0;
+                                t8 = at >> 15;
+                                t8 &= 0x1FE;
+                                t8 += t5;
+                                t7 = at >> 7;
+                                t7 &= 0x1FE;
+                                t7 += t5;
+                                t6 = at << 1;
+                                t6 &= 0x1FE;
+                                t6 += t5;
+                                t6 = ((unsigned short*)t6)[0];
+                                t7 = ((unsigned short*)t7)[0];
+                                t8 = ((unsigned short*)t8)[0];
+                                at = RGB2;
+                                ((short*)s5)[5] = t6;
+                                ((short*)s5)[7] = t7;
+                                ((short*)s5)[20] = t8;
+                                ((short*)s5)[9] = at;
+                                ((short*)s5)[15] = at >> 16;
+                                t2 = ((int*)t5)[0];
+                                t3 = ((int*)t5)[1];
+                                ((int*)s5)[4] = t2;
+                                ((int*)s5)[7] = t3;
+                                ((int*)s5)[10] = t4;;
+                                t1 += s6;
+                                setlen(s5, 9);
+                                addPrim(t1, s5);
+                        }
+#endif
+                            s5 += sizeof(POLY_GT3) / sizeof(unsigned long);
+                        }//loc_9D0
+                    }//loc_9D0
+                }//loc_9D0
+            }//loc_9D0
+        }//loc_9D0
+
+        a1++;
+        if (v0 != 0)
+        {
+            if (v1-- != 0)
+            {
+                goto loc_88C;
+            }
+
+            t00 = a1[0];
+            goto loc_884;
+
+        }//loc_9E8
+    }
+    //loc_9E8
+    v0 = DQA;
+
+    t00 = a1[0];
+
+    if (v0 != 0)
+    {
+    loc_9F4:
+        a1++;
+        v1 = 1;
+
+    loc_9FC:
+        t1 = a1[0];
+        v0--;
+
+        RGB0 = t1;
+
+        t9 = t1 >> 21;
+        t8 = t1 >> 13;
+        t8 &= 0x7F8;
+        t8 += (int)a0;
+        t7 = t1 >> 5;
+        t7 &= 0x7F8;
+        t7 += (int)a0;
+        t6 = t1 << 3;
+        t6 &= 0x7F8;
+        t6 += (int)a0;
+        SXY0 = ((int*)t6)[0];
+        SXY1 = ((int*)t7)[0];
+        SXY2 = ((int*)t8)[0];
+        t9 &= 0x7F8;
+        t9 += (int)a0;
+        docop2(0x1400006);
+        t6 = ((int*)t6)[1];
+        t7 = ((int*)t7)[1];
+        t8 = ((int*)t8)[1];
+        t4 = ((int*)t9)[0];
+        t9 = ((int*)t9)[1];
+        SZ0 = t6;
+        SZ1 = t7;
+        SZ2 = t8;
+        SZ3 = t9;
+        at = MAC0;
+        docop2(0x168002E);
+        t5 = t00 & 0xFFF;
+        t5 <<= 4;
+
+        if (at >= 0)
+        {
+            t1 = SXY0;
+            t2 = SXY1;
+            t3 = SXY2;
+
+            if (!(t1 & 0xFE00) || !(t2 & 0xFE00) || !(t3 & 0xFE00) || !(t4 & 0xFE00))
+            {
+                //loc_AAC
+                at = t1 & t2;
+                at &= t3;
+                at &= t4;
+
+                if (at >= 0)
+                {
+                    if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0 || (t4 >> 16) < 0xF0)
+                    {
+                        //loc_AEC
+                        t5 += (int)a22;
+                        t2 = t9 >> 7;
+                        t1 = OTZ;
+                        t2 &= a33;
+
+                        if (t1 < 0xA01)
+                        {
+                            t1 <<= 2;
+#if defined(USE_32_BIT_ADDR)
+                            s5[3] = SXY0;
+                            s5[6] = SXY1;
+                            s5[9] = SXY2;
+                            s5[12] = t4;
+#else
+                            s5[2] = SXY0;
+                            s5[5] = SXY1;
+                            s5[8] = SXY2;
+                            s5[11] = t4;
+#endif
+                            t3 = t9 >> 10;
+                            t3 &= 0xF800;
+                            t9 >>= 13;
+                            t9 &= 0xF8;
+                            t9 |= t3;
+                            t9 |= t2;
+                            t4 = ((int*)t5)[2];
+                            at = t4;
+                            sub_BACL4(&t2, &t6, &a33, &t3, &at, &t7, &t8);
+                           
+
+#if defined(USE_32_BIT_ADDR)
+                            s5[2] = t6;
+                            s5[5] = t7;
+                            s5[7] = t3;
+                            s5[8] = t8;
+                            s5[11] = t9;
+                           
+                            at = (t00 >> 11) & 0x1E;
+
+                            if (at != 0)
+                            {
+                                at = RGB0;
+                                t5 = (int)&dword_2C[0];
+                                t9 = at >> 23;
+                                t8 = at >> 15;
+                                t8 &= 0x1FE;
+                                t8 += t5;
+                                t7 = at >> 7;
+                                t7 &= 0x1FE;
+                                t7 += t5;
+                                t6 = at << 1;
+                                t6 &= 0x1FE;
+                                t6 += t5;
+                                t9 &= 0x1FE;
+                                t9 += t5;
+
+                                t6 = ((unsigned short*)t6)[0];
+                                t7 = ((unsigned short*)t7)[0];
+                                t8 = ((unsigned short*)t8)[0];
+                                t9 = ((unsigned short*)t9)[0];
+
+                                s5[4] = t6;
+                                s5[7] = t7;
+                                s5[10] = t8;
+                                t7 = RGB2;
+                                s5[13] = t9;
+                                ((short*)s5)[9] = t7;
+                                ((short*)s5)[15] = t7 >> 16;
+                            }
+                            else
+                            {
+                                t2 = ((int*)t5)[0];
+                                t3 = ((int*)t5)[1];
+                                t5 = ((int*)t5)[3];
+                                s5[4] = t2;
+                                s5[7] = t3;
+                                s5[10] = t4;
+                                s5[13] = t5;
+                            }
+
+                            t1 *= 2;
+                            t1 += s6;
+                            setlen(s5, 12);
+                            addPrim(t1, s5);
+#else
+                            s5[1] = t6;
+                            s5[3] = t2;
+                            s5[4] = t7;
+                            s5[6] = t3;
+                            s5[7] = t8;
+                            s5[9] = t4;
+                            s5[10] = t9;
+                            s5[12] = t5;
+                            t1 += s6;
+                            t2 = ((int*)t1)[0];
+                            at = 0xC000000;
+                            t2 |= at;
+                            ((int*)t1)[0] = (int)s5;
+                            ((int*)s5)[0] = t2;
+#endif
+                           s5 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                        }//loc_B8C
+                    }
+                }//loc_B8C
+            }//loc_B8C
+        }
+        //loc_B8C
+        t00 >>= 16;
+        a1++;
+        if (v0 != 0)
+        {
+            if (v1-- != 0)
+            {
+                goto loc_9FC;
+            }
+
+            t00 = a1[0];
+            goto loc_9F4;
+        }
+    }//loc_BA4
+
+    return s5;
+}
+
+void sub_1184L4()//(F)
 {
     int* s3 = &scratchPad[0];
     struct GUNSHELL_STRUCT* s1 = &Gunshells[0];///@FIXME GUNSHELL_STRUCT size not matching PSX!
@@ -1061,7 +1604,7 @@ void sub_1330L4(struct ITEM_INFO* item)
     //S_PrintNiceShadow(object->shadow_size, GLaraShadowframe, 0);
 }
 
-void sub_10DCL4(int a1, int a2)
+void sub_10DCL4(int a1, int a2)//(F)
 {
     struct HAIR_STRUCT* hair = &hairs[0][a1];//$a0
     int at = 0;
@@ -1100,7 +1643,7 @@ loc_1114:
 
 }
 
-void sub_E38L4()
+void sub_E38L4()//(F)
 {
     int* a3 = &scratchPad[0];
 
@@ -1205,7 +1748,7 @@ void sub_E38L4()
     } while (s2 < 6);
 }
 
-void sub_2CL4(struct ITEM_INFO* item)
+void sub_2CL4(struct ITEM_INFO* item)//(F)
 {
     int i;
     int underwater_node = 0;//$v1
@@ -1237,7 +1780,6 @@ void sub_2CL4(struct ITEM_INFO* item)
     //a2--;
 
     //loc_A0
-
     v0 = RBK >> 5;
     at = GBK >> 5;
     v1 = BBK >> 5;
@@ -1275,16 +1817,87 @@ void sub_2CL4(struct ITEM_INFO* item)
     GBK = (v0 >> 4) & 0xFF0;
     BBK = (v0 >> 12) & 0xFF0;
     //loc_104
+    //v1 = lara.skelebob
     //s5 = db.polyptr
     //s6 = db.ot[1]
-    //s3 = lara_item
     s0 = &lara_mesh_sweetness_table[0];
     //s1 = &lara_matrices
     //s2 = 0xF
-    //s4 = &NodesToStashFromScratch
     //s3 = lara_item->mesh_bits >> 16;
 
+
     //loc_138
+    if (lara.skelebob)
+    {
+        for (i = 0; i < 15; i++)///@TODO check < 15
+        {
+            int t0 = ((int*)&lara_matrices[i])[0];
+            int t1 = ((int*)&lara_matrices[i])[1];
+            int t2 = ((int*)&lara_matrices[i])[2];
+            int t3 = ((int*)&lara_matrices[i])[3];
+
+            R11 = t0 & 0xFFFF;
+            R12 = (t0 >> 16) & 0xFFFF;
+
+            R13 = t1 & 0xFFFF;
+            R21 = (t1 >> 16) & 0xFFFF;
+
+            R22 = t2 & 0xFFFF;
+            R23 = (t2 >> 16) & 0xFFFF;
+
+            R31 = t3 & 0xFFFF;
+            R32 = (t3 >> 16) & 0xFFFF;
+
+            t0 = ((int*)&lara_matrices[i])[4];
+            t1 = ((int*)&lara_matrices[i])[5];
+            t2 = ((int*)&lara_matrices[i])[6];
+            t3 = ((int*)&lara_matrices[i])[7];
+
+            R33 = t0;
+            TRX = t1;
+            TRY = t2;
+            TRZ = t3;
+
+            //v0 = meshes + objects[LARA_EXTRA_MESH1].mesh_index
+            a00 = *s0++;
+            //v1 = &lara.mesh_ptrs[0];
+            //a00 = &lara.mesh_ptrs[lara_mesh_sweetness_table[0]]
+            //v0 = (lara_item->mesh_bits >> 16) & (1 << 0xF)
+
+            //a00 = ((int*)meshes + objects[LARA_EXTRA_MESH1].mesh_index + lara_mesh_sweetness_table[i] + 1)[0];
+
+#if defined(USE_32_BIT_ADDR)
+            db.polyptr = (char*)sub_658L4((short*)((int*)meshes + objects[LARA_EXTRA_MESH1].mesh_index + (lara_mesh_sweetness_table[i] << 1))[0], (int*)db.polyptr, (int)(db.ot + 1 * 2));
+#else
+            db.polyptr = (char*)sub_658L4((short*)((int*)meshes + objects[LARA_EXTRA_MESH1].mesh_index + (lara_mesh_sweetness_table[i] << 1))[0], (int*)db.polyptr, (int)(db.ot + 1));
+#endif
+            //loc_1FC
+
+             //s2--;
+             //int t7 = &NodesToStashFromScratch[0];
+            int t6 = 4;
+            //t0 = &tsv_buffer[0]
+            //t1 = &SkinVertNums[0];
+
+            //loc_218
+            for (j = 0; j < 4; j++)
+            {
+                if (NodesToStashFromScratch[i][j] != -1)
+                {
+                    sub_C1CL4(NodesToStashFromScratch[i][j]);
+                }
+                else
+                {
+                    //loc_238
+                    break;
+                }
+            }
+        }
+    }
+
+    //s3 = &lara.mesh_ptrs[0];
+    //s0 = lara_mesh_sweetness_table
+
     for (i = 0; i < 15; i++)///@TODO check < 15
     {
         int t0 = ((int*)&lara_matrices[i])[0];
@@ -1313,37 +1926,20 @@ void sub_2CL4(struct ITEM_INFO* item)
         TRX = t1;
         TRY = t2;
         TRZ = t3;
-        //a0 = &LaraNodeUnderwater[0];
-        //a1 = 0xF - 
-        if (LaraNodeUnderwater[i])
-        {
-            a0 = LaraNodeAmbient[1];
-        }
-        else
-        {
-            a0 = LaraNodeAmbient[0];
-        }
-        //loc_1A0
-        RBK = (((int*)&a0.r)[0] & 0xFF) << 4;
-        GBK = ((((int*)&a0.r)[0] >> 4) & 0xFF0);
-        BBK = ((((int*)&a0.r)[0] >> 12) & 0xFF0);
 
         a00 = *s0++;
-        //v1 = &lara.mesh_ptrs[0];
-        //a00 = &lara.mesh_ptrs[lara_mesh_sweetness_table[0]]
-        //v0 = (lara_item->mesh_bits >> 16) & (1 << 0xF)
 
-        if ((lara_item->mesh_bits >> 16) & (1 << 0xF))
-        {
+        //a0 = lara.mesh_ptrs[lara_mesh_sweetness_table[i]];
+
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658L4(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot + 1 * 2));
+        db.polyptr = (char*)sub_658L4(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot + 1 * 2));
 #else
-            db.polyptr = (char*)sub_658L4(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot + 1));
+        db.polyptr = (char*)sub_658L4(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot + 1));
 #endif
-        }//loc_1FC
+        //loc_1FC
 
-        //s2--;
-        //int t7 = &NodesToStashFromScratch[0];
+         //s2--;
+         //int t7 = &NodesToStashFromScratch[0];
         int t6 = 4;
         //t0 = &tsv_buffer[0]
         //t1 = &SkinVertNums[0];
@@ -1362,6 +1958,9 @@ void sub_2CL4(struct ITEM_INFO* item)
             }
         }
     }
+
+    //s3 = &lara.mesh_ptrs[0];
+    //s4 = 
     //loc_238
     //s4 = lara_item
     //s0 = &SkinUseMatrix[0][0];
@@ -1373,212 +1972,95 @@ void sub_2CL4(struct ITEM_INFO* item)
     i = 0xE;//s2
     //s4 = lara_item->mesh_bits
 
+    int count = lara.skelebob ? 0xD : 0xE;
     //loc_278
-    for (i = 0; i < 0xE; i++)
+    for (i = 0; i < count; i++)
     {
-        if (i == 7)
-        {
-            int test = 0;
-            test++;
-        }
         //v0 = 1 << 0xE
         //v0 = lara_item->mesh_bits & (1 << 0xE)
+        //int t2 = SkinUseMatrix[0][0];//derive from s0
+        //t0 = &tsv_buffer[0];
+        //t1 = &ScratchVertNums[0];
+        sub_C6CL4(NodesToStashToScratch[i][0]);
+        sub_C6CL4(NodesToStashToScratch[i][1]);
 
-        if (lara_item->mesh_bits & (1 << 0xE))
+        if (SkinUseMatrix[i][0] < 0xFF)
         {
-            //a0 = &LaraNodeUnderwater[0];
-            //a2 = &lara_underwater_skin_sweetness_table[0];
-            //a1 = 0xE
-            //a1 -= s2
-            //a2 = &lara_underwater_skin_sweetness_table[i]
-            //v0 = lara_underwater_skin_sweetness_table[i]
-            //a0 = &LaraNodeUnderwater[lara_underwater_skin_sweetness_table[i]];
-            //v0 = LaraNodeUnderwater[lara_underwater_skin_sweetness_table[i]];
+            // v1 = SkinUseMatrix[0][1];
+            //t0 = lara_matrices
+            //v0 = &lara_matrices[SkinUseMatrix[0][0]];
+            //v1 = &lara_matrices[SkinUseMatrix[0][1]];
+            int t0 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[0];
+            int t1 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[1];
+            int t2 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[2];
+            int t3 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[3];
+            int t4 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[4];
+            int t5 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[5];
+            int t6 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[6];
+            int t7 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[7];
 
-            int a0 = ((int*)&LaraNodeAmbient)[0];
+            int a0 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[4];
+            a1 = (t2 << 16) >> 16;
+            a0 *= a1;
 
-            if (LaraNodeUnderwater[lara_underwater_skin_sweetness_table[i]])
+            a1 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[1];
+            short a2 = ((short*)&lara_matrices[SkinUseMatrix[i][1]])[1];
+            int at = a0 >> 1;
+            a0 += at;
+            at = a1 * a2;
+
+            a1 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[7];
+            a2 = ((short*)&lara_matrices[SkinUseMatrix[i][1]])[7];
+            a0 += at;
+
+            R11 = t0 & 0xFFFF;
+            R12 = (t0 >> 16) & 0xFFFF;
+
+            a1 = a1 * a2;
+
+            R13 = t1 & 0xFFFF;
+            R21 = (t1 >> 16) & 0xFFFF;
+            R22 = t2 & 0xFFFF;
+            R23 = (t2 >> 16) & 0xFFFF;
+            R31 = t3 & 0xFFFF;
+            R32 = (t3 >> 16) & 0xFFFF;
+            R33 = t4;
+            TRX = t5;
+            TRY = t6;
+            TRZ = t7;
+
+            a0 += a1;
+            a0 >>= 12;
+            t0 = a0;
+            a0 = a0 * a0;
+
+            //0x1000000
+            v0 = phd_atan_asm(t0, mSqrt(0x1000000 - a0));
+            //at = 0xD
+
+            if (i == 0xE - 0xD || i == 0xE - 0xA)//Really || 0xD and 0xA without 0xE - 
             {
-                a0 = ((int*)&LaraNodeAmbient)[1];
+                v0 = -v0;
             }
+            //loc_3FC
+            a0 = v0 >> 1;
+            a0 = -a0;
+            sub_CBCL4(a0);
 
-            //loc_2C8
-            RBK = (a0 & 0xFF) << 4;
-            GBK = (a0 >> 4) & 0xFF0;
-            BBK = (a0 >> 12) & 0xFF0;
-
-            // int t2 = SkinUseMatrix[0][0];//derive from s0
-             //t0 = &tsv_buffer[0];
-             //t1 = &ScratchVertNums[0];
-            sub_C6CL4(NodesToStashToScratch[i][0]);
-            sub_C6CL4(NodesToStashToScratch[i][1]);
-
-            if (SkinUseMatrix[i][0] < 0xFF)
-            {
-                //  v1 = SkinUseMatrix[0][1];
-                  //t0 = lara_matrices
-                  //v0 = &lara_matrices[SkinUseMatrix[0][0]];
-                  //v1 = &lara_matrices[SkinUseMatrix[0][1]];
-                int t0 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[0];
-                int t1 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[1];
-                int t2 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[2];
-                int t3 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[3];
-                int t4 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[4];
-                int t5 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[5];
-                int t6 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[6];
-                int t7 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[7];
-
-                a0 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[4];
-                a1 = (t2 << 16) >> 16;
-                a0 *= a1;
-
-                a1 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[1];
-                short a2 = ((short*)&lara_matrices[SkinUseMatrix[i][1]])[1];
-                int at = a0 >> 1;
-                a0 += at;
-                at = a1 * a2;
-
-                a1 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[7];
-                a2 = ((short*)&lara_matrices[SkinUseMatrix[i][1]])[7];
-                a0 += at;
-
-                R11 = t0 & 0xFFFF;
-                R12 = (t0 >> 16) & 0xFFFF;
-
-                a1 = a1 * a2;
-
-                R13 = t1 & 0xFFFF;
-                R21 = (t1 >> 16) & 0xFFFF;
-                R22 = t2 & 0xFFFF;
-                R23 = (t2 >> 16) & 0xFFFF;
-                R31 = t3 & 0xFFFF;
-                R32 = (t3 >> 16) & 0xFFFF;
-                R33 = t4;
-                TRX = t5;
-                TRY = t6;
-                TRZ = t7;
-
-                a0 += a1;
-                a0 >>= 12;
-                t0 = a0;
-                a0 = a0 * a0;
-
-                //0x1000000
-                v0 = phd_atan_asm(t0, mSqrt(0x1000000 - a0));
-                //at = 0xD
-
-                if (i == 0xE - 0xD || i == 0xE - 0xA)//Really || 0xD and 0xA without 0xE - 
-                {
-                    v0 = -v0;
-                }
-                //loc_3FC
-                a0 = v0 >> 1;
-                a0 = -a0;
-                sub_CBCL4(a0);
-
-            }//loc_408
+        }//loc_408
 
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658L4((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1 * 2));
+        db.polyptr = (char*)sub_658L4((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1 * 2));
 #else
-            db.polyptr = (char*)sub_658L4((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1));
+        db.polyptr = (char*)sub_658L4((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1));
 #endif
-        }
+
         //loc_410
         //s1 = &s1[0xD - i * 4];
         s1 += 4;
     }
 
     //s6 = db.ot[0];
-    if (lara_item->mesh_bits + 1 == 0)
-    {
-        if (LaraNodeUnderwater[0] != 0)
-        {
-            a0 = LaraNodeAmbient[1];
-        }
-        else
-        {
-            a0 = LaraNodeAmbient[0];
-        }
-
-        RBK = (((int*)&a0.r)[0] & 0xFF) << 4;
-        GBK = ((((int*)&a0.r)[0] >> 4) & 0xFF0);
-        BBK = ((((int*)&a0.r)[0] >> 12) & 0xFF0);
-
-        //v0 = lara.hostler
-        //v1 = objects
-        s0 = (int*)&meshes[objects[lara.holster].mesh_index];
-        s0 += 8;
-        int* v1 = (int*)&lara_matrices[1];
-        int t0 = v1[0];
-        int t1 = v1[1];
-        int t2 = v1[2];
-        int t3 = v1[3];
-        int t4 = v1[4];
-        int t5 = v1[5];
-        int t6 = v1[6];
-        int t7 = v1[7];
-
-        R11 = t0 & 0xFFFF;
-        R12 = (t0 >> 16) & 0xFFFF;
-
-        R13 = t1 & 0xFFFF;
-        R21 = (t1 >> 16) & 0xFFFF;
-
-        R22 = t2 & 0xFFFF;
-        R23 = (t2 >> 16) & 0xFFFF;
-
-        R31 = t3 & 0xFFFF;
-        R32 = (t3 >> 16) & 0xFFFF;
-        R33 = t4;
-
-        TRX = t5;
-        TRY = t6;
-        TRZ = t7;
-
-        ///@FIXME for some reason at index 0 it wont draw left holster!
-#if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658L4((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
-#else
-        db.polyptr = (char*)sub_658L4((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
-#endif
-        s0 += 8;
-
-        v1 = (int*)&lara_matrices[4];
-
-        t0 = v1[0];
-        t1 = v1[1];
-        t2 = v1[2];
-        t3 = v1[3];
-        t4 = v1[4];
-        t5 = v1[5];
-        t6 = v1[6];
-        t7 = v1[7];
-
-        R11 = t0 & 0xFFFF;
-        R12 = (t0 >> 16) & 0xFFFF;
-
-        R13 = t1 & 0xFFFF;
-        R21 = (t1 >> 16) & 0xFFFF;
-
-        R22 = t2 & 0xFFFF;
-        R23 = (t2 >> 16) & 0xFFFF;
-
-        R31 = t3 & 0xFFFF;
-        R32 = (t3 >> 16) & 0xFFFF;
-        R33 = t4;
-
-        TRX = t5;
-        TRY = t6;
-        TRZ = t7;
-
-        ///@FIXME for some reason at index 0 it wont draw right holster!
-#if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658L4((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
-#else
-        db.polyptr = (char*)sub_658L4((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
-#endif
-    }
     //loc_538
     //v0 = lara.back_gun
     //v1 = objects
@@ -1631,23 +2113,14 @@ void sub_2CL4(struct ITEM_INFO* item)
     //loc_5D0
     mPopMatrix();
 
-    if (LaraNodeUnderwater[8] != 0)
+    if (!lara.skelebob)
     {
-        a0 = LaraNodeAmbient[1];
-    }
-    else
-    {
-        a0 = LaraNodeAmbient[0];
+        sub_E38L4();
+
+        sub_1184L4();
     }
 
-    //loc_5F0
-    RBK = (((int*)&a0.r)[0] & 0xFF) << 4;
-    GBK = ((((int*)&a0.r)[0] >> 4) & 0xFF0);
-    BBK = ((((int*)&a0.r)[0] >> 12) & 0xFF0);
-
-    sub_E38L4();
-
-    sub_1184L4();
+    sub_1A48L4();
 }
 
 void DrawLaraL4()
