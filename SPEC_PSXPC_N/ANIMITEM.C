@@ -150,6 +150,65 @@ void mRotX_AI(int rx, int* fp)//0x817B0
 	SetRotation_AI(fp, t0, t1, t2, t3, t4);
 }
 
+void mRotZ_AI(int rz, int* fp)//0x81918
+{
+	rz = (rz >> 2) & 0x3FFC;
+	if (rz == 0)
+	{
+		return;
+	}
+
+	//loc_81870
+	int t0 = ((int*)&rcossin_tbl[rz >> 1])[0];
+	int t7 = 0xFFFF0000;
+	int t1 = t0 >> 16;
+	int t2 = t0 << 16;
+	t1 |= t2;
+	VX0 = t1 & 0xFFFF;
+	VY0 = (t1 >> 16) & 0xFFFF;
+	VZ0 = 0;
+
+	t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	int t4 = R33;
+
+	docop2(0x486012);
+
+	int t3 = t0 & t7;
+	t0 &= 0xFFFF;
+	t0 = -t0;
+	t0 &= 0xFFFF;
+	t0 |= t3;
+
+	VX1 = t0 & 0xFFFF;
+	VY1 = (t0 >> 16) & 0xFFFF;
+	VZ1 = 0;
+
+	t1 &= 0xFFFF;
+	t0 = MAC1;
+	int t5 = MAC2;
+	t3 = MAC3;
+
+	docop2(0x48E012);
+
+	t2 &= t7;
+	t0 &= 0xFFFF;
+	t5 <<= 16;
+	t1 |= t5;
+	t3 &= 0xFFFF;
+	t5 = MAC1;
+	int t6 = MAC2;
+	int a0 = MAC3;
+
+	t5 <<= 16;
+	t0 |= t5;
+	t6 &= 0xFFFF;
+	t2 |= t6;
+	a0 <<= 16;
+	t3 |= a0;
+
+	SetRotation_AI(fp, t0, t1, t2, t3, t4);
+}
 
 int GetFrames_AI(struct ITEM_INFO* item /*s3*/, int* fp)//81468
 {
@@ -315,7 +374,7 @@ void mRotYXZ_AI(int y, int x, int z, int* fp)//818FC
 {
 	mRotY_AI(y, fp);
 	mRotX_AI(x, fp);
-	//mRotZ_AI(z, fp);
+	mRotZ_AI(z, fp);
 }
 
 void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504
