@@ -36,7 +36,7 @@ void SetRotation_AI(int* fp, int t0, int t1, int t2, int t3, int t4)
 }
 
 
-void mRotY_AI(int ry, int* fp)
+void mRotY_AI(int ry, int* fp)//0x81858
 {
 	ry = (ry >> 2) & 0x3FFC;
 	if (ry == 0)
@@ -88,6 +88,64 @@ void mRotY_AI(int ry, int* fp)
 	t1 |= t5;
 	t6 <<= 16;
 	t2 |= t6;
+
+	SetRotation_AI(fp, t0, t1, t2, t3, t4);
+}
+
+void mRotX_AI(int rx, int* fp)//0x817B0
+{
+	rx = (rx >> 2) & 0x3FFC;
+	if (rx == 0)
+	{
+		return;
+	}
+
+	//loc_81870
+	int t5 = ((int*)&rcossin_tbl[rx >> 1])[0];
+	int t7 = 0xFFFF0000;
+	int t6 = t7 & t5;
+
+	VX0 = t6 & 0xFFFF;
+	VY0 = (t6 >> 16) & 0xFFFF;
+	VZ0 = t5;
+
+	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+
+	docop2(0x486012);
+
+	t6 = t5 >> 16;
+	t5 <<= 16;
+	t5 = -t5;
+	VX1 = t5 & 0xFFFF;
+	VY1 = (t5 >> 16) & 0xFFFF;
+	VZ1 = t6;
+
+	t0 &= 0xFFFF;
+	t1 &= t7;
+	t3 &= 0xFFFF;
+
+	int t4 = MAC1;
+	int t2 = MAC2;
+	int t5 = MAC3;
+
+	docop2(0x48E012);
+
+	t4 <<= 16;
+	t0 |= t4;
+	t2 &= 0xFFFF;
+	t5 <<= 16;
+	t3 |= t5;
+
+	t5 = MAC1;
+	t6 = MAC2;
+	t4 = MAC3;
+
+	t5 &= 0xFFFF;
+	t1 |= t5;
+	t6 <<= 16;
+	t2 |= t5;
 
 	SetRotation_AI(fp, t0, t1, t2, t3, t4);
 }
@@ -256,8 +314,8 @@ void mTranslateAbsXYZ_AI(int tx, int ty, int tz, int* fp)
 void mRotYXZ_AI(int y, int x, int z, int* fp)//818FC
 {
 	mRotY_AI(y, fp);
-	//mRotX_AI(x);
-	//mRotZ_AI(z);
+	mRotX_AI(x, fp);
+	//mRotZ_AI(z, fp);
 }
 
 void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504
