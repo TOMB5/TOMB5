@@ -14,6 +14,85 @@
 #include "GTEREG.H"
 #include <assert.h>
 
+void SetRotation_AI(int* fp, int t0, int t1, int t2, int t3, int t4)
+{
+	int a0 = fp[20];
+
+	R11 = t0 & 0xFFFF;
+	R12 = (t0 >> 16) & 0xFFFF;
+	R13 = t1 & 0xFFFF;
+	R21 = (t1 >> 16) & 0xFFFF;
+	R22 = t2 & 0xFFFF;
+	R23 = (t2 >> 16) & 0xFFFF;
+	R31 = t3 & 0xFFFF;
+	R32 = (t3 >> 16) & 0xFFFF;
+	R33 = t4 & 0xFFFF;
+
+	((int*)a0)[0] = t0;
+	((int*)a0)[1] = t1;
+	((int*)a0)[2] = t2;
+	((int*)a0)[3] = t3;
+	((int*)a0)[4] = t4;
+}
+
+
+void mRotY_AI(int ry, int* fp)
+{
+	ry = (ry >> 2) & 0x3FFC;
+	if (ry == 0)
+	{
+		return;
+	}
+
+	//t0 = 0x9A8C8 rcossin_tbl
+	//loc_81870
+	int t5 = ((int*)&rcossin_tbl[ry >> 1])[0];
+	int t7 = 0xFFFF0000;
+	int t6 = (t5 >> 16) & 0xFFFF;
+	t5 &= 0xFFFF;
+	int t2 = -t5;
+	VX0 = t6;
+	VY0 = (t6 >> 16) & 0xFFFF;
+	VZ0 = t2;
+
+	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+
+	docop2(0x486012);
+
+	VX1 = t5 & 0xFFFF;
+	VY1 = (t5 >> 16) & 0xFFFF;
+	VZ1 = t6 & 0xFFFF;
+
+	t0 &= t7;
+	t2 &= 0xFFFF;
+	t3 &= t7;
+	int t4 = MAC1;
+	int t1 = MAC2;
+	t5 = MAC3;
+
+	docop2(0x48E012);
+
+	t4 &= 0xFFFF;
+	t0 |= t4;
+	t1 <<= 16;
+	t5 &= 0xFFFF;
+	t3 |= t5;
+
+	t5 = MAC1;
+	t6 = MAC2;
+	t4 = MAC3;
+
+	t5 &= 0xFFFF;
+	t1 |= t5;
+	t6 <<= 16;
+	t2 |= t6;
+
+	SetRotation_AI(fp, t0, t1, t2, t3, t4);
+}
+
+
 int GetFrames_AI(struct ITEM_INFO* item /*s3*/, int* fp)//81468
 {
 	struct ANIM_STRUCT* anim;//$t0
@@ -50,12 +129,138 @@ int GetFrames_AI(struct ITEM_INFO* item /*s3*/, int* fp)//81468
 	return t2;
 }
 
-void mTranslateAbsXYZ_AI(int x, int, int z)//81A8C
+void mTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//81AB0
 {
-	//UNIMPLEMENTED();
+	int t4 = ty >> 15;
+	if (ty < 0)
+	{
+		ty = -ty;
+		t4 = ty >> 15;
+		ty &= 0x7FFF;
+		t4 = -t4;
+		ty = -ty;
+
+	}
+	else
+	{
+		//loc_81AD0
+		ty &= 0x7FFF;
+	}
+
+	//loc_81AD4
+	int t5 = tz >> 15;
+	if (tz < 0)
+	{
+		tz = -tz;
+		t5 = tz >> 15;
+		tz &= 0x7FFF;
+		t5 = -t5;
+		tz = -tz;
+	}
+	else
+	{
+		//loc_81AF4
+		tz &= 0x7FFF;
+	}
+
+	//loc_81AF8
+	int t3 = tx >> 15;
+	if (tx < 0)
+	{
+		tx = -tx;
+		t3 = tx >> 15;
+		tx &= 0x7FFF;
+		t3 = -t3;
+		tx = -tx;
+	}
+	else
+	{
+		//loc_81B18
+		tx &= 0x7FFF;
+	}
+
+	//loc_81B1C
+	IR1 = t3;
+	IR2 = t4;
+	IR3 = t5;
+
+	int v0 = fp[20];
+
+	docop2(0x41E012);
+
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	IR1 = tx;
+	IR2 = ty;
+	IR3 = tz;
+
+	docop2(0x498012);
+
+	int t0 = t3 << 3;
+	if (t3 < 0)
+	{
+		t3 = -t3;
+		t3 <<= 3;
+		t0 = -t3;
+	}//loc_81B60
+
+	int t1 = t4 << 3;
+	if (t4 < 0)
+	{
+		t4 = -t4;
+		t4 <<= 3;
+		t1 = -t4;
+	}
+
+	//loc_81B74
+	int t2 = t5 << 3;
+	if (t5 < 0)
+	{
+		t5 = -t5;
+		t5 <<= 3;
+		t2 = -t5;
+	}
+	//loc_81B88
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	t0 += t3;
+	t1 += t4;
+	t2 += t5;
+
+	TRX = t0;
+	TRY = t1;
+	TRZ = t2;
+
+	((int*)v0)[5] = t0;
+	((int*)v0)[6] = t1;
+	((int*)v0)[7] = t2;
 }
 
-void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, int* fp)//81504
+
+void mTranslateAbsXYZ_AI(int tx, int ty, int tz, int* fp)
+{
+	TRX = 0;
+	TRY = 0;
+	TRZ = 0;
+	tx -= fp[27];
+	ty -= fp[28];
+	tz -= fp[29];
+
+	mTranslateXYZ_AI(tx, ty, tz, fp);
+}
+
+void mRotYXZ_AI(int y, int x, int z, int* fp)//818FC
+{
+	mRotY_AI(y, fp);
+	//mRotX_AI(x);
+	//mRotZ_AI(z);
+}
+
+void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504
 {
 	int frames;//$s0
 
@@ -66,11 +271,17 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, int* fp)//81504
 
 	frames = GetFrames_AI(item, fp);
 	mmPushMatrix(fp);
-	mTranslateAbsXYZ_AI(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
-	//mRotYXZ_AI(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
+	mTranslateAbsXYZ_AI(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, fp);
+	mRotYXZ_AI(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot, fp);
+
+	//a0 = object->object_mip
+	//v0 = object[1].loaded
+
+	if (object->object_mip != 0)
+	{
+	}
+
 #if 0
-lh      $a0, 0x24($s6)
-lhu     $v0, 0x72($s6)
 beqz    $a0, loc_81584
 andi    $v0, 1
 cfc2    $at, $7
@@ -226,213 +437,12 @@ lw      $s0, arg_A8($fp)
 #endif
 }
 
-void SetRotation2(int* fp, int t0, int t1, int t2, int t3, int t4)
-{
-	int a0 = fp[20];
-
-	R11 = t0 & 0xFFFF;
-	R12 = (t0 >> 16) & 0xFFFF;
-	R13 = t1 & 0xFFFF;
-	R21 = (t1 >> 16) & 0xFFFF;
-	R22 = t2 & 0xFFFF;
-	R23 = (t2 >> 16) & 0xFFFF;
-	R31 = t3 & 0xFFFF;
-	R32 = (t3 >> 16) & 0xFFFF;
-	R33 = t4 & 0xFFFF;
-
-	((int*)a0)[0] = t0;
-	((int*)a0)[1] = t1;
-	((int*)a0)[2] = t2;
-	((int*)a0)[3] = t3;
-	((int*)a0)[4] = t4;
-}
-
-void mRotY2(int ry, int* fp)
-{
-	ry = (ry >> 2) & 0x3FFC;
-	if (ry == 0)
-	{
-		return;
-	}
-
-	//t0 = 0x9A8C8 rcossin_tbl
-	//loc_81870
-	int t5 = ((int*)&rcossin_tbl[ry >> 1])[0];
-	int t7 = 0xFFFF0000;
-	int t6 = (t5 >> 16) & 0xFFFF;
-	t5 &= 0xFFFF;
-	int t2 = -t5;
-	VX0 = t6;
-	VY0 = (t6 >> 16) & 0xFFFF;
-	VZ0 = t2;
-
-	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-	    t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
-
-	docop2(0x486012);
-
-	VX1 = t5 & 0xFFFF;
-	VY1 = (t5 >> 16) & 0xFFFF;
-	VZ1 = t6 & 0xFFFF;
-
-	t0 &= t7;
-	t2 &= 0xFFFF;
-	t3 &= t7;
-	int t4 = MAC1;
-	int t1 = MAC2;
-	t5 = MAC3;
-
-	docop2(0x48E012);
-
-	t4 &= 0xFFFF;
-	t0 |= t4;
-	t1 <<= 16;
-	t5 &= 0xFFFF;
-	t3 |= t5;
-
-	t5 = MAC1;
-	t6 = MAC2;
-	t4 = MAC3;
-
-	t5 &= 0xFFFF;
-	t1 |= t5;
-	t6 <<= 16;
-	t2 |= t6;
-
-	SetRotation2(fp, t0, t1, t2, t3, t4);
-}
-
-void mTranslateXYZ2(int tx, int ty, int tz, int* fp)//81AB0
-{
-	int t4 = ty >> 15;
-	if (ty < 0)
-	{
-		ty = -ty;
-		t4 = ty >> 15;
-		ty &= 0x7FFF;
-		t4 = -t4;
-		ty = -ty;
-
-	}
-	else
-	{
-		//loc_81AD0
-		ty &= 0x7FFF;
-	}
-
-	//loc_81AD4
-	int t5 = tz >> 15;
-	if (tz < 0)
-	{
-		tz = -tz;
-		t5 = tz >> 15;
-		tz &= 0x7FFF;
-		t5 = -t5;
-		tz = -tz;
-	}
-	else
-	{
-		//loc_81AF4
-		tz &= 0x7FFF;
-	}
-
-	//loc_81AF8
-	int t3 = tx >> 15;
-	if (tx < 0)
-	{
-		tx = -tx;
-		t3 = tx >> 15;
-		tx &= 0x7FFF;
-		t3 = -t3;
-		tx = -tx;
-	}
-	else
-	{
-		//loc_81B18
-		tx &= 0x7FFF;
-	}
-
-	//loc_81B1C
-	IR1 = t3;
-	IR2 = t4;
-	IR3 = t5;
-
-	int v0 = fp[20];
-
-	docop2(0x41E012);
-
-	t3 = MAC1;
-	t4 = MAC2;
-	t5 = MAC3;
-
-	IR1 = tx;
-	IR2 = ty;
-	IR3 = tz;
-
-	docop2(0x498012);
-
-	int t0 = t3 << 3;
-	if (t3 < 0)
-	{
-		t3 = -t3;
-		t3 <<= 3;
-		t0 = -t3;
-	}//loc_81B60
-
-	int t1 = t4 << 3;
-	if (t4 < 0)
-	{
-		t4 = -t4;
-		t4 <<= 3;
-		t1 = -t4;
-	}
-
-	//loc_81B74
-	int t2 = t5 << 3;
-	if (t5 < 0)
-	{
-		t5 = -t5;
-		t5 <<= 3;
-		t2 = -t5;
-	}
-	//loc_81B88
-	t3 = MAC1;
-	t4 = MAC2;
-	t5 = MAC3;
-
-	t0 += t3;
-	t1 += t4;
-	t2 += t5;
-
-	TRX = t0;
-	TRY = t1;
-	TRZ = t2;
-
-	((int*)v0)[5] = t0;
-	((int*)v0)[6] = t1;
-	((int*)v0)[7] = t2;
-}
-
-
-void mTranslateAbsXYZ2(int tx, int ty, int tz, int* fp)
-{
-	TRX = 0;
-	TRY = 0;
-	TRZ = 0;
-	tx -= fp[27];
-	ty -= fp[28];
-	tz -= fp[29];
-
-	mTranslateXYZ2(tx, ty, tz, fp);
-}
-
-void mmPopMatrix2(int* fp)//81C0C(<)
+void mmPopMatrix_AI(int* fp)//81C0C(<)
 {
 	mLoadMatrix2((int*)(fp[20]-0x20), fp);
 }
 
-void mmPushMatrix2(int* fp)
+void mmPushMatrix_AI(int* fp)
 {
 	int* a0 = (int*)fp[20];
 	a0 += 8;
@@ -796,7 +806,7 @@ void CalcAllAnimatingItems_ASM()
 			r = &room[draw_rooms[i]];
 			((short*)fp)[52] = draw_rooms[i];
 			((int*)fp)[25] = (int)r;
-			mmPushMatrix2(fp);
+			mmPushMatrix_AI(fp);
 
 			if (r->num_meshes > 0)
 			{
@@ -808,11 +818,11 @@ void CalcAllAnimatingItems_ASM()
 				{
 					s5 = &static_objects[r->mesh[j].static_number];
 
-					if ((r->mesh[j].Flags) & 1)
+					if ((r->mesh[j].Flags & 1))
 					{
-						mmPushMatrix2(fp);
-						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z, fp);
-						mRotY2(r->mesh[j].y_rot, fp);
+						mmPushMatrix_AI(fp);
+						mTranslateAbsXYZ_AI(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z, fp);
+						mRotY_AI(r->mesh[j].y_rot, fp);
 						v1 = ((s5->flags) >> 2) << 10;
 						at = TRZ;
 
@@ -862,10 +872,10 @@ void CalcAllAnimatingItems_ASM()
 					//v0 = object->using_drawanimating_item
 					//a1 = item->status
 
-					if (object->using_drawanimating_item && item->status != 6)
+					if (object->using_drawanimating_item && item->status != 3)
 					{
 						//s2 = item
-						///CalcAnimatingItem_ASM(item, fp);
+						CalcAnimatingItem_ASM(item, object, fp);
 						//item = s2 //Maybe restore backup check if modified in func above
 					}
 					//loc_827BC
