@@ -377,6 +377,312 @@ void mRotYXZ_AI(int y, int x, int z, int* fp)//818FC
 	mRotZ_AI(z, fp);
 }
 
+void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned short* s2, int* fp)//80DD8
+{
+	int* s1 = (int*)fp[25];
+	int t3;
+	int t2;
+	int t1;
+	int t0;
+
+	if (item->object_number - 0x1A0 >= 0x1F && item->object_number - 0x11C >= 0x20)
+	{
+		//a1 = 0x1000
+		R11 = 4096;
+		R12 = 0;
+		R13 = 0;
+		R21 = 0;
+		R22 = 4096;
+		R23 = 0;
+		R31 = 0;
+		R32 = 0;
+		R33 = 4096;
+
+		fp[20] += 0x20;
+		mRotYXZ_AI(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot, fp);
+
+		TRX = 0;
+		TRY = 0;
+		TRZ = 0;
+
+		//t5 = 0x1f800000
+		((short*)fp)[0] = s2[0];///@0x1F800000
+		((short*)fp)[1] = s2[2];
+		((short*)fp)[2] = s2[4];
+
+		((short*)fp)[4] = s2[1];
+		((short*)fp)[5] = s2[2];
+		((short*)fp)[6] = s2[4];
+
+		((short*)fp)[8] = s2[1];
+		((short*)fp)[9] = s2[3];
+		((short*)fp)[10] = s2[4];
+
+		((short*)fp)[12] = s2[0];
+		((short*)fp)[13] = s2[3];
+		((short*)fp)[14] = s2[4];
+
+		((short*)fp)[16] = s2[0];
+		((short*)fp)[17] = s2[2];
+		((short*)fp)[18] = s2[5];
+
+		((short*)fp)[20] = s2[1];
+		((short*)fp)[21] = s2[2];
+		((short*)fp)[22] = s2[5];
+
+		((short*)fp)[24] = s2[1];
+		((short*)fp)[25] = s2[3];
+		((short*)fp)[26] = s2[5];
+
+		((short*)fp)[28] = s2[0];
+		((short*)fp)[29] = s2[3];
+		((short*)fp)[30] = s2[5];
+
+		int s5 = 32767;
+		int s4 = -32767;
+		int s7 = 32767;
+		int t9 = -32767;
+		int t8 = 32767;
+		int s2 = -32767;
+		int t4 = 8;
+
+		int* t5 = &fp[0];
+
+		//loc_80ED4
+		do
+		{
+			VX0 = t5[0] & 0xFFFF;
+			VY0 = (t5[0] >> 16) & 0xFFFF;
+			VZ0 = t5[1];
+
+			t4--;
+
+			docop2(0x480012);
+			int v1 = MAC1;
+			int v0 = MAC2;
+			int a2 = MAC3;
+
+			if (v1 < s5)
+			{
+				s5 = v1;
+			}
+
+			if (s4 < v1)
+			{
+				s4 = v1;
+			}
+
+			if (v0 < s7)
+			{
+				s7 = v0;
+			}
+
+			if (t9 < v0)
+			{
+				t9 = v0;
+			}
+
+			if (a2 < t8)
+			{
+				t8 = a2;
+			}
+
+			if (s2 < a2)
+			{
+				s2 = a2;
+			}
+
+			t5 += 2;
+
+		} while (t4 != 0);
+
+		mmPopMatrix_AI(fp);
+
+		int v0 = item->pos.x_pos;
+		int v1 = item->pos.y_pos;
+		int a0 = item->pos.z_pos;
+
+		s5 += v0;
+		s4 += v0;
+		s7 += v1;
+		t9 += v1;
+		t8 += a0;
+		s2 += a0;
+
+		int t6 = s1[5] + 1024;
+		int t55 = s1[7] + 1024;
+
+		a0 = t6 + ((((short*)s1)[21] - 2) << 10);
+		int a1 = t55 + ((((short*)s1)[20] - 2) << 10);
+
+		int t7 = s1[9];
+		v1 = s1[8];
+
+		if (s5 < t6 || a0 < s4 || s7 < t7 || v1 < t9 || t8 < t55 || a1 < s2)
+		{
+			//loc_80FE4
+			t3 = s1[1];
+			if (((short*)fp)[53] == item->room_number)
+			{
+				return;
+			}
+
+			if (((short*)fp)[53] == ((short*)fp)[52])
+			{
+				return;
+			}
+
+			t4 = ((short*)t3)[0];
+			t3 += 2;
+
+			if (t4 > 0)
+			{
+				//loc_8100C
+				do
+				{
+					int at = ((short*)t3)[0];
+					v1 = ((short*)fp)[53];
+					a1 = ((short*)t3)[4];
+
+					if (at == v1)
+					{
+						int a2 = ((short*)t3)[5];
+						int a3 = ((short*)t3)[6];
+						v0 = ((short*)t3)[7];
+						v1 = ((short*)t3)[8];
+						a0 = ((short*)t3)[9];
+
+						t2 = a1;
+						t0 = a2;
+
+						if (v0 < a1)
+						{
+							t1 = a3;
+							t2 = v0;
+						}
+						else if (a1 < v0)
+						{
+							a1 = v0;
+						}
+
+						//loc_8105C
+						if (v1 < t0)
+						{
+							t0 = v1;
+						}
+						else if (a2 < v1)
+						{
+							t0 = v1;
+						}
+
+						//loc_8107C
+						if (a0 < t1)
+						{
+							t1 = a0;
+						}
+						else if (a3 < a0)
+						{
+							a3 = a0;
+						}
+
+						//loc_8109C
+						v0 = ((short*)t3)[10];
+						v1 = ((short*)t3)[11];
+						a0 = ((short*)t3)[12];
+
+						if (v0 < t2)
+						{
+							t2 = v0;
+						}
+						else if (a1 < v0)
+						{
+							a1 = v0;
+						}
+
+						if (v1 < t0)
+						{
+							t0 = v1;
+						}
+						else if (a2 < v1)
+						{
+							a2 = v1;
+						}
+
+						if (a0 < t1)
+						{
+							t1 = a0;
+						}
+						else if (a3 < a0)
+						{
+							a3 = a0;
+						}
+
+						//loc_81108
+						v0 = ((short*)t3)[13];
+						v1 = ((short*)t3)[14];
+						a0 = ((short*)t3)[15];
+
+						if (v0 < t2)
+						{
+							t2 = v0;
+						}
+						else if (a1 < v0)
+						{
+							a1 = v0;
+						}
+
+						if (v1 < t0)
+						{
+							t0 = v1;
+						}
+						else if (a2 < v1)
+						{
+							a2 = v1;
+						}
+
+						if (a0 < t1)
+						{
+							t1 = a0;
+						}
+						else if (a3 < a0)
+						{
+							a3 = a0;
+						}
+
+						//loc_81174
+						at = t2 - 1024;
+						t2 = at + t6;
+						at = a1 - 1024;
+						a1 = at + t6;
+						t0 += t7;
+						at = t1 - 1024;
+						t1 = at + t55;
+						at = a3 - 1024;
+						a3 = at + t55;
+						a2 += t7;
+
+						if (s4 >= t2 && a1 >= t55 && t9 >= t0 && a2 >= s7 && s2 >= t1 && a3 >= t8)
+						{
+							//loc_811DC
+							break;
+						}
+
+					}//loc_811D0
+					t3 += 0x20;
+				}while (--t4 > 0);
+			}//loc_811DC
+
+			if (t4 != 0)
+			{
+				return;
+			}
+		}//loc_811E4
+	}//loc_811E4
+
+	fp[36] = s1[14];
+	fp[37] = s1[15];
+}
+
 void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504
 {
 	int frames;//$s0
@@ -393,27 +699,15 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 	//a0 = object->object_mip
 	//v0 = object[1].loaded
-
-	if (object->object_mip != 0)
+	if (object->object_mip != 0 && object[1].loaded && object->object_mip < TRZ && fp[46] == 0)
 	{
+		object++;
 	}
 
-#if 0
-beqz    $a0, loc_81584
-andi    $v0, 1
-cfc2    $at, $7
-beqz    $v0, loc_81584
-slt     $v0, $a0, $at
-beqz    $v0, loc_81584
-lw      $a0, arg_B8($fp)
-nop
-bnez    $a0, loc_81584
-nop
-addiu   $s6, 0x40
+	//loc_81584
+	calc_animating_item_clip_window(item, (unsigned short*)fp[30], fp);
 
-loc_81584:
-jal     sub_80DD8
-lw      $s2, arg_78($fp)
+#if 0
 jal     sub_811FC
 lw      $a0, arg_78($fp)
 beqz    $v0, loc_81738
