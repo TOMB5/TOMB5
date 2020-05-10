@@ -14,6 +14,116 @@
 #include "GTEREG.H"
 #include <assert.h>
 
+void GetBounds_AI(int* t0, int* a2, int* a3, int* t1, int* t2, int* v0, int* a0, int* a1, int* t3, int* t4, int* t5)//8139C
+{
+	if (*t0 < *a2)
+	{
+		*a2 = *t0;
+	}
+
+	//loc_813AC
+	if (*t0 >= *a3)
+	{
+		*a3 = *t0;
+	}
+
+	//loc_813B8
+	if (*t1 < *a2)
+	{
+		*a2 = *t1;
+	}
+
+	//loc_813C4
+	if (*t1 >= *a3)
+	{
+		*a3 = *t1;
+	}
+
+	if (*t2 < *a2)
+	{
+		*a3 = *t2;
+	}
+
+	//loc_813DC
+	*t0 <<= 16;
+	if (*t2 >= *a3)
+	{
+		*a3 = *t2;
+	}
+
+	//loc_813E8
+	*t1 <<= 16;
+	*t2 <<= 16;
+
+	if (*t0 < *a0)
+	{
+		*a0 = *t0;
+	}
+
+	if (*t0 >= *a1)
+	{
+		*a1 = *t0;
+	}
+
+	if (*t1 < *a0)
+	{
+		*a0 = *t1;
+	}
+
+	if (*t1 >= *a1)
+	{
+		*a1 = *t1;
+	}
+
+	if (*t2 < *a0)
+	{
+		*a0 = *t2;
+	}
+
+	if (*t2 >= *a1)
+	{
+		*a1 = *t2;
+	}
+
+	if (*t3 < 0x5000)
+	{
+		v0[0]++;
+	}
+
+	if (*t4 < 0x5000)
+	{
+		v0[0]++;
+	}
+
+	if (*t5 < 0x5000)
+	{
+		v0[0]++;
+	}
+}
+
+void mLoadMatrix_AI(int* a0, int* fp)//81C18(<)
+{
+	R11 = (a0[0] & 0xFFFF);
+	R12 = (a0[0] >> 16) & 0xFFFF;
+	R13 = (a0[1] & 0xFFFF);
+	R21 = (a0[1] >> 16) & 0xFFFF;
+	R22 = (a0[2] & 0xFFFF);
+	R23 = (a0[2] >> 16) & 0xFFFF;
+	R31 = (a0[3] & 0xFFFF);
+	R32 = (a0[3] >> 16) & 0xFFFF;
+	R33 = (a0[4] & 0xFFFF);
+	TRX = a0[5];
+	TRY = a0[6];
+	TRZ = a0[7];
+
+	fp[20] = (int)a0;
+}
+
+void mmPopMatrix_AI(int* fp)//81C0C(<)
+{
+	mLoadMatrix_AI((int*)(fp[20] - 0x20), fp);
+}
+
 void SetRotation_AI(int* fp, int t0, int t1, int t2, int t3, int t4)
 {
 	int a0 = fp[20];
@@ -815,11 +925,13 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 	//loc_81584
 	calc_animating_item_clip_window(item, (unsigned short*)fp[30], fp);
 
+	int at = 0;
+
+	if (mClipBoundingBox_AI((unsigned short*)fp[30], fp) != 0)
+	{
+	}
+	//loc_81738
 #if 0
-jal     sub_811FC
-lw      $a0, arg_78($fp)
-beqz    $v0, loc_81738
-li      $at, 0
 sw      $at, arg_4C($fp)
 lw      $a2, arg_40($fp)
 lw      $v1, arg_78($fp)
@@ -956,11 +1068,6 @@ lw      $s0, arg_A8($fp)
 #endif
 }
 
-void mmPopMatrix_AI(int* fp)//81C0C(<)
-{
-	mLoadMatrix2((int*)(fp[20]-0x20), fp);
-}
-
 void mmPushMatrix_AI(int* fp)
 {
 	int* a0 = (int*)fp[20];
@@ -973,24 +1080,6 @@ void mmPushMatrix_AI(int* fp)
 	a0[5] = TRX;
 	a0[6] = TRY;
 	a0[7] = TRZ;
-
-	fp[20] = (int)a0;
-}
-
-void mLoadMatrix2(int* a0, int* fp)//81C18(<)
-{
-	R11 = (a0[0] & 0xFFFF);
-	R12 = (a0[0] >> 16) & 0xFFFF;
-	R13 = (a0[1] & 0xFFFF);
-	R21 = (a0[1] >> 16) & 0xFFFF;
-	R22 = (a0[2] & 0xFFFF);
-	R23 = (a0[2] >> 16) & 0xFFFF;
-	R31 = (a0[3] & 0xFFFF);
-	R32 = (a0[3] >> 16) & 0xFFFF;
-	R33 = (a0[4] & 0xFFFF);
-	TRX = a0[5];
-	TRY = a0[6];
-	TRZ = a0[7];
 
 	fp[20] = (int)a0;
 }
@@ -1017,93 +1106,6 @@ void stash_the_info(int meshp/*a0*/, int* fp)//81750
 
 	fp[19]++;
 	fp[17] = (int)at;
-}
-
-void GetBounds_AI(int* t0, int* a2, int* a3, int* t1, int* t2, int* v0, int* a0, int* a1, int* t3, int* t4, int* t5)//8139C
-{
-	if (*t0 < *a2)
-	{
-		*a2 = *t0;
-	}
-
-	//loc_813AC
-	if (*t0 >= *a3)
-	{
-		*a3 = *t0;
-	}
-
-	//loc_813B8
-	if (*t1 < *a2)
-	{
-		*a2 = *t1;
-	}
-
-	//loc_813C4
-	if (*t1 >= *a3)
-	{
-		*a3 = *t1;
-	}
-
-	if (*t2 < *a2)
-	{
-		*a3 = *t2;
-	}
-
-	//loc_813DC
-	*t0 <<= 16;
-	if (*t2 >= *a3)
-	{
-		*a3 = *t2;
-	}
-
-	//loc_813E8
-	*t1 <<= 16;
-	*t2 <<= 16;
-
-	if (*t0 < *a0)
-	{
-		*a0 = *t0;
-	}
-
-	if (*t0 >= *a1)
-	{
-		*a1 = *t0;
-	}
-
-	if (*t1 < *a0)
-	{
-		*a0 = *t1;
-	}
-
-	if (*t1 >= *a1)
-	{
-		*a1 = *t1;
-	}
-
-	if (*t2 < *a0)
-	{
-		*a0 = *t2;
-	}
-
-	if (*t2 >= *a1)
-	{
-		*a1 = *t2;
-	}
-
-	if (*t3 < 0x5000)
-	{
-		v0[0]++;
-	}
-
-	if (*t4 < 0x5000)
-	{
-		v0[0]++;
-	}
-
-	if (*t5 < 0x5000)
-	{
-		v0[0]++;
-	}
 }
 
 int mClipBoundingBox2(unsigned short* bounds, int* sp /*fp*/)//811FC
@@ -1367,7 +1369,7 @@ void CalcAllAnimatingItems_ASM()
 							stash_the_info(((int*)v0)[s5->mesh_number], fp);//((int*)meshes[s5->mesh_number])[0]
 						}
 						//loc_8274C
-						mmPopMatrix2(fp);
+						mmPopMatrix_AI(fp);
 					}//loc_82750
 				}//loc_82750
 			}
@@ -1402,7 +1404,7 @@ void CalcAllAnimatingItems_ASM()
 				} while (item->next_item != -1);
 
 			}//loc_827CC
-			mmPopMatrix2(fp);
+			mmPopMatrix_AI(fp);
 		}
 	}//loc_827DC
 #if !JULY_VERSION
