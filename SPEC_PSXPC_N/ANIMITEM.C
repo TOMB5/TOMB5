@@ -128,7 +128,7 @@ void mRotX_AI(int rx, int* fp)//0x817B0
 
 	int t4 = MAC1;
 	int t2 = MAC2;
-	int t5 = MAC3;
+	t5 = MAC3;
 
 	docop2(0x48E012);
 
@@ -683,6 +683,114 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 	fp[37] = s1[15];
 }
 
+int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
+{
+	int t0 = TRZ - 20480;
+	int v0 = 0;
+
+	if (t0 < 0)
+	{
+		t0 = a0[0];
+		int t3 = a0[1];
+		int t1 = a0[2] << 16;
+		int t4 = a0[3] << 16;
+		int t2 = a0[4];
+		int t7 = a0[5];
+		int at = t0 | t1;
+
+		VX0 = at & 0xFFFF;
+		VY0 = (at >> 16) & 0xFFFF;
+		VZ0 = t2;
+
+		at = t3 | t1;
+		VX1 = at & 0xFFFF;
+		VY1 = (at >> 16) & 0xFFFF;
+		VZ1 = t2;
+
+		at = t0 | t4;
+		VX2 = at & 0xFFFF;
+		VY2 = (at >> 16) & 0xFFFF;
+		VZ2 = t2;
+
+		docop2(0x280030);
+
+		int t9 = t3 | t4;
+		int t8 = t2;
+		int a0 = 0x7FFFFFFF;
+		int a1 = 0x8100;
+		int a2 = 0x7FFFFFFF;
+		int a3 = 0x8100;
+
+		t0 = SXY0;
+		t1 = SXY1;
+		t2 = SXY2;
+		t3 = SZ1;
+		t4 = SZ2;
+		int t5 = SZ3;
+
+		VZ0 = t7;
+		VZ1 = t7;
+		VZ2 = t7;
+
+		docop2(0x280030);
+
+		t3 -= 33;
+		t4 -= 33;
+		t5 -= 33;
+
+		v0 = 0;
+		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
+
+		t0 = SXY0;
+		t1 = SXY1;
+		t2 = SXY2;
+		t3 = SZ1 - 33;
+		t4 = SZ2 - 33;
+		t5 = SZ3 - 33;
+
+		VX0 = t9 & 0xFFFF;
+		VY0 = (t9 >> 16) & 0xFFFF;
+		VZ0 = t8;
+
+		VX1 = t9 & 0xFFFF;
+		VY1 = (t9 >> 16) & 0xFFFF;
+
+		docop2(0x280030);
+
+		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
+
+		t0 = SXY0;
+		t1 = SXY1;
+		t3 = SZ1 - 33;
+		t4 = SZ2 - 33;
+		t2 = t1;
+		t5 = t4;
+		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
+
+		t0 = ((short*)fp)[73];
+		t1 = ((short*)fp)[75];
+		t2 = ((short*)fp)[72];
+		t3 = ((short*)fp)[74];
+
+		a0 >>= 16;
+		a1 >>= 16;
+		a2 >>= 16;
+		a3 >>= 16;
+
+		int v1 = v0;
+
+		if (v1 == 0 || t0 < a0 || t1 < a2 || a1 < t2 || a3 < t3)
+			return 0;
+
+		if (v1 < 9 || a0 < t2 || a2 < t3 || t0 < a1 || t1 < a3)
+			return -1;
+
+		v0 = 1;
+	}
+	//locret_81394
+	return v0;
+}
+
 void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504
 {
 	int frames;//$s0
@@ -911,7 +1019,7 @@ void stash_the_info(int meshp/*a0*/, int* fp)//81750
 	fp[17] = (int)at;
 }
 
-void GetBounds(int* t0, int* a2, int* a3, int* t1, int* t2, int* v0, int* a0, int* a1, int* t3, int* t4, int* t5)//8139C
+void GetBounds_AI(int* t0, int* a2, int* a3, int* t1, int* t2, int* v0, int* a0, int* a1, int* t3, int* t4, int* t5)//8139C
 {
 	if (*t0 < *a2)
 	{
@@ -1071,7 +1179,7 @@ int mClipBoundingBox2(unsigned short* bounds, int* sp /*fp*/)//811FC
 		t5 -= 33;
 
 		v0 = 0;
-		GetBounds(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
+		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
 
 		t0 = SXY0;
 		t1 = SXY1;
@@ -1092,7 +1200,7 @@ int mClipBoundingBox2(unsigned short* bounds, int* sp /*fp*/)//811FC
 		t4 -= 0x21;
 		t5 -= 0x21;
 
-		GetBounds(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
+		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
 	
 		t0 = SXY0;
 		t1 = SXY1;
@@ -1104,7 +1212,7 @@ int mClipBoundingBox2(unsigned short* bounds, int* sp /*fp*/)//811FC
 		t2 = t1;
 		t5 = t4;
 
-		GetBounds(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
+		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
 		t0 = ((short*)sp)[73];
 		t1 = ((short*)sp)[75];
 		t2 = ((short*)sp)[72];
