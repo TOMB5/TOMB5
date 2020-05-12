@@ -901,6 +901,173 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 	return v0;
 }
 
+void InitInterpolation_AI(int* fp, int a0, int* a2)//81DF4
+{
+	fp[22] = a0;
+	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+	int t4 = (R33 & 0xFFFF);
+	int t5 = TRX;
+	int t6 = TRY;
+	int t7 = TRZ;
+
+	L11 = t0 & 0xFFFF;
+	L12 = (t0 >> 16) & 0xFFFF;
+	L13 = t1 & 0xFFFF;
+	L21 = (t1 >> 16) & 0xFFFF;
+	L22 = t2 & 0xFFFF;
+	L23 = (t2 >> 16) & 0xFFFF;
+	L31 = t3 & 0xFFFF;
+	L32 = (t3 >> 16) & 0xFFFF;
+	L33 = t4 & 0xFFFF;
+
+	RBK = t5;
+	GBK = t6;
+	BBK = t7;
+
+	fp[21] = (int)a2;
+
+	a2[0] = t0;
+	a2[1] = t1;
+	a2[2] = t2;
+	a2[3] = t3;
+	a2[4] = t4;
+	a2[5] = t5;
+	a2[6] = t6;
+	a2[7] = t7;
+}
+
+void erk_interpolated(int* fp, int s0)//81C60
+{
+	int* a2 = &fp[151];
+	InitInterpolation_AI(fp, s0, a2);
+#if 0
+		jal     sub_81DF4
+		move    $a0, $s0
+		lw      $v0, arg_78($fp)
+		lw      $v1, arg_7C($fp)
+		lh      $a0, 0xC($v0)
+		lh      $a1, 0xE($v0)
+		lh      $a2, 0x10($v0)
+		lh      $a3, 0xC($v1)
+		lh      $t0, 0xE($v1)
+		lh      $t1, 0x10($v1)
+		addiu   $v0, 0x12
+		addiu   $v1, 0x12
+		sw      $t0, arg_88($fp)
+		sw      $t1, arg_8C($fp)
+		sw      $v0, arg_80($fp)
+		jal     sub_821DC
+		sw      $v1, arg_84($fp)
+		jal     sub_819FC
+		lw      $gp, 0x88($s3)
+		lw      $s3, 8($s3)
+		jal     sub_82140
+		nop
+		and $v0, $s3, $s1
+		beqz    $v0, loc_81CDC
+		and $v0, $gp, $s1
+		beqz    $v0, loc_81CD4
+		lw      $v1, 0($s7)
+		lw      $v1, 4($s7)
+
+		loc_81CD4:
+	jal     sub_82318
+		nop
+
+		loc_81CDC :
+	lh      $s4, 0($s6)
+		addiu   $s7, 8
+		addiu   $s4, -1
+		blez    $s4, loc_81714
+		nop
+
+		loc_81CF0 :
+	lw      $s0, 0($s5)
+		nop
+		andi    $v0, $s0, 1
+		beqz    $v0, loc_81D0C
+		nop
+		jal     sub_81EB0
+		nop
+
+		loc_81D0C :
+	andi    $v0, $s0, 2
+		beqz    $v0, loc_81D20
+		nop
+		jal     sub_81E60
+		nop
+
+		loc_81D20 :
+	lw      $a0, 4($s5)
+		lw      $a1, 8($s5)
+		jal     sub_821D0
+		lw      $a2, 0xC($s5)
+		jal     sub_819FC
+		nop
+		jal     sub_82140
+		nop
+		beqz    $s2, loc_81DB8
+		andi    $v0, $s0, 0x1C
+		beqz    $v0, loc_81DB8
+		andi    $v0, $s0, 8
+		beqz    $v0, loc_81D74
+		andi    $v0, $s0, 4
+		lh      $a0, 0($s2)
+		jal     sub_81858
+		nop
+		lh      $a0, 0($s2)
+		jal     sub_81FB8
+		addiu   $s2, 2
+		andi    $v0, $s0, 4
+
+		loc_81D74:
+	beqz    $v0, loc_81D98
+		andi    $v0, $s0, 0x10
+		lh      $a0, 0($s2)
+		jal     sub_817B0
+		nop
+		lh      $a0, 0($s2)
+		jal     sub_81F10
+		addiu   $s2, 2
+		andi    $v0, $s0, 0x10
+
+		loc_81D98:
+	beqz    $v0, loc_81DB8
+		nop
+		lh      $a0, 0($s2)
+		jal     sub_81918
+		nop
+		lh      $a0, 0($s2)
+		jal     sub_8205C
+		addiu   $s2, 2
+
+		loc_81DB8:
+	sll     $s1, 1
+		and $v0, $s1, $s3
+		beqz    $v0, loc_81DDC
+		and $v0, $gp, $s1
+		beqz    $v0, loc_81DD4
+		lw      $v1, 0($s7)
+		lw      $v1, 4($s7)
+
+		loc_81DD4:
+	jal     sub_82318
+		nop
+
+		loc_81DDC :
+	addiu   $s4, -1
+		addiu   $s5, 0x10
+		bnez    $s4, loc_81CF0
+		addiu   $s7, 8
+		j       loc_81714
+		nop
+	
+#endif
+}
+
 void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504
 {
 	int frames;//$s0
@@ -926,35 +1093,35 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 	calc_animating_item_clip_window(item, (unsigned short*)fp[30], fp);
 
 	int at = 0;
+	int v0 = mClipBoundingBox_AI((unsigned short*)fp[30], fp);
 
-	if (mClipBoundingBox_AI((unsigned short*)fp[30], fp) != 0)
+	if (v0 != 0)
 	{
+		fp[19] = 0;
+		int* a2 = (int*)fp[16];
+		int v1 = fp[30];
+		((short*)a2)[0] = v0;
+		a2[1] = (int)item;
+		a2[2] = v1;
+		//s2 = item->data
+		//s1 = 1
+		//v0 = object->mesh_index
+		short* s7 = ((short**)fp[40])[object->mesh_index];
+		//v0 = object->bone_index
+		long* s5 = ((long**)fp[41])[object->bone_index];
+
+		if (frames != NULL)
+		{
+			erk_interpolated(fp, frames);//loc_81C60
+			///@TODO check if return here or not!
+		}
+
+		short* v00 = (short*)fp[30];
+		mTranslateXYZ_AI(v00[6], v00[7], v00[8], fp);
+
 	}
 	//loc_81738
 #if 0
-sw      $at, arg_4C($fp)
-lw      $a2, arg_40($fp)
-lw      $v1, arg_78($fp)
-sh      $v0, 0($a2)
-sw      $s3, 4($a2)
-sw      $v1, 8($a2)
-lw      $s2, 0x3C($s3)
-li      $s1, 1
-lh      $v0, 2($s6)
-lw      $s7, arg_A0($fp)
-sll     $v0, 2
-addu    $s7, $v0
-lw      $v0, 4($s6)
-lw      $s5, arg_A4($fp)
-sll     $v0, 2
-bnez    $s0, loc_81C60
-addu    $s5, $v0
-lw      $v0, arg_78($fp)
-nop
-lh      $a0, 0xC($v0)
-lh      $a1, 0xE($v0)
-jal     sub_81AB0
-lh      $a2, 0x10($v0)
 lw      $v0, arg_78($fp)
 lw      $gp, 0x88($s3)
 lw      $s3, 8($s3)
