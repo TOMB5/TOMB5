@@ -1163,48 +1163,58 @@ void iRotY_AI(int ry, int* fp)
 	}
 }
 
-void iRotX_AI(int rx)
+void iRotX_AI(int rx, int* fp)
 {
 	rx = (rx >> 2) & 0x3FFC;
 	if (rx != 0)
 	{
 		int t5 = ((int*)&rcossin_tbl[rx >> 1])[0];
 		int t7 = 0xFFFF0000;
+		int t6 = t7 & t5;
+
+		VX0 = t6 & 0xFFFF;
+		VY0 = (t6 >> 16) & 0xFFFF;
+		VZ0 = t5;
+
+		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+		int t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+
+		docop2(0x4A6012);
+
+		t6 = t5 >> 16;
+		t5 <<= 16;
+		t5 = -t5;
+
+		VX1 = t5 & 0xFFFF;
+		VY1 = (t5 >> 16) & 0xFFFF;
+		VZ1 = t6;
+
+		t0 &= 0xFFFF;
+		t1 &= t7;
+		t3 &= 0xFFFF;
+
+		int t4 = MAC1;
+		int t2 = MAC2;
+		t5 = MAC3;
+
+		docop2(0x4AE012);
+
+		t4 <<= 16;
+		t0 |= t4;
+		t2 &= 0xFFFF;
+		t5 <<= 16;
+		t3 |= t5;
+		t5 = MAC1;
+		t6 = MAC2;
+		t4 = MAC3;
+		t5 &= 0xFFFF;
+		t1 |= t5;
+		t6 <<= 16;
+		t2 |= t6;
+
+		SetRotation_I_AI(t0, t1, t2, t3, t4, fp);
 	}
-#if 0
-		and $t6, $t7, $t5
-		mtc2    $t6, $0
-		mtc2    $t5, $1
-		cfc2    $t0, $8
-		cfc2    $t1, $9
-		cfc2    $t3, $11
-		cop2    0x4A6012
-		srl     $t6, $t5, 16
-		sll     $t5, 16
-		neg     $t5, $t5
-		mtc2    $t5, $2
-		mtc2    $t6, $3
-		andi    $t0, 0xFFFF
-		and $t1, $t7
-		andi    $t3, 0xFFFF
-		mfc2    $t4, $25
-		mfc2    $t2, $26
-		mfc2    $t5, $27
-		cop2    0x4AE012
-		sll     $t4, 16
-		or $t0, $t4
-		andi    $t2, 0xFFFF
-		sll     $t5, 16
-		or $t3, $t5
-		mfc2    $t5, $25
-		mfc2    $t6, $26
-		mfc2    $t4, $27
-		andi    $t5, 0xFFFF
-		or $t1, $t5
-		sll     $t6, 16
-		j       loc_82110
-		or $t2, $t6
-#endif
 }
 
 void iRotZ_AI(int rz)
