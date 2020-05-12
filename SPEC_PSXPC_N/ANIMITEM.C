@@ -1094,6 +1094,42 @@ void mRotSuperPackedYXZ_AI(int* fp)//819FC
 	mRotZ_AI((v0 & 0x3FF) << 6, fp);
 }
 
+void iRotSuperPackedYXZ_AI(int* fp)//82140
+{
+	unsigned short* a2 = (unsigned short*)fp[33];
+	unsigned short v0 = *a2++;
+	int at = v0 >> 14;
+
+	if (at-- != 0)
+	{
+		fp[33] = (int)a2;
+
+		if (at-- != 0)
+		{
+			if (at != 0)
+			{
+				iRotZ_AI((v0 & 0xFFF) << 4);
+				return;
+			}//loc_82178
+			iRotY_AI((v0 & 0xFFF) << 4);
+			return;
+		}
+		//loc_82180
+		iRotX((v0 & 0xFFF) << 4);
+		return;
+	}
+	//loc_8218C
+	at = *a2++;
+	fp[33] = (int)a2;
+	int a0 = v0 << 16;
+	a0 |= at;
+	int a2 = a0;
+
+	iRotY_AI((a2 >> 4) & 0xFFC0);
+	iRotX_AI((a2 >> 14) & 0xFFC0);
+	iRotZ_AI((a2 << 6) & 0xFFC0);
+}
+
 void erk_interpolated(int* fp, int s0)//81C60
 {
 	InitInterpolation_AI(fp, s0, (int*)&fp[151]);
