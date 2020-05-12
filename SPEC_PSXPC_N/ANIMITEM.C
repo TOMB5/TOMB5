@@ -119,6 +119,23 @@ void mLoadMatrix_AI(int* a0, int* fp)//81C18(<)
 	fp[20] = (int)a0;
 }
 
+void mmPushMatrix_AI(int* fp)
+{
+	int* a0 = (int*)fp[20];
+	a0 += 8;
+	a0[0] = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
+	a0[1] = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
+	a0[2] = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
+	a0[3] = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
+	a0[4] = R33;
+	a0[5] = TRX;
+	a0[6] = TRY;
+	a0[7] = TRZ;
+
+	fp[20] = (int)a0;
+}
+
+
 void mmPopMatrix_AI(int* fp)//81C0C(<)
 {
 	mLoadMatrix_AI((int*)(fp[20] - 0x20), fp);
@@ -1830,22 +1847,6 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 	}
 	//loc_81738
 	mmPopMatrix_AI(fp);
-}
-
-void mmPushMatrix_AI(int* fp)
-{
-	int* a0 = (int*)fp[20];
-	a0 += 8;
-	a0[0] = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
-	a0[1] = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
-	a0[2] = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
-	a0[3] = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
-	a0[4] = R33;
-	a0[5] = TRX;
-	a0[6] = TRY;
-	a0[7] = TRZ;
-
-	fp[20] = (int)a0;
 }
 
 void stash_the_info(int meshp/*a0*/, int* fp)//81750
