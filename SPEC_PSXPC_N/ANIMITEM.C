@@ -1094,6 +1094,124 @@ void mRotSuperPackedYXZ_AI(int* fp)//819FC
 	mRotZ_AI((v0 & 0x3FF) << 6, fp);
 }
 
+void SetRotation_I_AI(int t0, int t1, int t2, int t3, int t4, int* fp)//82110
+{
+	int* a0 = (int*)fp[21];
+
+	L11 = t0 & 0xFFFF;
+	L12 = (t0 >> 16) & 0xFFFF;
+	L13 = t1 & 0xFFFF;
+	L21 = (t1 >> 16) & 0xFFFF;
+	L22 = t2 & 0xFFFF;
+	L23 = (t2 >> 16) & 0xFFFF;
+	L31 = t3 & 0xFFFF;
+	L32 = (t3 >> 16) & 0xFFFF;
+	L33 = t4;
+
+	a0[0] = t0;
+	a0[1] = t1;
+	a0[2] = t2;
+	a0[3] = t3;
+	a0[4] = t4;
+}
+
+void iRotY_AI(int ry)
+{
+	
+}
+
+void iRotX_AI(int rx)
+{
+	rx = (rx >> 2) & 0x3FFC;
+	if (rx != 0)
+	{
+		int t5 = ((int*)&rcossin_tbl[rx >> 1])[0];
+		int t7 = 0xFFFF0000;
+	}
+#if 0
+		and $t6, $t7, $t5
+		mtc2    $t6, $0
+		mtc2    $t5, $1
+		cfc2    $t0, $8
+		cfc2    $t1, $9
+		cfc2    $t3, $11
+		cop2    0x4A6012
+		srl     $t6, $t5, 16
+		sll     $t5, 16
+		neg     $t5, $t5
+		mtc2    $t5, $2
+		mtc2    $t6, $3
+		andi    $t0, 0xFFFF
+		and $t1, $t7
+		andi    $t3, 0xFFFF
+		mfc2    $t4, $25
+		mfc2    $t2, $26
+		mfc2    $t5, $27
+		cop2    0x4AE012
+		sll     $t4, 16
+		or $t0, $t4
+		andi    $t2, 0xFFFF
+		sll     $t5, 16
+		or $t3, $t5
+		mfc2    $t5, $25
+		mfc2    $t6, $26
+		mfc2    $t4, $27
+		andi    $t5, 0xFFFF
+		or $t1, $t5
+		sll     $t6, 16
+		j       loc_82110
+		or $t2, $t6
+#endif
+}
+
+void iRotZ_AI(int rz)
+{
+	rz = (rz >> 2) & 0x3FFC;
+	if (rz != 0)
+	{
+		int t0 = ((int*)&rcossin_tbl[rz >> 1])[0];
+		int t7 = 0xFFFF0000;
+	}
+	//loc_82074
+#if 0
+		srl     $t1, $t0, 16
+		sll     $t2, $t0, 16
+		or $t1, $t2
+		mtc2    $t1, $0
+		mtc2    $zero, $1
+		cfc2    $t1, $9
+		cfc2    $t2, $10
+		cfc2    $t4, $12
+		cop2    0x4A6012
+		and $t3, $t0, $t7
+		andi    $t0, 0xFFFF
+		neg     $t0, $t0
+		andi    $t0, 0xFFFF
+		or $t0, $t3
+		mtc2    $t0, $2
+		mtc2    $zero, $3
+		andi    $t1, 0xFFFF
+		mfc2    $t0, $25
+		mfc2    $t5, $26
+		mfc2    $t3, $27
+		cop2    0x4AE012
+		and $t2, $t7
+		andi    $t0, 0xFFFF
+		sll     $t5, 16
+		or $t1, $t5
+		andi    $t3, 0xFFFF
+		mfc2    $t5, $25
+		mfc2    $t6, $26
+		mfc2    $t8, $27
+		sll     $t5, 16
+		or $t0, $t5
+		andi    $t6, 0xFFFF
+		or $t2, $t6
+		sll     $t8, 16
+		or $t3, $t8
+#endif
+}
+
 void iRotSuperPackedYXZ_AI(int* fp)//82140
 {
 	unsigned short* a2 = (unsigned short*)fp[33];
