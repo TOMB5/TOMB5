@@ -1115,9 +1115,52 @@ void SetRotation_I_AI(int t0, int t1, int t2, int t3, int t4, int* fp)//82110
 	a0[4] = t4;
 }
 
-void iRotY_AI(int ry)
+void iRotY_AI(int ry, int* fp)
 {
-	
+	ry = (ry >> 2) & 0x3FFC;
+	if (ry != 0)
+	{
+		int t5 = ((int*)&rcossin_tbl[ry >> 1])[0];
+		int t7 = 0xFFFF0000;
+		int t6 = t5 >> 16;
+		t5 &= 0xFFFF;
+		int t2 = -t5;
+
+		VX0 = t6 & 0xFFFF;
+		VY0 = (t6 >> 16) & 0xFFFF;
+		VZ0 = t2;
+
+		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+		int t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+
+		docop2(0x4A6012);
+
+		VX1 = t5 & 0xFFFF;
+		VY1 = (t5 >> 16) & 0xFFFF;
+		VZ1 = t6;
+		t0 &= t7;
+		t2 &= 0xFFFF;
+		t3 &= t7;
+		int t4 = MAC1;
+		int t1 = MAC2;
+		t5 = MAC3;
+		docop2(0x4AE012);
+		t4 &= 0xFFFF;
+		t0 |= t4;
+		t1 <<= 16;
+		t5 &= 0xFFFF;
+		t3 |= t5;
+		t5 = MAC1;
+		t6 = MAC2;
+		t4 = MAC3;
+		t5 &= 0xFFFF;
+		t1 |= t5;
+		t6 <<= 16;
+		t2 |= t6;
+
+		SetRotation_I_AI(t0, t1, t2, t3, t4, fp);
+	}
 }
 
 void iRotX_AI(int rx)
