@@ -939,28 +939,152 @@ void InitInterpolation_AI(int* fp, int a0, int* a2)//81DF4
 	a2[7] = t7;
 }
 
+void iTranslateXYZ2_AI(int x/*a0*/, int y/*a1*/, int z/*a2*/, int x2/*a3*/, int* fp)//821DC
+{
+	mTranslateXYZ_AI(x, y, z, fp);
+
+	y = fp[34];
+	z = fp[35];
+
+	int t0 = x2 >> 15;
+	if (t0 < 0)
+	{
+		x2 = -x2;
+		t0 = x2 >> 15;
+		x2 &= 0x7FFF;
+		t0 = -t0;
+		x2 = -x2;
+	}
+	else
+	{
+		x2 &= 0x7FFF;
+	}
+
+	//loc_82214
+	int t1 = y >> 15;
+	if (y < 0)
+	{
+		y = -y;
+		t1 = y >> 15;
+		y &= 0x7FFF;
+		t1 = -t1;
+		y = -y;
+	}
+	else
+	{
+		y &= 0x7FFF;
+	}
+
+	//loc_82238
+	int t2 = z >> 15;
+	if (z < 0)
+	{
+		z = -z;
+		t2 = z >> 15;
+		z &= 0x7FFF;
+		t2 = -t2;
+		z = -z;
+	}
+	else
+	{
+		z &= 0x7FFF;
+	}
+
+	IR1 = t0;
+	IR2 = t1;
+	IR3 = t2;
+
+	docop2(0x43E012);
+
+	int v0 = fp[21];
+	int t6 = MAC1;
+
+	IR1 = x2;
+	IR2 = y;
+	IR3 = z;
+
+	int t7 = MAC2;
+	int t8 = MAC3;
+
+	docop2(0x4BE012);
+
+	int t3 = t6 << 3;
+	if (t6 < 0)
+	{
+		t6 = -t6;
+		t6 <<= 3;
+		t3 = -t6;
+	}
+
+	int t4 = t7 << 3;
+	if (t7 < 0)
+	{
+		t7 = -t7;
+		t7 <<= 3;
+		t4 = -t7;
+	}
+	
+	int t5 = t8 << 3;
+	if (t8 < 0)
+	{
+		t8 = -t8;
+		t8 <<= 3;
+		t5 = -t8;
+	}
+
+	//loc_822CC
+	t6 = MAC1;
+	t7 = MAC2;
+	t8 = MAC3;
+
+	t3 += t6;
+	t4 += t7;
+	t5 += t8;
+
+	t0 = RBK;
+	t1 = GBK;
+	t2 = BBK;
+
+	t0 += t3;
+	t1 += t4;
+	t2 += t5;
+
+	RBK = t0;
+	GBK = t1;
+	BBK = t2;
+
+	((int*)v0)[5] = t0;
+	((int*)v0)[6] = t1;
+	((int*)v0)[7] = t2;
+}
+
 void erk_interpolated(int* fp, int s0)//81C60
 {
 	int* a2 = &fp[151];
 	InitInterpolation_AI(fp, s0, a2);
+
+	short* v0 = (short*)fp[30];
+	short* v1 = (short*)fp[31];
+
+	int a0 = v0[6];
+	int a1 = v0[7];
+	int a2 = v0[8];
+	int a3 = v1[6];
+	int t0 = v1[7];
+	int t1 = v1[8];
+
+	v0 += 9;
+	v1 += 9;
+
+	fp[34] = t0;
+	fp[35] = t1;
+	fp[32] = (int)v0;
+	fp[33] = (int)v1;
+
+	iTranslateXYZ2_AI(a0, a1, a2, a3, fp);
 #if 0
-		jal     sub_81DF4
-		move    $a0, $s0
-		lw      $v0, arg_78($fp)
-		lw      $v1, arg_7C($fp)
-		lh      $a0, 0xC($v0)
-		lh      $a1, 0xE($v0)
-		lh      $a2, 0x10($v0)
-		lh      $a3, 0xC($v1)
-		lh      $t0, 0xE($v1)
-		lh      $t1, 0x10($v1)
-		addiu   $v0, 0x12
-		addiu   $v1, 0x12
-		sw      $t0, arg_88($fp)
-		sw      $t1, arg_8C($fp)
-		sw      $v0, arg_80($fp)
 		jal     sub_821DC
-		sw      $v1, arg_84($fp)
+
 		jal     sub_819FC
 		lw      $gp, 0x88($s3)
 		lw      $s3, 8($s3)
