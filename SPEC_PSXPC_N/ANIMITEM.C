@@ -1567,7 +1567,7 @@ void iPopMatrix_AI(int* fp)//81EB0
 	fp[21] = (int)a1;
 }
 
-void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int s0, long* s5, short* s7, int* fp)//81C60
+void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int s0, short* s2, long* s5, short* s7, int* fp)//81C60
 {
 	InitInterpolation_AI(fp, s0, (int*)&fp[151]);
 
@@ -1619,80 +1619,69 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 	}
 
 	//loc_81CF0
-	if ((s5[0] & 1))
+	do
 	{
-		iPopMatrix_AI(fp);
-	}
-	//loc_81D0C
-	if ((s5[0] & 2))
-	{
-		iPushMatrix_AI(fp);
-	}
+		if ((s5[0] & 0x1))
+		{
+			iPopMatrix_AI(fp);
+		}
+		//loc_81D0C
+		if ((s5[0] & 0x2))
+		{
+			iPushMatrix_AI(fp);
+		}
 
-	//loc_81D20
-	iTranslateXYZ_AI(s5[1], s5[2], s5[3]);
-#if 0
-		jal     sub_819FC
-		nop
-		jal     sub_82140
-		nop
-		beqz    $s2, loc_81DB8
-		andi    $v0, $s0, 0x1C
-		beqz    $v0, loc_81DB8
-		andi    $v0, $s0, 8
-		beqz    $v0, loc_81D74
-		andi    $v0, $s0, 4
-		lh      $a0, 0($s2)
-		jal     sub_81858
-		nop
-		lh      $a0, 0($s2)
-		jal     sub_81FB8
-		addiu   $s2, 2
-		andi    $v0, $s0, 4
+		//loc_81D20
+		iTranslateXYZ_AI(s5[1], s5[2], s5[3], fp);
+		mRotSuperPackedYXZ_AI(fp);
+		iRotSuperPackedYXZ_AI(fp);
 
-		loc_81D74:
-	beqz    $v0, loc_81D98
-		andi    $v0, $s0, 0x10
-		lh      $a0, 0($s2)
-		jal     sub_817B0
-		nop
-		lh      $a0, 0($s2)
-		jal     sub_81F10
-		addiu   $s2, 2
-		andi    $v0, $s0, 0x10
+		if (s2 != NULL && (s0 & 0x1C))
+		{
+			if ((s0 & 0x8))
+			{
+				mRotY_AI(((short*)s2)[0], fp);
+				iRotY_AI(((short*)s2)[0], fp);
+				s2 += 1;
+			}
+			//loc_81D74
+			if ((s0 & 0x4))
+			{
+				mRotX_AI(((short*)s2)[0], fp);
+				iRotX_AI(((short*)s2)[0], fp);
+				s2 += 1;
+			}
 
-		loc_81D98:
-	beqz    $v0, loc_81DB8
-		nop
-		lh      $a0, 0($s2)
-		jal     sub_81918
-		nop
-		lh      $a0, 0($s2)
-		jal     sub_8205C
-		addiu   $s2, 2
-
-		loc_81DB8:
-	sll     $s1, 1
-		and $v0, $s1, $s3
-		beqz    $v0, loc_81DDC
-		and $v0, $gp, $s1
-		beqz    $v0, loc_81DD4
-		lw      $v1, 0($s7)
-		lw      $v1, 4($s7)
-
-		loc_81DD4:
-	jal     sub_82318
-		nop
-
-		loc_81DDC :
-	addiu   $s4, -1
-		addiu   $s5, 0x10
-		bnez    $s4, loc_81CF0
-		addiu   $s7, 8
-		j       loc_81714
-		nop
-	
-#endif
+			if ((s0 & 0x10))
+			{
+				mRotZ_AI(((short*)s2)[0], fp);
+				iRotZ_AI(((short*)s2)[0], fp);
+				s2 += 1;
+			}
+		}
+		//loc_81DB8
+		if ((1 << 1) & (item->mesh_bits))
+		{
+			int v11 = 0;
+			if ((item->meshswap_meshbits & (1 << 1)))
+			{
+				v11 = ((int*)s7)[1];
+			}
+			else
+			{
+				v11 = ((int*)s7)[0];
+			}
+			//loc_81DD4
+			InterpolateMatrix_AI(v11, fp);
+		}
+		//loc_81DDC
+		s4--;
+		s5 += 4;
+		s7 += 4;
+	} while (s4 != 0);
+	//j       loc_81714
+	///@TODO
+	assert(FALSE);//Unimplemented jump
 }
 
 void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504
@@ -1739,7 +1728,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 		if (frames != NULL)
 		{
-			erk_interpolated(item, object, frames, s5, s7, fp);//loc_81C60
+			erk_interpolated(item, object, frames, (short*)item->data, s5, s7, fp);//loc_81C60
 			///@TODO check if return here or not!
 		}
 
