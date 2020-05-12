@@ -1217,52 +1217,60 @@ void iRotX_AI(int rx, int* fp)
 	}
 }
 
-void iRotZ_AI(int rz)
+void iRotZ_AI(int rz, int* fp)
 {
 	rz = (rz >> 2) & 0x3FFC;
 	if (rz != 0)
 	{
 		int t0 = ((int*)&rcossin_tbl[rz >> 1])[0];
 		int t7 = 0xFFFF0000;
+		int t1 = t0 >> 16;
+		int t2 = t0 << 16;
+		t1 |= t2;
+
+		VX0 = t1 & 0xFFFF;
+		VY0 = (t1 >> 16) & 0xFFFF;
+		VZ0 = 0;
+
+		int t0 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+		int t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+		int t4 = (L33 & 0xFFFF);
+
+		docop2(0x4A6012);
+		int t3 = t0 & t7;
+		t0 &= 0xFFFF;
+		t0 = -t0;
+		t0 &= 0xFFFF;
+		t0 |= t3;
+
+		VX1 = t0 & 0xFFFF;
+		VY1 = (t0 >> 16) & 0xFFFF;
+		VZ1 = 0;
+
+		t1 &= 0xFFFF;
+		t0 = MAC1;
+		int t5 = MAC2;
+		t3 = MAC3;
+
+		docop2(0x4AE012);
+		t2 &= t7;
+		t0 &= 0xFFFF;
+		t5 <<= 16;
+		t1 |= t5;
+		t3 &= 0xFFFF;
+		t5 = MAC1;
+		int t6 = MAC2;
+		int t8 = MAC3;
+		t5 <<= 16;
+		t0 |= t5;
+		t6 &= 0xFFFF;
+		t2 |= t6;
+		t8 <<= 16;
+		t3 |= t8;
+
+		SetRotation_I_AI(t0, t1, t2, t3, t4, fp);
 	}
 	//loc_82074
-#if 0
-		srl     $t1, $t0, 16
-		sll     $t2, $t0, 16
-		or $t1, $t2
-		mtc2    $t1, $0
-		mtc2    $zero, $1
-		cfc2    $t1, $9
-		cfc2    $t2, $10
-		cfc2    $t4, $12
-		cop2    0x4A6012
-		and $t3, $t0, $t7
-		andi    $t0, 0xFFFF
-		neg     $t0, $t0
-		andi    $t0, 0xFFFF
-		or $t0, $t3
-		mtc2    $t0, $2
-		mtc2    $zero, $3
-		andi    $t1, 0xFFFF
-		mfc2    $t0, $25
-		mfc2    $t5, $26
-		mfc2    $t3, $27
-		cop2    0x4AE012
-		and $t2, $t7
-		andi    $t0, 0xFFFF
-		sll     $t5, 16
-		or $t1, $t5
-		andi    $t3, 0xFFFF
-		mfc2    $t5, $25
-		mfc2    $t6, $26
-		mfc2    $t8, $27
-		sll     $t5, 16
-		or $t0, $t5
-		andi    $t6, 0xFFFF
-		or $t2, $t6
-		sll     $t8, 16
-		or $t3, $t8
-#endif
 }
 
 void iRotSuperPackedYXZ_AI(int* fp)//82140
@@ -1294,11 +1302,11 @@ void iRotSuperPackedYXZ_AI(int* fp)//82140
 	fp[33] = (int)a2;
 	int a0 = v0 << 16;
 	a0 |= at;
-	int a2 = a0;
+	int a22 = a0;
 
-	iRotY_AI((a2 >> 4) & 0xFFC0);
-	iRotX_AI((a2 >> 14) & 0xFFC0);
-	iRotZ_AI((a2 << 6) & 0xFFC0);
+	iRotY_AI((a22 >> 4) & 0xFFC0, fp);
+	iRotX_AI((a22 >> 14) & 0xFFC0, fp);
+	iRotZ_AI((a22 << 6) & 0xFFC0, fp);
 }
 
 void erk_interpolated(int* fp, int s0)//81C60
@@ -1324,7 +1332,7 @@ void erk_interpolated(int* fp, int s0)//81C60
 	fp[33] = (int)v1;
 
 	iTranslateXYZ2_AI(a0, a1, a2, a3, fp);
-	mRotSuperPackedYXZ_AI()
+	mRotSuperPackedYXZ_AI(fp);
 #if 0
 		jal     sub_819FC
 		lw      $gp, 0x88($s3)
