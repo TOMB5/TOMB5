@@ -1687,6 +1687,8 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504
 {
 	int frames;//$s0
+	short* s2;
+	int s4;
 
 	//v0 = 0x1FF0000
 	//v1 = 0xEF0000
@@ -1719,136 +1721,115 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 		((short*)a2)[0] = v0;
 		a2[1] = (int)item;
 		a2[2] = v1;
-		//s2 = item->data
+		s2 = (short*)item->data;
 		//s1 = 1
 		//v0 = object->mesh_index
 		short* s7 = ((short**)fp[40])[object->mesh_index];
 		//v0 = object->bone_index
 		long* s5 = ((long**)fp[41])[object->bone_index];
 
-		if (frames != NULL)
+		if (frames != 0)
 		{
-			erk_interpolated(item, object, frames, (short*)item->data, s5, s7, fp);//loc_81C60
-			///@TODO check if return here or not!
+			erk_interpolated(item, object, frames, s2, s5, s7, fp);//loc_81C60
+			assert(false);///@todo check return?
 		}
 
 		short* v00 = (short*)fp[30];
 		mTranslateXYZ_AI(v00[6], v00[7], v00[8], fp);
+		//v0 = fp[30];
+		//gp = item->meshswap_meshbits
+		//s3 = item->mesh_bits
+		fp[32] = fp[30] + 0x12;
+		mRotSuperPackedYXZ_AI(fp);
 
+		if ((item->mesh_bits & 1))
+		{
+			int a0 = 0;
+			if ((item->meshswap_meshbits & 1))
+			{
+				a0 = ((int*)s7)[1];
+			}
+			else
+			{
+				a0 = ((int*)s7)[0];
+			}
+			//loc_81628
+			stash_the_info(a0, fp);
+		}
+		//loc_81630
+		s7 += 4;
+		s4 = object->nmeshes - 1;
+		if (s4 <= 0)
+		{
+			//loc_81714
+			assert(FALSE);//Unimplemented jump
+		}
+
+		//loc_81644
+		do
+		{
+			if ((s5[0] & 0x1))
+			{
+				mmPopMatrix_AI(fp);
+			}
+			if ((s5[0] & 0x2))
+			{
+				mmPushMatrix_AI(fp);
+			}
+
+			mTranslateXYZ_AI(s5[1], s5[2], s5[3], fp);
+			mRotSuperPackedYXZ_AI(fp);
+
+			if ((item->data != NULL) && (frames & 0x1C))
+			{
+				if ((frames & 0x8))
+				{
+					mRotY_AI(*s2++, fp);
+				}
+				//loc_816B4
+				if ((frames & 0x4))
+				{
+					mRotX_AI(*s2++, fp);
+				}
+				//loc_816CC
+				if ((frames & 0x10))
+				{
+					mRotZ_AI(*s2++, fp);
+				}
+			}
+			//loc_816E0
+			//s1 = 1 << 1
+
+			if ((1 << 1) & item->mesh_bits)
+			{
+				int a0 = 0;
+				if (item->meshswap_meshbits & (1 << 1))
+				{
+					a0 = s7[1];
+				}
+				else
+				{
+					a0 = s7[0];
+				}
+				//loc_816FC
+				stash_the_info(a0, fp);
+			}
+			//loc_81704
+			s4--;
+			s7 += 4;
+			s5 += 4;
+		} while (s4 != 0);
+
+		//loc_81714
+		if (fp[19] > 0)
+		{
+			fp[18]--;
+			((short*)fp[16])[1] = fp[19];
+			fp[16] += 12;
+		}
 	}
 	//loc_81738
-#if 0
-lw      $v0, arg_78($fp)
-lw      $gp, 0x88($s3)
-lw      $s3, 8($s3)
-addiu   $v0, 0x12
-jal     sub_819FC
-sw      $v0, arg_80($fp)
-and     $v0, $s3, $s1
-beqz    $v0, loc_81630
-and     $v0, $gp, $s1
-beqz    $v0, loc_81628
-lw      $a0, 0($s7)
-lw      $a0, 4($s7)
-
-loc_81628:
-jal     sub_81750
-nop
-
-loc_81630:
-lh      $s4, 0($s6)
-nop
-addiu   $s4, -1
-blez    $s4, loc_81714
-addiu   $s7, 8
-
-loc_81644:
-lw      $s0, 0($s5)
-nop
-andi    $v0, $s0, 1
-beqz    $v0, loc_81660
-nop
-jal     sub_81C0C
-nop
-
-loc_81660:
-andi    $v0, $s0, 2
-beqz    $v0, loc_81674
-nop
-jal     sub_81BBC
-nop
-
-loc_81674:
-lw      $a0, 4($s5)
-lw      $a1, 8($s5)
-jal     sub_81AB0
-lw      $a2, 0xC($s5)
-jal     sub_819FC
-nop
-beqz    $s2, loc_816E0
-andi    $v0, $s0, 0x1C
-beqz    $v0, loc_816E0
-andi    $v0, $s0, 8
-beqz    $v0, loc_816B4
-andi    $v0, $s0, 4
-lh      $a0, 0($s2)
-jal     sub_81858
-addiu   $s2, 2
-andi    $v0, $s0, 4
-
-loc_816B4:
-beqz    $v0, loc_816CC
-andi    $v0, $s0, 0x10
-lh      $a0, 0($s2)
-jal     sub_817B0
-addiu   $s2, 2
-andi    $v0, $s0, 0x10
-
-loc_816CC:
-beqz    $v0, loc_816E0
-nop
-lh      $a0, 0($s2)
-jal     sub_81918
-addiu   $s2, 2
-
-loc_816E0:
-sll     $s1, 1
-and     $v0, $s1, $s3
-beqz    $v0, loc_81704
-and     $v0, $gp, $s1
-beqz    $v0, loc_816FC
-lw      $a0, 0($s7)
-lw      $a0, 4($s7)
-
-loc_816FC:
-jal     sub_81750
-nop
-
-loc_81704:
-addiu   $s4, -1
-addiu   $s7, 8
-bnez    $s4, loc_81644
-addiu   $s5, 0x10
-
-loc_81714:
-lw      $at, arg_4C($fp)
-lw      $v0, arg_48($fp)
-blez    $at, loc_81738
-addiu   $v0, 1
-lw      $v1, arg_40($fp)
-sw      $v0, arg_48($fp)
-sh      $at, 2($v1)
-addiu   $v1, 0xC
-sw      $v1, arg_40($fp)
-
-loc_81738:
-jal     sub_81C0C
-lw      $s2, arg_B0($fp)
-lw      $ra, arg_B4($fp)
-lw      $s1, arg_AC($fp)
-jr      $ra
-lw      $s0, arg_A8($fp)
-#endif
+	mmPopMatrix_AI(fp);
 }
 
 void mmPushMatrix_AI(int* fp)
@@ -2180,6 +2161,14 @@ void CalcAllAnimatingItems_ASM()
 					{
 						//s2 = item
 						CalcAnimatingItem_ASM(item, object, fp);
+
+#if 0//Disabled, maybe not needed
+						lw      $s2, arg_B0($fp)
+						lw      $ra, arg_B4($fp)
+						lw      $s1, arg_AC($fp)
+						jr      $ra
+						lw      $s0, arg_A8($fp)
+#endif
 						//item = s2 //Maybe restore backup check if modified in func above
 					}
 					//loc_827BC
