@@ -1287,14 +1287,14 @@ void iRotSuperPackedYXZ_AI(int* fp)//82140
 		{
 			if (at != 0)
 			{
-				iRotZ_AI((v0 & 0xFFF) << 4);
+				iRotZ_AI((v0 & 0xFFF) << 4, fp);
 				return;
 			}//loc_82178
-			iRotY_AI((v0 & 0xFFF) << 4);
+			iRotY_AI((v0 & 0xFFF) << 4, fp);
 			return;
 		}
 		//loc_82180
-		iRotX((v0 & 0xFFF) << 4);
+		iRotX_AI((v0 & 0xFFF) << 4, fp);
 		return;
 	}
 	//loc_8218C
@@ -1309,7 +1309,218 @@ void iRotSuperPackedYXZ_AI(int* fp)//82140
 	iRotZ_AI((a22 << 6) & 0xFFC0, fp);
 }
 
-void erk_interpolated(int* fp, int s0)//81C60
+void InterpolateMatrix_AI(int v1, int* fp)
+{
+	int* a0 = (int*)fp[17];
+	int v0 = fp[19];
+
+	a0[0] = v1;
+	int* at = &a0[9];
+	v0 = 1;
+	fp[19] = v0;
+	fp[17] = (int)at;
+	a0++;
+
+	int a2 = fp[20];
+	int a1 = fp[21];
+	int t6 = fp[23];
+	int t7 = fp[22];
+
+	v0 = ((short*)a1)[0];
+	int v1 = ((short*)a2)[0];
+	int a3 = ((short*)a1)[1];
+	int t0 = ((short*)a2)[1];
+	int t1 = ((short*)a1)[2];
+	int t2 = ((short*)a2)[2];
+	int t3 = ((short*)a1)[3];
+	int t4 = ((short*)a2)[3];
+
+	if (t6 == 2)
+	{
+		//loc_82384
+		v0 = (v0 + v1) >> 1;
+		a3 = (a3 + t0) >> 1;
+		t1 = (t1 + t2) >> 1;
+		t3 = (t3 + t4) >> 1;
+
+		((short*)a0)[0] = v0;
+		((short*)a3)[1] = a3;
+		((short*)t1)[2] = t1;
+		((short*)t3)[3] = t3;
+
+		v0 = ((short*)a1)[4];
+		v1 = ((short*)a2)[4];
+		a3 = ((short*)a1)[5];
+		t0 = ((short*)a2)[5];
+
+		v0 = (v0 + v1) >> 1;
+		a3 = (a3 + t0) >> 1;
+
+		t1 = ((short*)a1)[6];
+		t2 = ((short*)a2)[6];
+		t3 = ((short*)a1)[7];
+		t4 = ((short*)a2)[7];
+
+		t1 = (t1 + t2) >> 1;
+		t3 = (t3 + t4) >> 1;
+
+		((short*)a0)[4] = v0;
+		((short*)a0)[5] = a3;
+		((short*)a0)[6] = t1;
+		((short*)a0)[7] = t3;
+
+		v0 = ((short*)a1)[8];
+		v1 = ((short*)a2)[8];
+		a3 = ((int*)a1)[5];
+		t0 = ((int*)a2)[5];
+
+		v0 = (v0 + v1) >> 1;
+		a3 = (a3 + t0) >> 1;
+
+		t1 = ((int*)a1)[6];
+		t2 = ((int*)a2)[6];
+		t3 = ((int*)a1)[7];
+		t4 = ((int*)a2)[7];
+
+		t1 = (t1 + t2) >> 1;
+		t3 = (t3 + t4) >> 1;
+	}
+	else if (t7 == 2 || t6 == 4)
+	{
+		//loc_82448
+		if (t7 == 1)
+		{
+			int att = v0 - v1;
+			v0 = att >> 2;
+			v1 += v0;
+			a3 = (a3 - t0) >> 2;
+			t0 += a3;
+			t1 = (t1 - t2) >> 2;
+			t2 += t1;
+			t3 = (t3 - t4) >> 2;
+			t4 += t3;
+
+			((short*)a0)[0] = v1;
+			((short*)a0)[1] = t0;
+			((short*)a0)[2] = t2;
+			((short*)a0)[3] = t4;
+			v0 = ((short*)a1)[4];
+			v1 = ((short*)a2)[4];
+			a3 = ((short*)a1)[5];
+			t0 = ((short*)a2)[5];
+
+			v0 = (v0 - v1) >> 2;
+			v1 += v0;
+			a3 = (a3 - t0) >> 2;
+			t0 += a3;
+
+			t1 = ((short*)a1)[6];
+			t2 = ((short*)a2)[6];
+			t3 = ((short*)a1)[7];
+			t4 = ((short*)a2)[7];
+
+			t1 = (t1 - t2) >> 2;
+			t2 += t1;
+			t3 = (t3 - t4) >> 2;
+			t4 += t3;
+
+			((short*)a0)[4] = v1;
+			((short*)a0)[5] = t0;
+			((short*)a0)[6] = t2;
+			((short*)a0)[7] = t4;
+
+			v0 = ((short*)a1)[8];
+			v1 = ((short*)a2)[8];
+			a3 = ((int*)a1)[5];
+			t0 = ((int*)a2)[5];
+
+			v0 = (v0 - v1) >> 2;
+			v0 = v1 + v0;
+
+			a3 = (a3 - t0) >> 2;
+			a3 = t0 + a3;
+
+			t1 = ((int*)a1)[6];
+			t2 = ((int*)a2)[6];
+			t3 = ((int*)a1)[7];
+			t4 = ((int*)a2)[7];
+
+			t1 = (t1 - t2) >> 2;
+			t1 = t2 + t1;
+			t3 = (t3 - t4) >> 2;
+			t3 = t4 + t3;
+		}
+		else
+		{
+			//loc_82540
+			int att = v0 - v1;
+			v1 = att >> 2;
+			v0 -= v1;
+			t0 = (a3 - t0) >> 2;
+			a3 -= t0;
+			t2 = (t1 - t2) >> 2;
+			t1 -= t2;
+			t4 = (t3 - t4) >> 2;
+			t3 -= t4;
+
+			((short*)a0)[0] = v0;
+			((short*)a0)[1] = a3;
+			((short*)a0)[2] = t1;
+			((short*)a0)[3] = t3;
+			v0 = ((short*)a1)[4];
+			v1 = ((short*)a2)[4];
+			a3 = ((short*)a1)[5];
+			t0 = ((short*)a2)[5];
+
+			v1 = (v0 - v1) >> 2;
+			v0 -= v1;
+			t0 = (a3 - t0) >> 2;
+			a3 -= t0;
+
+			t1 = ((short*)a1)[6];
+			t2 = ((short*)a2)[6];
+			t3 = ((short*)a1)[7];
+			t4 = ((short*)a2)[7];
+
+			t2 = (t1 - t2) >> 2;
+			t1 -= t2;
+			t4 = (t3 - t4) >> 2;
+			t3 -= t4;
+
+			((short*)a0)[4] = v0;
+			((short*)a0)[5] = a3;
+			((short*)a0)[6] = t1;
+			((short*)a0)[7] = t3;
+
+			v0 = ((short*)a1)[8];
+			v1 = ((short*)a2)[8];
+			a3 = ((int*)a1)[5];
+			t0 = ((int*)a2)[5];
+
+			v1 = (v0 - v1) >> 2;
+			v0 -= v1;
+			t0 = (a3 - t0) >> 2;
+			a3 -= t0;
+
+			t1 = ((int*)a1)[6];
+			t2 = ((int*)a2)[6];
+			t3 = ((int*)a1)[7];
+			t4 = ((int*)a2)[7];
+
+			t2 = (t1 - t2) >> 2;
+			t1 -= t2;
+			t4 = (t3 - t4) >> 2;
+			t3 -= t4;
+		}
+	}
+
+	((short*)a0)[8] = v0;
+	((short*)a0)[5] = a3;
+	((short*)a0)[6] = t1;
+	((short*)a0)[7] = t3;
+}
+
+void erk_interpolated(struct ITEM_INFO* item /*s3*/, int s0, int* fp, short* s7)//81C60
 {
 	InitInterpolation_AI(fp, s0, (int*)&fp[151]);
 
@@ -1333,23 +1544,26 @@ void erk_interpolated(int* fp, int s0)//81C60
 
 	iTranslateXYZ2_AI(a0, a1, a2, a3, fp);
 	mRotSuperPackedYXZ_AI(fp);
+	iRotSuperPackedYXZ_AI(fp);
+	//gp = item->meshswap_meshbits
+	//s3 = item->mesh_bits
+
+	if ((item->mesh_bits & 1))
+	{
+		int v11 = 0;
+		if ((item->meshswap_meshbits & 1))
+		{
+			v11 = ((int*)s7)[1];
+		}//loc_81CD4
+		else
+		{
+			v11 = ((int*)s7)[0];
+		}
+
+		InterpolateMatrix_AI(v11, fp);
+	}
+	//loc_81CDC
 #if 0
-		jal     sub_819FC
-		lw      $gp, 0x88($s3)
-		lw      $s3, 8($s3)
-		jal     sub_82140
-		nop
-		and $v0, $s3, $s1
-		beqz    $v0, loc_81CDC
-		and $v0, $gp, $s1
-		beqz    $v0, loc_81CD4
-		lw      $v1, 0($s7)
-		lw      $v1, 4($s7)
-
-		loc_81CD4:
-	jal     sub_82318
-		nop
-
 		loc_81CDC :
 	lh      $s4, 0($s6)
 		addiu   $s7, 8
@@ -1485,7 +1699,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 		if (frames != NULL)
 		{
-			erk_interpolated(fp, frames);//loc_81C60
+			erk_interpolated(item, frames, fp, s7);//loc_81C60
 			///@TODO check if return here or not!
 		}
 
