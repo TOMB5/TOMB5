@@ -1058,6 +1058,13 @@ void iTranslateXYZ2_AI(int x/*a0*/, int y/*a1*/, int z/*a2*/, int x2/*a3*/, int*
 	((int*)v0)[7] = t2;
 }
 
+void iTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//821D0
+{
+	fp[34] = ty;
+	fp[35] = tz;
+	iTranslateXYZ2_AI(tx, ty, tz, tx, fp);
+}
+
 void mRotSuperPackedYXZ_AI(int* fp)//819FC
 {
 	unsigned short* a2 = (unsigned short*)fp[32];
@@ -1623,14 +1630,8 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 	}
 
 	//loc_81D20
-
+	iTranslateXYZ_AI(s5[1], s5[2], s5[3]);
 #if 0
-
-		loc_81D20 :
-	lw      $a0, 4($s5)
-		lw      $a1, 8($s5)
-		jal     sub_821D0
-		lw      $a2, 0xC($s5)
 		jal     sub_819FC
 		nop
 		jal     sub_82140
