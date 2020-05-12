@@ -1520,6 +1520,21 @@ void InterpolateMatrix_AI(int v1, int* fp)
 	((short*)a0)[7] = t3;
 }
 
+void iPushMatrix_AI(int* fp)//81E60
+{
+	int* a0 = (int*)fp[21];
+	a0 += 8;
+	a0[0] = L11 & 0xFFFF | ((L12 & 0xFFFF) << 16);
+	a0[1] = L13 & 0xFFFF | ((L21 & 0xFFFF) << 16);
+	a0[2] = L22 & 0xFFFF | ((L23 & 0xFFFF) << 16);
+	a0[3] = L31 & 0xFFFF | ((L32 & 0xFFFF) << 16);
+	a0[4] = L33 & 0xFFFF;
+	a0[5] = RBK;
+	a0[6] = GBK;
+	a0[7] = BBK;
+	fp[21] = (int)a0;
+}
+
 void iPopMatrix_AI(int* fp)//81EB0
 {
 	int* a0 = (int*)fp[20];
@@ -1599,22 +1614,17 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 	//loc_81CF0
 	if ((s5[0] & 1))
 	{
-
+		iPopMatrix_AI(fp);
 	}
 	//loc_81D0C
+	if ((s5[0] & 2))
+	{
+		iPushMatrix_AI(fp);
+	}
+
+	//loc_81D20
 
 #if 0
-		beqz    $v0, loc_81D0C
-		nop
-		jal     sub_81EB0
-		nop
-
-		loc_81D0C :
-	andi    $v0, $s0, 2
-		beqz    $v0, loc_81D20
-		nop
-		jal     sub_81E60
-		nop
 
 		loc_81D20 :
 	lw      $a0, 4($s5)
