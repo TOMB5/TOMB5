@@ -1094,11 +1094,11 @@ void mRotSuperPackedYXZ_AI(int* fp)//819FC
 	fp[32] = (int)a2;
 	int a0 = v0 << 16;
 	a0 |= at;
-	int v0 = a0;
+	int v00 = a0;
 
-	mRotY_AI((v0 >> 4) & 0xFFC0, fp);
-	mRotX_AI((v0 >> 14) & 0xFFC0, fp);
-	mRotZ_AI((v0 & 0x3FF) << 6, fp);
+	mRotY_AI((v00 >> 4) & 0xFFC0, fp);
+	mRotX_AI((v00 >> 14) & 0xFFC0, fp);
+	mRotZ_AI((v00 & 0x3FF) << 6, fp);
 }
 
 void SetRotation_I_AI(int t0, int t1, int t2, int t3, int t4, int* fp)//82110
@@ -1138,7 +1138,7 @@ void iRotY_AI(int ry, int* fp)
 		VZ0 = t2;
 
 		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
-		int t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+		t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
 		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 		docop2(0x4A6012);
@@ -1239,8 +1239,8 @@ void iRotZ_AI(int rz, int* fp)
 		VY0 = (t1 >> 16) & 0xFFFF;
 		VZ0 = 0;
 
-		int t0 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
-		int t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+		t0 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+		t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
 		int t4 = (L33 & 0xFFFF);
 
 		docop2(0x4A6012);
@@ -1334,7 +1334,7 @@ void InterpolateMatrix_AI(int v1, int* fp)
 	int t7 = fp[22];
 
 	v0 = ((short*)a1)[0];
-	int v1 = ((short*)a2)[0];
+	v1 = ((short*)a2)[0];
 	int a3 = ((short*)a1)[1];
 	int t0 = ((short*)a2)[1];
 	int t1 = ((short*)a1)[2];
