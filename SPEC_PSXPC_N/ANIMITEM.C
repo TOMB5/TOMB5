@@ -1058,10 +1058,45 @@ void iTranslateXYZ2_AI(int x/*a0*/, int y/*a1*/, int z/*a2*/, int x2/*a3*/, int*
 	((int*)v0)[7] = t2;
 }
 
+void mRotSuperPackedYXZ_AI(int* fp)//819FC
+{
+	unsigned short* a2 = (unsigned short*)fp[32];
+	unsigned short v0 = *a2++;
+	int at = v0 >> 14;
+
+	if (at-- != 0)
+	{
+		fp[32] = (int)a2;
+
+		if (at-- != 0)
+		{
+			if (at != 0)
+			{
+				mRotZ_AI((v0 & 0xFFF) << 4, fp);
+				return;
+			}
+			//loc_81A34
+			mRotY_AI((v0 & 0xFFF) << 4, fp);
+			return;
+		}//loc_81A3C
+		mRotX_AI((v0 & 0xFFF) << 4, fp);
+		return;
+	}
+	//loc_81A48
+	at = *a2++;
+	fp[32] = (int)a2;
+	int a0 = v0 << 16;
+	a0 |= at;
+	int v0 = a0;
+
+	mRotY_AI((v0 >> 4) & 0xFFC0, fp);
+	mRotX_AI((v0 >> 14) & 0xFFC0, fp);
+	mRotZ_AI((v0 & 0x3FF) << 6, fp);
+}
+
 void erk_interpolated(int* fp, int s0)//81C60
 {
-	int* a2 = &fp[151];
-	InitInterpolation_AI(fp, s0, a2);
+	InitInterpolation_AI(fp, s0, (int*)&fp[151]);
 
 	short* v0 = (short*)fp[30];
 	short* v1 = (short*)fp[31];
@@ -1082,9 +1117,8 @@ void erk_interpolated(int* fp, int s0)//81C60
 	fp[33] = (int)v1;
 
 	iTranslateXYZ2_AI(a0, a1, a2, a3, fp);
+	mRotSuperPackedYXZ_AI()
 #if 0
-		jal     sub_821DC
-
 		jal     sub_819FC
 		lw      $gp, 0x88($s3)
 		lw      $s3, 8($s3)
