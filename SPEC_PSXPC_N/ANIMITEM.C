@@ -1520,7 +1520,32 @@ void InterpolateMatrix_AI(int v1, int* fp)
 	((short*)a0)[7] = t3;
 }
 
-void erk_interpolated(struct ITEM_INFO* item /*s3*/, int s0, int* fp, short* s7)//81C60
+void iPopMatrix_AI(int* fp)//81EB0
+{
+	int* a0 = (int*)fp[20];
+	int* a1 = (int*)fp[21];
+
+	a0 -= 8;
+	a1 -= 8;
+
+	mLoadMatrix_AI(a0, fp);
+
+	L11 = a1[0] & 0xFFFF;
+	L12 = (a1[0] >> 16) & 0xFFFF;
+	L13 = a1[1] & 0xFFFF;
+	L21 = (a1[1] >> 16) & 0xFFFF;
+	L22 = a1[2] & 0xFFFF;
+	L23 = (a1[2] >> 16) & 0xFFFF;
+	L31 = a1[3] & 0xFFFF;
+	L32 = (a1[3] >> 16) & 0xFFFF;
+	L33 = a1[4];
+	RBK = a1[5];
+	GBK = a1[6];
+	BBK = a1[7];
+	fp[21] = (int)a1;
+}
+
+void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int s0, long* s5, short* s7, int* fp)//81C60
 {
 	InitInterpolation_AI(fp, s0, (int*)&fp[151]);
 
@@ -1563,18 +1588,22 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, int s0, int* fp, short* s7)
 		InterpolateMatrix_AI(v11, fp);
 	}
 	//loc_81CDC
-#if 0
-		loc_81CDC :
-	lh      $s4, 0($s6)
-		addiu   $s7, 8
-		addiu   $s4, -1
-		blez    $s4, loc_81714
-		nop
+	int s4 = object->nmeshes - 1;
+	s7 += 4;
+	if (object->nmeshes - 1 <= 0)
+	{
+		//81714
+		assert(FALSE);//Unimplemented
+	}
 
-		loc_81CF0 :
-	lw      $s0, 0($s5)
-		nop
-		andi    $v0, $s0, 1
+	//loc_81CF0
+	if ((s5[0] & 1))
+	{
+
+	}
+	//loc_81D0C
+
+#if 0
 		beqz    $v0, loc_81D0C
 		nop
 		jal     sub_81EB0
@@ -1699,7 +1728,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 		if (frames != NULL)
 		{
-			erk_interpolated(item, frames, fp, s7);//loc_81C60
+			erk_interpolated(item, object, frames, s5, s7, fp);//loc_81C60
 			///@TODO check if return here or not!
 		}
 
