@@ -83,7 +83,7 @@ void PrintAllOtherObjects_ASM(short room_num /*s3*/)//(F)
 			}
 
 			//loc_8F5C4
-			if (item->after_death - 1 < 127)
+			if ((unsigned)(item->after_death - 1) < 127)
 			{
 				item->after_death++;
 
