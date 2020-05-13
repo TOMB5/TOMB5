@@ -278,7 +278,7 @@ void CalculateObjectLighting(struct ITEM_INFO* item/*a0*/, short* frmptr/*a1*/, 
 		mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
 		mTranslateXYZ((frmptr[0] + frmptr[1]) >> 1, (frmptr[2] + frmptr[4]) >> 1, (frmptr[3] + frmptr[5]) >> 1);
 		mPopMatrix();
-		//S_CalculateLight(item->pos.x_pos + TRX, item->pos.y_pos + TRY, item->pos.z_pos + TRZ, item->room_number, &item->il);
+		S_CalculateLight(item->pos.x_pos + TRX, item->pos.y_pos + TRY, item->pos.z_pos + TRZ, item->room_number, &item->il);
 	}
 	else
 	{
