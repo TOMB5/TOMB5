@@ -1779,7 +1779,14 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 		if (s4 <= 0)
 		{
 			//loc_81714
-			assert(FALSE);//Unimplemented jump
+			if (fp[19] > 0)
+			{
+				fp[18]--;
+				((short*)fp[16])[1] = fp[19];
+				fp[16] += 12;
+			}
+			mmPopMatrix_AI(fp);
+			return;
 		}
 
 		//loc_81644
