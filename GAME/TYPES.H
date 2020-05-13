@@ -132,7 +132,7 @@ inline int phd_atan(long x, long y)
 #define STEP_L     (WALL_L/4)
 
 //#define SECTOR 1024
-#define SECTOR(x) (short)((x) * WALL_L)
+#define SECTOR(x) ((x) * WALL_L)
 #define CLICK 256
 
 #define UNIT_SHADOW 256
