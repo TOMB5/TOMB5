@@ -1618,13 +1618,13 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 		if ((item->meshswap_meshbits & 1))
 		{
 			v11 = ((int*)s7)[1];
+			InterpolateMatrix_AI(v11, fp);
 		}//loc_81CD4
 		else
 		{
 			v11 = ((int*)s7)[0];
+			InterpolateMatrix_AI(v11, fp);
 		}
-
-		InterpolateMatrix_AI(v11, fp);
 	}
 	//loc_81CDC
 	int s4 = object->nmeshes - 1;
@@ -1741,9 +1741,9 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 		s2 = (short*)item->data;
 		//s1 = 1
 		//v0 = object->mesh_index
-		short* s7 = ((short**)fp[40])[object->mesh_index];
+		short* s7 = (short*)(fp[40] + (object->mesh_index << 2));
 		//v0 = object->bone_index
-		long* s5 = ((long**)fp[41])[object->bone_index];
+		long* s5 = (long*)(fp[41] + (object->bone_index << 2));
 
 		if (frames != 0)
 		{
@@ -1829,14 +1829,15 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 				int a0 = 0;
 				if (item->meshswap_meshbits & (1 << 1))
 				{
-					a0 = s7[1];
+					a0 = ((int*)s7)[1];
+					stash_the_info(a0, fp);
 				}
 				else
 				{
-					a0 = s7[0];
+					a0 = ((int*)s7)[0];
+					stash_the_info(a0, fp);
 				}
 				//loc_816FC
-				stash_the_info(a0, fp);
 			}
 			//loc_81704
 			s4--;
@@ -1862,7 +1863,7 @@ void stash_the_info(int meshp/*a0*/, int* fp)//81750
 
 	at = (int*)fp[17];
 
-	((int*)at)[0] = meshp;
+	at[0] = meshp;
 
 	at[1] = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
 	at[2] = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
