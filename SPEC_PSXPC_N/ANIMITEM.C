@@ -512,7 +512,7 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 	int t1;
 	int t0;
 
-	if (item->object_number - 0x1A0 >= 0x1F && item->object_number - 0x11C >= 0x20)
+	if ((unsigned)(item->object_number - 0x1A0) >= 0x1F && (unsigned)(item->object_number - 0x11C) >= 0x20)
 	{
 		//a1 = 0x1000
 		R11 = 4096;
