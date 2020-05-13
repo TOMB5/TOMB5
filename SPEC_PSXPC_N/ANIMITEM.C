@@ -1713,7 +1713,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 	fp[37] = 0xEF0000;
 
 	frames = GetFrames_AI(item, fp);
-	mmPushMatrix(fp);
+	mmPushMatrix_AI(fp);
 	mTranslateAbsXYZ_AI(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, fp);
 	mRotYXZ_AI(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot, fp);
 
@@ -2063,7 +2063,7 @@ void init_scratchpad(int* fp)//8281C(<) (F)
 }
 
 
-void CalcAllAnimatingItems_ASM()
+void CalcAllAnimatingItems_ASM()//82640
 {
 	int scratchPad[256];
 	int* fp;
