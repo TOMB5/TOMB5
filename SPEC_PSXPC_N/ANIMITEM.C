@@ -681,10 +681,10 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 
 						t2 = a1;
 						t0 = a2;
+						t1 = a3;
 
 						if (v0 < a1)
 						{
-							t1 = a3;
 							t2 = v0;
 						}
 						else if (a1 < v0)
