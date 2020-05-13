@@ -844,9 +844,9 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 		int t9 = t3 | t4;
 		int t8 = t2;
 		int a0 = 0x7FFFFFFF;
-		int a1 = 0x8100;
+		int a1 = 0x81000000;
 		int a2 = 0x7FFFFFFF;
-		int a3 = 0x8100;
+		int a3 = 0x81000000;
 
 		t0 = SXY0;
 		t1 = SXY1;
@@ -1701,7 +1701,7 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 	assert(FALSE);//Unimplemented jump
 }
 
-void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504
+void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int* fp)//81504(<), 83548
 {
 	int frames;//$s0
 	short* s2;
