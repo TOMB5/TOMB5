@@ -252,7 +252,7 @@ void InitWater()
 	Unimpl();
 }
 
-room_light_begin fog_bulb[40];
+tr5_fog_bulb fog_bulbs[40];
 
 void BuildGlobalFogBulbList()
 {
@@ -266,16 +266,16 @@ void BuildGlobalFogBulbList()
 
 	for (int i = 0; i < number_rooms; i++)
 	{
-		for (int j = 0; j < room[i].Unknown6; j++, light++)//TODO: WHAT THE FUCK, maybe NumLights2 instead
+		for (int j = 0; j < room[i].NumFogBulbs; j++, light++)
 		{
-			memcpy(&fog_bulb[light], &room[i].RoomLights[j], sizeof(room_light_begin));//TODO: WHAT THE FUCK
+			memcpy(&fog_bulbs[light], &room[i].RoomLights[j], sizeof(tr5_fog_bulb));
 
 			if (gfCurrentLevel == LVL5_TRAJAN_MARKETS || gfCurrentLevel == LVL5_COLOSSEUM)
 			{
-				fog_bulb[light].b = MAX(0, fog_bulb[light].b / 2);
+				fog_bulbs[light].b = MAX(0, fog_bulbs[light].b / 2);
 			}
 
-			fog_bulb[light].b = MAX(14, (90 - fog_bulb[light].b / 1024.0) * 0.8 + 0.2);
+			fog_bulbs[light].b = MAX(14, (90 - fog_bulbs[light].b / 1024.0) * 0.8 + 0.2);
 		}
 	}
 
@@ -598,8 +598,7 @@ void FixUpRoom(room_info* rooms, room_info* roomData)// (F)
 	AddPtr(roomData->PolyOffset, void, roomData + 1);
 	AddPtr(roomData->PolyOffset2, void, roomData + 1);
 	AddPtr(roomData->VerticesOffset, struct tr5_room_vertex, roomData + 1);
-
-	roomData->LightDataSize += (uint32_t) (roomData + 1);
+	AddPtr(roomData->FogBulbs, struct tr5_fog_bulb, roomData + 1);
 
 	if ((uint8_t) roomData->door & 1)
 	{

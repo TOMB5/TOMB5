@@ -34,7 +34,7 @@ NEW_CUTSCENE* ReadCutData(int num, FILE* fp);
 #define MAX_ROOM_LIGHTS 21
 extern FILE* acm_file_stream;
 extern OBJECT_TEXTURE* object_textures;
-extern room_light_begin fog_bulb[40];
+extern tr5_fog_bulb fog_bulbs[40];
 extern short* floor_data;
 extern short* mesh_base;
 

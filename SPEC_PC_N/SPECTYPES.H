@@ -226,7 +226,7 @@ struct ROOM_LIGHT   // 88 bytes
 	uint8_t Filler[3];     // Dummy values = 3 x 0xCD
 };
 
-struct room_light_begin
+struct tr5_fog_bulb
 {
 	float x, y, z;       // Position of light, in world coordinates
 	float r, g, b;       // Colour of the light
@@ -297,11 +297,10 @@ struct room_info
 	uint32_t NumRoomRectangles;
 
 	struct ROOM_LIGHT* RoomLights;
-
-	uint32_t LightDataSize;
+	struct tr5_fog_bulb* FogBulbs;
 	uint32_t NumLights2;    // Always same as NumLights
 
-	uint32_t Unknown6;
+	uint32_t NumFogBulbs;
 
 	int32_t RoomYTop;
 	int32_t RoomYBottom;
