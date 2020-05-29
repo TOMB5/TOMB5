@@ -13,7 +13,7 @@ extern void Emulator_EndScene();
 /* Explicitly updates emulator input loop */
 extern void Emulator_UpdateInput();
 
-/* Usually called at the end if main function */
+/* Usually called at the end of main function */
 extern void Emulator_ShutDown();
 
 /* Sets the maximum vertex count value for PGXP vertex caching */
