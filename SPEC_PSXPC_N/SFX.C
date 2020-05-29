@@ -4,6 +4,8 @@
 #include "SPUSOUND.H"
 #include "SPECIFIC.H"
 
+#include <LIBSPU.H>
+
 long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch, int arg_10)
 {
 	long channel;
@@ -120,4 +122,25 @@ int S_SoundPlaySampleLooped(int a0, int a1, int a2, int a3, int arg_10)
 	{
 		return -3;
 	}
+}
+
+int S_SoundSampleIsPlaying(int handle)//916F8(<), 9373C(<)
+{
+	char status;
+
+	if (GtSFXEnabled == 0)
+	{
+		return 0;
+	}
+
+	status = (char)(SpuGetKeyStatus(1 << handle) -1);
+
+	if (status < 2 || LabSampleType[handle] == 0)
+	{
+		return LabSampleType[handle];
+	}
+
+	SPU_FreeChannel(handle);
+
+	return 0;
 }
