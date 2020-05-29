@@ -49,6 +49,12 @@ void SpuSetKeyOnWithAttr(SpuVoiceAttr* attr)
 	UNIMPLEMENTED();
 }
 
+long SpuGetKeyStatus(unsigned long voice_bit)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
 void _spu_t(int mode, int flag)
 {
 	UNIMPLEMENTED();
