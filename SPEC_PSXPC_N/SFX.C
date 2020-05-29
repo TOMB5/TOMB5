@@ -144,3 +144,18 @@ int S_SoundSampleIsPlaying(int handle)//916F8(<), 9373C(<)
 
 	return 0;
 }
+
+int S_SoundPlaySample(int a0, int a1, int a2, int a3, int arg_10)//91480(<), ?
+{
+	if (GtSFXEnabled)
+	{
+		int t1 = a0;
+		int t2 = a1;
+		a0 = arg_10;
+		PlaySample(a0, a1, a2, a3, 1, t1, t2);
+	}
+	else
+	{
+		return -3;
+	}
+}

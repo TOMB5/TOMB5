@@ -1113,8 +1113,7 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<),
 			}
 			else
 			{
-				UNIMPLEMENTED();///@TODO for PSXPC_N
-				//S_SoundPlaySample()
+				S_SoundPlaySample(a0, s2 & 0xFFFF, s4, s1, s3);
 			}
 		}
 		else if ((sample_infos[sample_lut[sample_index]].flags & 3) - 1 == 0)
@@ -1217,9 +1216,7 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<),
 		else
 		{
 			//loc_91BC8
-			UNIMPLEMENTED();
-			//v0 = S_SoundPlaySample();///@TODO implement for PSXPC_N
-
+			v0 = S_SoundPlaySample(a0, a1, a2, a3, s3);
 		}
 
 		if (v0 >= 0)
@@ -1304,8 +1301,7 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<),
 			}
 			else
 			{
-				UNIMPLEMENTED();
-				//a0 = S_SoundPlaySample
+				a0 = S_SoundPlaySample(a0, a1, s2, a3, s3);
 			}
 
 			if (a0 >= 0)
