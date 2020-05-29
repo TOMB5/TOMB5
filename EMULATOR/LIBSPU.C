@@ -41,7 +41,34 @@ unsigned short _spu_tsa = 0;
 
 void SpuGetAllKeysStatus(char* status)
 {
-	UNIMPLEMENTED();
+	//loc_2EC
+	for (int i = 0; i < 24; i++, status++)
+	{
+		if ((_spu_keystat & (1 << i)))
+		{
+			if ((unsigned short)_spu_RXX[i << 3 + 6] != 0)
+			{
+				*status = 1;
+			}
+			else
+			{
+				*status = 3;
+			}
+		}
+		else
+		{
+			//loc_330
+			if ((unsigned short)_spu_RXX[i << 3 + 6] != 0)
+			{
+				*status = 2;
+			}
+			else
+			{
+				//loc_340
+				*status = 0;
+			}
+		}
+	}
 }
 
 void SpuSetKeyOnWithAttr(SpuVoiceAttr* attr)
@@ -66,11 +93,11 @@ long SpuGetKeyStatus(unsigned long voice_bit)
 				//loc_248
 				if ((_spu_keystat & (1 << i)) == 0)
 				{
-					return (0 < (unsigned short)_spu_RXX[i << 3]) << 1;
+					return (0 < (unsigned short)_spu_RXX[i << 3 + 6]) << 1;
 				}
 				else
 				{
-					if ((unsigned short)_spu_RXX[i << 3] == 0)
+					if ((unsigned short)_spu_RXX[i << 3 + 6] == 0)
 					{
 						return 3;
 					}
