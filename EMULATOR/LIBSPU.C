@@ -51,7 +51,65 @@ void SpuSetKeyOnWithAttr(SpuVoiceAttr* attr)
 
 long SpuGetKeyStatus(unsigned long voice_bit)
 {
-	UNIMPLEMENTED();
+	int a1 = -1;
+
+	//loc_210
+	for (int i = 0; i < 24; i++)
+	{
+		int v0 = 1 << i;
+
+		if ((voice_bit & (1 << i)))
+		{
+			//loc_240
+			if (i != -1)
+			{
+				//loc_248
+				if ((_spu_keystat & (1 << i)) == 0)
+				{
+					return (0 < (unsigned short)_spu_RXX[i << 3]) << 1;
+				}
+				else
+				{
+					if ((unsigned short)_spu_RXX[i << 3] == 0)
+					{
+						return 3;
+					}
+					else
+					{
+						return 1;
+					}
+				}
+			}
+			else
+			{
+				return -1;
+			}
+		}
+	}
+	if (a1 != -1)
+	{
+		//loc_248
+		if ((_spu_keystat & (1 << a1)) == 0)
+		{
+			return (0 < (unsigned short)_spu_RXX[a1 << 3]) << 1;
+		}
+		else
+		{
+			if ((unsigned short)_spu_RXX[a1 << 3] == 0)
+			{
+				return 3;
+			}
+			else
+			{
+				return 1;
+			}
+		}
+	}
+	else
+	{
+		return -1;
+	}
+
 	return 0;
 }
 
