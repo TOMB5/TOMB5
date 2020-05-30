@@ -3,7 +3,11 @@
 
 #include "STYPES.H"
 
+#if PSX_VERSION
+#define MAX_SOUND_SLOTS 24
+#else
 #define MAX_SOUND_SLOTS 32
+#endif
 
 enum sound_effects
 {
