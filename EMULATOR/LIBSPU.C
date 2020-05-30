@@ -73,7 +73,8 @@ void SpuGetAllKeysStatus(char* status)
 
 void SpuSetKeyOnWithAttr(SpuVoiceAttr* attr)
 {
-	UNIMPLEMENTED();
+	SpuSetVoiceAttr(attr);
+	SpuSetKey(1, attr->voice);
 }
 
 long SpuGetKeyStatus(unsigned long voice_bit)
