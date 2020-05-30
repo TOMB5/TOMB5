@@ -15,6 +15,16 @@ short _spu_voice_centerNote[24] =
 	SPU_CENTERNOTE, SPU_CENTERNOTE, SPU_CENTERNOTE, SPU_CENTERNOTE
 };
 
+unsigned short word_300[] = 
+{
+  0x8000,0x879c,0x8fac,0x9837,0xa145,0xaadc,0xb504,0xbfc8,0xcb2f,0xd744,0xe411,0xf1a1 
+};
+
+unsigned short word_318[] =
+{
+  0x8000,0x800e,0x801d,0x802c,0x803b,0x804a,0x8058,0x8067,0x8076,0x8085,0x8094,0x80a3
+};
+
 SpuCommonAttr dword_424;//Might be wrong struct, need to check
 int _spu_isCalled = 0;
 int _spu_FiDMA = 0;///@TODO decl as extern find initial value
@@ -42,6 +52,59 @@ void* _spu_transferCallback = NULL;///@TODO initial value check
 int _spu_inTransfer = 0;///@TODO initial value check
 unsigned short _spu_tsa = 0;
 
+int _spu_note2pitch(int a0, int a1, int a2, int a3)
+{
+    a3 += a1;
+    a1 = 0x2AAAAAAB;
+    int v1 = a3 & 0xFFFF;
+    int v0 = v1 >> 7;
+    a2 += v0;
+    a2 -= a0;
+    a2 <<= 16;
+    a0 = a2 >> 16;
+    int t0 = a0 % a1;
+    a3 = v1 & 0x7F;
+    a2 >>= 31;
+    v0 = t0 >> 1;
+    a1 = v0 - a2;
+    a2 = a1 - 2;
+    v0 = a1 << 1;
+    v0 += a1;
+    v0 <<= 2;
+    a0 -= v0;
+    v0 = a0 << 16;
+    v1 = a0;
+    if (v0 < 0)
+    {
+        v1 = a0 + 12;
+        a2 = a1 - 3;
+    }//loc_164
+
+    v0 = a3 & 0xFFFF;
+
+    v1 = word_300[v1];
+    v0 = word_300[v0];
+
+    t0 = v1 * v0;
+    v0 = a2;
+    a1 = t0 >> 16;
+
+    if (v0 >= 0)
+    {
+        a1 = 0x3FFF;
+    }
+    else
+    {
+        a0 = -v0;
+        v1 = a0 - 1;
+        v0 = 1 << v1;
+        a1 += v0;
+        a1 = a1 >> a0;
+    }
+
+    return a1 & 0xFFFF;
+}
+
 int _spu_FsetRXXa(long flag, long addr)
 {
     if (_spu_mem_mode != 0)
@@ -68,7 +131,7 @@ int _spu_FsetRXXa(long flag, long addr)
     else
     {
         //loc_BD8
-        _spu_RXX[flag] = addr >> _spu_mem_mode_plus;
+        _spu_RXX[flag] = (short)(addr >> _spu_mem_mode_plus);
     }
 
     return addr;
@@ -81,7 +144,7 @@ void SpuGetAllKeysStatus(char* status)
 	{
 		if ((_spu_keystat & (1 << i)))
 		{
-			if ((unsigned short)_spu_RXX[i << 3 + 6] != 0)
+			if ((unsigned short)_spu_RXX[(i << 3) + 6] != 0)
 			{
 				*status = 1;
 			}
@@ -93,7 +156,7 @@ void SpuGetAllKeysStatus(char* status)
 		else
 		{
 			//loc_330
-			if ((unsigned short)_spu_RXX[i << 3 + 6] != 0)
+			if ((unsigned short)_spu_RXX[(i << 3) + 6] != 0)
 			{
 				*status = 2;
 			}
@@ -148,9 +211,8 @@ void SpuSetVoiceAttr(SpuVoiceAttr* arg)//
                 //a0 = _spu_voice_centerNote[i] >> 8
                 //a2 = arg->note >> 8
                 //a3 = arg->note & 0xFF
-                //v0 = _spu_note2pitch((_spu_voice_centerNote[i] >> 8), (_spu_voice_centerNote[i] & 0xFF), (arg->note >> 8), (arg->note & 0xFF));
-                UNIMPLEMENTED();
-                //_spu_RXX[(i << 3) + 2] = v0;
+                //v0 = 
+                _spu_RXX[(i << 3) + 2] = _spu_note2pitch((_spu_voice_centerNote[i] >> 8), (_spu_voice_centerNote[i] & 0xFF), (arg->note >> 8), (arg->note & 0xFF));
             }
             //loc_2D8
             if (arg->mask < 1 || (arg->mask & 0x1))
@@ -459,11 +521,11 @@ long SpuGetKeyStatus(unsigned long voice_bit)
 				//loc_248
 				if ((_spu_keystat & (1 << i)) == 0)
 				{
-					return (0 < (unsigned short)_spu_RXX[i << 3 + 6]) << 1;
+					return (0 < (unsigned short)_spu_RXX[(i << 3) + 6]) << 1;
 				}
 				else
 				{
-					if ((unsigned short)_spu_RXX[i << 3 + 6] == 0)
+					if ((unsigned short)_spu_RXX[(i << 3) + 6] == 0)
 					{
 						return 3;
 					}
