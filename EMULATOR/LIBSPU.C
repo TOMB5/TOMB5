@@ -1,4 +1,4 @@
-﻿#include "LIBSPU.H"
+#include "LIBSPU.H"
 #include "LIBETC.H"
 #include <stdio.h>
 #include "EMULATOR.H"
@@ -32,12 +32,47 @@ int _spu_keystat = 0;
 int _spu_RQmask = 0;
 int _spu_RQvoice = 0;
 int _spu_env = 0;
+int _spu_mem_mode = 2;
+int _spu_mem_mode_unit = 8;
+int _spu_mem_mode_unitM = 7;
 char spu[440];//0x1F801C00 is base address
 short* _spu_RXX = (short*)&spu[0];
 int _spu_mem_mode_plus = 3;
 void* _spu_transferCallback = NULL;///@TODO initial value check
 int _spu_inTransfer = 0;///@TODO initial value check
 unsigned short _spu_tsa = 0;
+
+int _spu_FsetRXXa(long flag, long addr)
+{
+    if (_spu_mem_mode != 0)
+    {
+        if (_spu_mem_mode_unit != 0)
+        {
+            if (addr % _spu_mem_mode_unit != 0)
+            {
+                addr += _spu_mem_mode_unit;
+                addr &= _spu_mem_mode_unitM ^ -1;
+            }
+            //loc_BA0
+        }
+    }
+    //loc_BA0
+    if (flag == -2)
+    {
+        return addr;
+    }
+    else if (flag == -1)
+    {
+        return (addr >> _spu_mem_mode_plus) & 0xFFFF;
+    }
+    else
+    {
+        //loc_BD8
+        _spu_RXX[flag] = addr >> _spu_mem_mode_plus;
+    }
+
+    return addr;
+}
 
 void SpuGetAllKeysStatus(char* status)
 {
@@ -242,14 +277,12 @@ void SpuSetVoiceAttr(SpuVoiceAttr* arg)//
 
             if ((arg->mask < 1) || (arg->mask & 0x80))
             {
-                UNIMPLEMENTED();
-                //_spu_FsetRXXa(((i << 3) | 3), arg->addr);
+                _spu_FsetRXXa(((i << 3) | 3), arg->addr);
             }
             //loc_4B4
             if ((arg->mask < 1) || (arg->mask & 0x10000))
             {
-                UNIMPLEMENTED();
-                //_spu_FsetRXXa((i << 3) | 7, arg->loop_addr);
+                _spu_FsetRXXa((i << 3) | 7, arg->loop_addr);
             }//loc_4D4
 
             if ((arg->mask < 1) || (arg->mask & 0x20000))
