@@ -25,6 +25,8 @@ unsigned short word_318[] =
   0x8000,0x800e,0x801d,0x802c,0x803b,0x804a,0x8058,0x8067,0x8076,0x8085,0x8094,0x80a3
 };
 
+short _spu_RQ[10];
+
 SpuCommonAttr dword_424;//Might be wrong struct, need to check
 int _spu_isCalled = 0;
 int _spu_FiDMA = 0;///@TODO decl as extern find initial value
@@ -495,13 +497,79 @@ void SpuSetVoiceAttr(SpuVoiceAttr* arg)//
 
 void SpuSetKey(long on_off, unsigned long voice_bit)
 {
-	UNIMPLEMENTED();
+    voice_bit &= 0xFFFFFF;
+    int a2 = voice_bit >> 16;
+
+    if (on_off != 0)
+    {
+        if (on_off != SPU_ON)
+        {
+            return;
+        }
+
+        if ((_spu_env & 0x1))
+        {
+            _spu_RQ[0] = voice_bit;
+            _spu_RQ[1] = a2;
+            _spu_RQmask |= 0x1;
+            _spu_RQvoice |= voice_bit;
+
+            if ((_spu_RQ[_spu_RQmask] & voice_bit))
+            {
+                _spu_RQ[_spu_RQmask] = _spu_RQ[_spu_RQmask] & (voice_bit ^ -1);
+
+            }//loc_29C
+
+            if ((_spu_RQ[_spu_RQmask + 1] & voice_bit))
+            {
+                _spu_RQ[_spu_RQmask + 1] = _spu_RQ[_spu_RQmask + 1] & (a2 ^ -1);
+
+            }//locret_3B4
+
+        }
+        else
+        {
+            //loc_2C4
+            _spu_RXX[196] = _spu_keystat | voice_bit;
+            _spu_RXX[197] = a2;
+            _spu_keystat |= voice_bit;
+        }
+    }
+    else
+    {
+        //loc_2E4
+        if ((_spu_env & 0x1))
+        {
+            _spu_RQ[_spu_RQmask] = voice_bit;
+            _spu_RQ[_spu_RQmask + 1] = a2;
+            _spu_RQmask |= 0x1;
+            _spu_RQvoice &= (voice_bit ^ -1);
+
+            if ((_spu_RQ[0] & voice_bit))
+            {
+                _spu_RQ[0] &= voice_bit;
+            }
+            //loc_360
+            if ((_spu_RQ[1] & a2))
+            {
+                _spu_RQ[1] &= (a2 ^ -1);
+            }
+            //locret_3B4
+        }
+        else
+        {
+            //loc_388
+            _spu_RXX[198] = voice_bit;
+            _spu_RXX[199] = a2;
+            _spu_keystat &= (voice_bit ^ -1);
+        }
+    }
 }
 
 void SpuSetKeyOnWithAttr(SpuVoiceAttr* attr)//(F)
 {
 	SpuSetVoiceAttr(attr);
-	SpuSetKey(1, attr->voice);
+	SpuSetKey(SPU_ON, attr->voice);
 }
 
 long SpuGetKeyStatus(unsigned long voice_bit)
