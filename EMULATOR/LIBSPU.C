@@ -1,4 +1,4 @@
-#include "LIBSPU.H"
+﻿#include "LIBSPU.H"
 #include "LIBETC.H"
 #include <stdio.h>
 #include "EMULATOR.H"
@@ -71,7 +71,339 @@ void SpuGetAllKeysStatus(char* status)
 	}
 }
 
-void SpuSetKeyOnWithAttr(SpuVoiceAttr* attr)
+void SpuSetVoiceAttr(SpuVoiceAttr* arg)//
+{
+    //s0 = arg
+    int a0 = 0;
+    int a1 = 0;
+    int a2 = 0;
+    //s1 = arg->mask
+    //s5 = &_spu_voice_centerNote[0];
+    //s2 = s1 < 1 ? 1 : 0;
+
+    //loc_238
+    for(int i = 0; i < 24; i++)
+    {
+        //v0 = 1
+        //v1 = arg->voice
+        //v0 = 1 << i
+        //v1 = arg->voice & (1 << i);
+
+        if ((arg->voice & (1 << i)))
+        {
+            //s3 = i << 3
+            if ((arg->mask < 1) || (arg->mask & 0x10))
+            {
+                //loc_264
+                //v0 = i << 4
+                //v1 = &_spu_RXX[0];
+                //a0 = arg->pitch
+                _spu_RXX[(i << 3) + 2] = arg->pitch;
+            }
+            //loc_27C
+            if (arg->mask < 1 || (arg->mask & 0x40))
+            {
+                _spu_voice_centerNote[i] = arg->sample_note;
+            }
+            //loc_298
+            if (arg->mask < 1 || (arg->mask & 0x20))
+            {
+                //a1 = _spu_voice_centerNote[i] & 0xFF
+                //a3 = arg->note
+                //a0 = _spu_voice_centerNote[i] >> 8
+                //a2 = arg->note >> 8
+                //a3 = arg->note & 0xFF
+                //v0 = _spu_note2pitch((_spu_voice_centerNote[i] >> 8), (_spu_voice_centerNote[i] & 0xFF), (arg->note >> 8), (arg->note & 0xFF));
+                UNIMPLEMENTED();
+                //_spu_RXX[(i << 3) + 2] = v0;
+            }
+            //loc_2D8
+            if (arg->mask < 1 || (arg->mask & 0x1))
+            {
+                //v0 = arg->volume.left
+                //a0 = 0
+                //a1 = arg->volume.left & 0x7FFF
+                //v0 = arg->mask & 4
+
+                if (!(arg->mask & 0x4))
+                {
+                    //v0 = arg->volmode.left
+                    switch (arg->volmode.left)
+                    {
+                    case 1:
+                        //loc_33C
+                        a0 = 0x8000;
+                        break;
+                    case 2:
+                        //loc_344
+                        a0 = 0x9000;
+                        break;
+                    case 3:
+                        //loc_34C
+                        a0 = 0xA000;
+                        break;
+                    case 4:
+                        //loc_354
+                        a0 = 0xB000;
+                        break;
+                    case 5:
+                        //loc_35C
+                        a0 = 0xC000;
+                        break;
+                    case 6:
+                        //loc_364
+                        a0 = 0xD000;
+                        break;
+                    case 7:
+                        //loc_36C
+                        a0 = 0xE000;
+                        break;
+                    }
+                }
+                //def_334
+                if (a0 != 0)
+                {
+                    //v1 = arg->volume.left
+                    if (arg->volume.left >= 128)
+                    {
+                        a1 = 127;
+                    }
+                    else if (arg->volume.left < 0)
+                    {
+                        a1 = 0;
+                    }
+                }
+                //loc_3A0
+                //v0 = &_spu_RXX[0];
+                //v1 = &spu_RXX[i << 3];
+
+                //v0 = a1 | a0
+                _spu_RXX[(i << 3)] = a1 | a0;
+            }//loc_3B8
+
+            if ((arg->mask < 1) || (arg->mask & 0x2))
+            {
+                //v0 = arg->volume.right
+                //a0 = 0
+                //a1 = v0 & 0x7FFF
+
+                if ((arg->mask < 1) || (arg->mask & 0x8))
+                {
+                    switch (arg->volmode.right)
+                    {
+                    case 1:
+                        //loc_41C
+                        a0 = 0x8000;
+                        break;
+                    case 2:
+                        //loc_424
+                        a0 = 0x9000;
+                        break;
+                    case 3:
+                        //loc_42C
+                        a0 = 0xA000;
+                        break;
+                    case 4:
+                        //loc_434
+                        a0 = 0xB000;
+                        break;
+                    case 5:
+                        //loc_43C
+                        a0 = 0xC000;
+                        break;
+                    case 6:
+                        //loc_444
+                        a0 = 0xD000;
+                        break;
+                    case 7:
+                        //loc_44C
+                        a0 = 0xE000;
+                        break;
+                    }
+                }
+
+                //def_414
+                if (a0 != 0)
+                {
+                    if (arg->volume.right >= 128)
+                    {
+                        a1 = 127;
+                    }
+                    else if (arg->volume.right < 0)
+                    {
+                        a1 = 0;
+                    }
+                }//loc_480
+
+                //v0 = &_spu_RXX[0];
+                //v1 = &_spu_RXX[i << 3];
+                _spu_RXX[(i << 3) + 1] = a1 | a0;
+            }//loc_498
+
+            if ((arg->mask < 1) || (arg->mask & 0x80))
+            {
+                UNIMPLEMENTED();
+                //_spu_FsetRXXa(((i << 3) | 3), arg->addr);
+            }
+            //loc_4B4
+            if ((arg->mask < 1) || (arg->mask & 0x10000))
+            {
+                UNIMPLEMENTED();
+                //_spu_FsetRXXa((i << 3) | 7, arg->loop_addr);
+            }//loc_4D4
+
+            if ((arg->mask < 1) || (arg->mask & 0x20000))
+            {
+                _spu_RXX[i << 3] = arg->adsr1;
+            }
+
+            //loc_500
+            if ((arg->mask < 1) || (arg->mask & 0x40000))
+            {
+                _spu_RXX[i << 3] = arg->adsr2;
+            }
+            //loc_52C
+
+            if ((arg->mask < 1) || (arg->mask & 0x800))
+            {
+                //a1 = arg->ar
+                if (arg->ar >= 128)
+                {
+                    a1 = 127;
+                }
+
+                a2 = 0;
+
+                if ((arg->mask < 1) || (arg->mask & 0x100))
+                {
+                    //v1 = arg->a_mode
+                    //v0 = 5
+                    if (arg->a_mode == 5)
+                    {
+                        a2 = 128;
+                    }
+                }//loc_57C
+
+                //v0 = &_spu_RXX[0];
+                //s3 = &_spu_RXX[i << 3];
+                //v0 = _spu_RXX[(i << 3) + 4];
+                //v1 = _spu_RXX[(i << 3) + 4] & 0xFF;
+                //v0 = ((a1 | a2) << 8)
+                _spu_RXX[(i << 3) + 4] = (_spu_RXX[(i << 3) + 4] & 0xFF) | ((a1 | a2) << 8);
+
+            }//loc_5A8
+
+            if ((arg->mask < 1) || arg->mask & 0x1000)
+            {
+                a1 = arg->dr;
+                if (arg->dr >= 16)
+                {
+                    a1 = 15;
+                }//loc_5D0
+
+                _spu_RXX[(i << 3) + 4] = (_spu_RXX[(i << 3) + 4] & 0xFF0F) | (a1 << 4);
+
+            }//loc_5F4
+
+            if ((arg->mask < 1) || (arg->mask & 0x2000))
+            {
+                a1 = arg->sr;
+
+                if (arg->sr >= 128)
+                {
+                    a1 = 127;
+                }
+
+                a2 = 256;
+
+                if ((arg->mask < 1) || (arg->mask & 0x200))
+                {
+                    //v1 = arg->s_mode
+                    if ((arg->s_mode) == 5)
+                    {
+                        //loc_674
+                        a2 = 512;
+                    }
+                    else if (arg->s_mode >= 6)
+                    {
+                        //loc_658
+                        if (arg->s_mode == 7)
+                        {
+                            //loc_67C
+                            a2 = 768;
+                        }
+                    }
+                    else if (arg->s_mode == 1)
+                    {
+                        //loc_66C
+                        a2 = 0;
+                    }
+                }//loc_680
+                //v0 = _spu_RXX[(i << 3) + 5];
+                //v1 = (_spu_RXX[(i << 3) + 5] & 0x3F) | ((a1 | a2) << 6);
+                //v0 = ((a1 | a2) << 6)
+                _spu_RXX[(i << 3) + 5] = (_spu_RXX[(i << 3) + 5] & 0x3F) | ((a1 | a2) << 6);
+            }//loc_6AC
+
+            if ((arg->mask < 1) || (arg->mask & 0x4000))
+            {
+                a1 = arg->rr;
+
+                if (arg->rr >= 32)
+                {
+                    a1 = 31;
+                }
+                //loc_6D4
+                a2 = 0;
+
+                if ((arg->mask < 1) || (arg->mask & 0x400))
+                {
+                    //v1 = arg->r_mode
+                    if (arg->r_mode != 3 && arg->r_mode == 7)
+                    {
+                        a2 = 32;
+                    }//loc_704
+                }//loc_704
+
+                //a0 = &_spu_RXX[(i << 3) + 5];
+                _spu_RXX[(i << 3) + 5] = (_spu_RXX[(i << 3) + 5] & 0xFFC0) | (a1 | a2);
+                //v1 = (a1 | a2)
+            }//loc_728
+
+            if ((arg->mask < 1) || arg->mask & 0x8000)
+            {
+                a1 = arg->sl;
+                if ((arg->sl >= 16))
+                {
+                    a1 = 15;
+                }//loc_750
+
+                //v0 = _spu_RXX
+                _spu_RXX[(i << 3) + 4] = (_spu_RXX[(i << 3) + 4] & 0xFFF0) | a1;
+            }//loc_774
+        }//loc_774
+    }
+
+    ///@? Not sure what the below is doing yet.
+    int scratchPad[256];
+
+    scratchPad[9] = 1;
+    scratchPad[10] = 0;
+
+    while (scratchPad[10] < 2)
+    {
+        //loc_794
+        scratchPad[9] <<= 13;
+        scratchPad[10]++;
+    }
+}
+
+void SpuSetKey(long on_off, unsigned long voice_bit)
+{
+	UNIMPLEMENTED();
+}
+
+void SpuSetKeyOnWithAttr(SpuVoiceAttr* attr)//(F)
 {
 	SpuSetVoiceAttr(attr);
 	SpuSetKey(1, attr->voice);
@@ -197,7 +529,7 @@ unsigned long SpuWrite(unsigned char* addr, unsigned long size)
 	{
 		size = 0x7EFF0;
 	}
-
+	
 	//loc_228
 	_spu_Fw(addr, size);
 
