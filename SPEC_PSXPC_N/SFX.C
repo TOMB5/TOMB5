@@ -74,9 +74,10 @@ void SPU_StopAll()
 	UNIMPLEMENTED();
 }
 
-void SPU_FreeChannel(int channel_index)
+void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 {
-	UNIMPLEMENTED();
+	LabSampleType[channel_index] = 0;
+	LabFreeChannel[LnFreeChannels++] = channel_index;
 }
 
 void S_SoundStopSample(int handle)
@@ -104,7 +105,7 @@ void SOUND_Stop()
 	UNIMPLEMENTED();
 }
 
-int PlaySample(int a0, int volume_left, int volume_right, int a3, int arg_10, int t1, int t2)
+int PlaySample(int a0, int volume_left, int volume_right, int a3, int arg_10, int t1, int t2)//914C8(<), 9350C(<)
 {
 	//CalcVolumes_ASM();//prolly modifies t1 and t2
 	SPU_Play(t1, volume_left, volume_right, t2, arg_10);
