@@ -204,9 +204,9 @@ void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 			//loc_8FE50
 			do
 			{
-				IR1 = camera.pos.x - t3->x;
-				IR2 = camera.pos.y - t3->y;
-				IR3 = camera.pos.z - t3->z;
+				IR1 = (short)(camera.pos.x - t3->x);
+				IR2 = (short)(camera.pos.y - t3->y);
+				IR3 = (short)(camera.pos.z - t3->z);
 
 				docop2(0xA00428);
 
@@ -284,6 +284,7 @@ void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 	int v1 = ((int*)&CamGTE.m00)[2];
 	int a1 = ((int*)&CamGTE.m00)[3];
 	int a0 = ((int*)&CamGTE.m00)[4];
+	int a2 = 0;
 
 	R11 = at & 0xFFFF;
 	R12 = (at >> 16) & 0xFFFF;
@@ -341,7 +342,7 @@ void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 
 	a0 = (t8 & 0xFF) << 4;
 	a1 = (t8 >> 4) & 0xFF0;
-	int a2 = (t8 >> 12) & 0xFF0;
+	a2 = (t8 >> 12) & 0xFF0;
 	RBK = a0;
 	GBK = a1;
 	BBK = a2;
