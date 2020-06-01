@@ -616,16 +616,20 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 
 int InitSubDiv(int* scratchPad, int* t0, int* t1, int t2, int t3, int t6, int s4, int t7, int s5, int t8, int t4, int s6, int* fp, int* gp)//7E6C8(<)
 {
+	int at = 0;
+	int s3 = 0;
+	int s7 = 0;
+
 	BFC = *t0;
-	int at = 0xFFFF0000;
+	at = 0xFFFF0000;
 	*fp = t2 & at;
 	*gp = t3 & at;
-	int s3 = *t1;
+	s3 = *t1;
 	*t0 = (int)&scratchPad[0];
 	at = 0xFF000000;
 	at &= t6;
 	*t1 = GFC;
-	int s7 = RFC;
+	s7 = RFC;
 	((int*)*t0)[0] = t6;
 	((short*)*t0)[9] = t2;
 	((int*)*t0)[1] = s4;
@@ -661,20 +665,29 @@ int InitSubDiv(int* scratchPad, int* t0, int* t1, int t2, int t3, int t6, int s4
 
 int SubDiv(int s4, int s6, int t9, int s5, int s7)
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+
 	do
 	{
-		int t1 = ((short*)s4)[0];
+		t1 = ((short*)s4)[0];
 		s4 += 2;
-		int t0 = t1 & 0xFF;
+		t0 = t1 & 0xFF;
 		t0 += s6;///@INFO original is |= s6 but because scratch pad is not 0x1F800000 it is randomised in Win32 we have to add.
 		t1 >>= 8;
 		t1 += s6;///@INFO original is |= s6 but because scratch pad is not 0x1F800000 it is randomised in Win32 we have to add.
-		int t2 = ((short*)t0)[6];
-		int t3 = ((short*)t0)[7];
-		int t4 = ((short*)t0)[8];
-		int t5 = ((short*)t1)[6];
-		int t6 = ((short*)t1)[7];
-		int t7 = ((short*)t1)[8];
+		t2 = ((short*)t0)[6];
+		t3 = ((short*)t0)[7];
+		t4 = ((short*)t0)[8];
+		t5 = ((short*)t1)[6];
+		t6 = ((short*)t1)[7];
+		t7 = ((short*)t1)[8];
 		t2 += t5;
 		t2 >>= 1;
 		t3 += t6;
@@ -721,12 +734,17 @@ int SubDiv(int s4, int s6, int t9, int s5, int s7)
 
 void IniPrim(int at, int t6, int t7, int t8, int fp, int gp, char* s0, int s4, int a3, int s5, int s6)//7E65C(<)
 {
-	int t1 = ((int*)t6)[0];
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t88 = 0;
+
+	t1 = ((int*)t6)[0];
 	t6 = ((unsigned short*)t6)[9];
-	int t2 = ((int*)t7)[0];
+	t2 = ((int*)t7)[0];
 	t7 = ((unsigned short*)t7)[9];
-	int t3 = ((int*)t8)[0];
-	int t88 = ((unsigned short*)t8)[9];
+	t3 = ((int*)t8)[0];
+	t88 = ((unsigned short*)t8)[9];
 
 	t6 |= fp;
 	t7 |= gp;
@@ -780,12 +798,14 @@ void IniPrim(int at, int t6, int t7, int t8, int fp, int gp, char* s0, int s4, i
 char* SubDiv4(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6, char* s0, char* s1, int a3, int t9, int t5)//7E8F4(<)
 {
 	int scratchPad[256];
-	S_MemSet((char*)&scratchPad[0], 0, 1024);
 	int* s2 = s7;
 	int fp;
 	int gp;
 	int s77 = (int)RFC;
-	int at = InitSubDiv(&scratchPad[0], &t0, &t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
+	int at = 0;
+	unsigned int t99 = 0;
+	S_MemSet((char*)&scratchPad[0], 0, 1024);
+	at = InitSubDiv(&scratchPad[0], &t0, &t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
 
 	((int*)&scratchPad[0])[2] = SZ0;
 	((int*)&scratchPad[0])[7] = SZ1;
@@ -819,7 +839,7 @@ char* SubDiv4(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 		t0 += 4;
 		if ((unsigned long)s0 < (unsigned long)s1)
 		{
-			unsigned int t99 = ((unsigned int*)t0)[-1];
+			t99 = ((unsigned int*)t0)[-1];
 			at = (int)&scratchPad[0];
 
 			t6 = t99 & 0xFF;
@@ -1060,6 +1080,8 @@ loc_7E420:
 		else
 		{
 			//loc_7E64C///@todo goto loc_7E64C;
+			assert(FALSE);//unimplemented case
+			printf("Warning (DrawSubDivMesh): Polygon buffer is full!\n");
 		}
 
 		//loc_7E4FC
@@ -1314,9 +1336,11 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 		}
 		else
 		{
+			printf("Warning (DrawClippedMesh): Polygon buffer is full!\n");
 			//loc_7F304
 			goto DrawExit;
 		}
+
 	}//loc_7EB24
 	v0 = DQA;
 	gp = 0xC000000;
@@ -1589,6 +1613,7 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 		}
 		else
 		{
+			printf("Warning (DrawMeshEnv): Polygon buffer is full!\n");
 			goto DrawExit;
 		}
 	}//loc_7F4A4
@@ -2101,19 +2126,28 @@ char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, in
 
 void MakeMono(unsigned short* s, unsigned char* d)//7F9E4, 81A28
 {
+	int t0 = 0;
+	int v0 = 0;
+	int v1 = 0;
+	int t4 = 0;
+	int t3 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int at = 0;
+	int t5 = 0;
 	ZSF3 = 1057;
-	int t0 = ((int*)s)[0];
-	int v0 = 0x3FFF;
-	int v1 = 0xD371F947;
-	int t4 = 0x41C64E6D;
+	t0 = ((int*)s)[0];
+	v0 = 0x3FFF;
+	v1 = 0xD371F947;
+	t4 = 0x41C64E6D;
 
 	//loc_7FA04
 	do
 	{
 		v1 = (v1 * t4) + 0x3039;
-		int t3 = (t0 >> 26) & 0x1F;
-		int t2 = (t0 >> 21) & 0x1F;
-		int t1 = (t0 >> 16) & 0x1F;
+		t3 = (t0 >> 26) & 0x1F;
+		t2 = (t0 >> 21) & 0x1F;
+		t1 = (t0 >> 16) & 0x1F;
 
 		SZ1 = t3;
 		SZ2 = t2;
@@ -2136,10 +2170,10 @@ void MakeMono(unsigned short* s, unsigned char* d)//7F9E4, 81A28
 		docop2(0x158002D);
 
 		t0 = ((int*)s)[0];
-		int at = OTZ;
+		at = OTZ;
 
 		t3 = (v1 >> 16) & 1;
-		int t5 = (v1 >> 24) & 1;
+		t5 = (v1 >> 24) & 1;
 
 		if (!(t1 < 15))
 		{
@@ -2323,6 +2357,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 	int fp;
 	int gp = 0;
 	int t9;
+	int s77 = 0;
 #if !JULY_VERSION && !AUG_VERSION
 	S_MemSet((char*)&sp[0], 0, sizeof(sp));
 
@@ -2669,7 +2704,7 @@ loc_7F1DC:
 			t6 = ((int*)t6)[1];
 			t7 = ((int*)t7)[1];
 			t8 = ((int*)t8)[1];
-			int s77 = ((int*)t9)[0];
+			s77 = ((int*)t9)[0];
 			t9 = ((int*)t9)[1];
 
 			SZ0 = t6;
@@ -2741,6 +2776,10 @@ loc_7F1DC:
 				goto loc_7F1D4;
 			}//loc_7F304
 		}//loc_7F304
+		else
+		{
+			printf("Warning: Polygon buffer is full!\n");
+		}
 	}
 DrawExit:
 	RFC = 0;
@@ -2788,6 +2827,7 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 	char* s0;
 	int t9;
 	int s3;
+	unsigned long* t11 = NULL;
 
 	initialise_light_matrix();
 
@@ -2956,13 +2996,13 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 					InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
 
 #if defined(USE_32_BIT_ADDR)
-					unsigned long* t11 = &db.pickup_ot[t1 * 2];
+					t11 = &db.pickup_ot[t1 * 2];
 					t2 = t11[0] | s2;
 					setlen(s0, 9);
 					addPrim(t11, s0);
 					s0 += sizeof(POLY_GT3);
 #else
-					unsigned long* t11 = &db.pickup_ot[t1];
+					t11 = &db.pickup_ot[t1];
 					t2 = t11[0] | s2;
 					t11[0] = (unsigned long)s0;
 					((unsigned long*)s0)[0] = t2;
@@ -3065,13 +3105,13 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 					InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s77, t5);
 
 #if defined(USE_32_BIT_ADDR)
-					unsigned long* t11 = &db.pickup_ot[t1 * 2];
+					t11 = &db.pickup_ot[t1 * 2];
 					t2 = t11[0] | s2;
 					setlen(s0, 12);
 					addPrim(t11, s0);
 					s0 += sizeof(POLY_GT4);
 #else
-					unsigned long* t11 = &db.pickup_ot[t1];
+					t11 = &db.pickup_ot[t1];
 					t2 = t11[0] | s2;
 					t11[0] = (unsigned long)s0;
 					((unsigned long*)s0)[0] = t2;
@@ -3127,6 +3167,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 	int s5;
 	int t9;
 	int s3;
+	int s77 = 0;
 
 	S_MemSet((char*)&sp[0], 0, sizeof(sp));
 
@@ -3445,7 +3486,7 @@ loc_7FDE8:
 		t6 = ((int*)t6)[1];
 		t7 = ((int*)t7)[1];
 		t8 = ((int*)t8)[1];
-		int s77 = ((int*)t9)[0];
+		s77 = ((int*)t9)[0];
 		t9 = ((int*)t9)[1];
 		SZ0 = t6;
 		SZ1 = t7;
