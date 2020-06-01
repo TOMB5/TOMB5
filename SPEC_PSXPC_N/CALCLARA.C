@@ -686,9 +686,9 @@ void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
 
 	t6 = MAC1;
 
-	IR1 = x;
-	IR2 = y;
-	IR3 = z;
+	IR1 = (short)x;
+	IR2 = (short)y;
+	IR3 = (short)z;
 
 	t7 = MAC2;
 	v0 = MAC3;
@@ -807,9 +807,9 @@ void mTranslateXYZ_CL(long x, long y, long z)
 	t4 = MAC2;
 	t5 = MAC3;
 
-	IR1 = x;
-	IR2 = y;
-	IR3 = z;
+	IR1 = (short)x;
+	IR2 = (short)y;
+	IR3 = (short)z;
 
 	docop2(0x498012);
 
@@ -1475,19 +1475,27 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 {
 	int sp[256];
 	int* t8 = &sp[0];
+	struct ITEM_INFO* item = NULL;
+	short* s0 = NULL;
+	short* s1 = NULL;
+	struct MATRIX3D* a0 = NULL;
+	struct ANIM_STRUCT* anim = NULL;
+	int t9 = 0;
+	struct ANIM_STRUCT* t99 = NULL;
+
 	S_MemSet((char*)&sp[0], 0, 1024);
-	struct ITEM_INFO* item = lara_item;//$t9
+	item = lara_item;//$t9
 	t8[46] = frac;
 	t8[47] = rate;
-	short* s0 = frame1;
-	short* s1 = frame2;
+	s0 = frame1;
+	s1 = frame2;
 	frame1 += 9;
 	frame2 += 9;
 	t8[9] = (int)frame1;
 	t8[10] = (int)frame2;
 	snaff_current_gte_matrix_V1(&t8[72]);
-	struct MATRIX3D* a0 = NULL;
-	struct ANIM_STRUCT* anim = NULL;
+	a0 = NULL;
+	anim = NULL;
 
 	if ((flag & 0x1))
 	{
@@ -1534,7 +1542,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	DEL_stash_both_matrices(t8, &t8[48]);
 
 	s1 = (short*)&bone[0];
-	int t9 = 6;
+	t9 = 6;
 
 	//loc_84480
 	do
@@ -1559,7 +1567,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	s0 -= 96;
 	s1 -= 48;
 
-	struct ANIM_STRUCT* t99 = &anims[0];
+	t99 = &anims[0];
 	Hardcore_iTranslateXYZ_CL((long*)&s1[50], t8);
 
 	//a0 = lara.weapon_item
@@ -1691,7 +1699,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	mLoadMatrix_CL(&t8[72]);
 }
 
-int GetFrames(struct ITEM_INFO* item, int* a1, int* a2)//8582C
+int GetFrames_CL(struct ITEM_INFO* item, int* a1, int* a2)//8582C
 {
 	struct ANIM_STRUCT* anim;//$t0
 	int t1;
@@ -1739,7 +1747,7 @@ short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 	short* t5;
 	short* a2;
 
-	t0 = GetFrames(item, &var_10[0], &var_8);
+	t0 = GetFrames_CL(item, &var_10[0], &var_8);
 
 	if (t0 == 0)
 	{
@@ -1790,13 +1798,24 @@ void snaff_current_gte_matrix_V1(int* mat)
 
 void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 {
+	int a0 = 0;
+	int a1 = 0;
+	int a2 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int v0 = 0;
+	int v1 = 0;
 	struct MATRIX3D* joint_matrix = &lara_joint_matrices[joint];//$a1
 	struct MATRIX3D m;//var_30
 
-	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-	int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-	int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+	t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 	((int*)&m)[0] = t0;
 	((int*)&m)[1] = t1;
@@ -1837,11 +1856,11 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 	TRY = t2;
 	TRZ = t3;
 
-	int a0 = pos->x;
-	int a1 = pos->y;
-	int a2 = pos->z;
+	a0 = pos->x;
+	a1 = pos->y;
+	a2 = pos->z;
 
-	int t4 = a1 >> 15;
+	t4 = a1 >> 15;
 	if (a1 < 0)
 	{
 		a1 = -a1;
@@ -1856,7 +1875,7 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 		a1 &= 0x7FFF;
 	}
 
-	int t5 = a2 >> 15;
+	t5 = a2 >> 15;
 	if (a2 < 0)
 	{
 		a2 = -a2;
@@ -1936,8 +1955,8 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 	t1 += t4;
 	t2 += t5;
 
-	int v0 = lara_item->pos.x_pos;
-	int v1 = lara_item->pos.y_pos;
+	v0 = lara_item->pos.x_pos;
+	v1 = lara_item->pos.y_pos;
 	a0 = lara_item->pos.z_pos;
 
 	t0 += v0;
@@ -1976,11 +1995,12 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 short* GetBestFrame(struct ITEM_INFO* item)//858C8(<)
 {
 	int var_10[2];
-	int var_8;
-	int v0;
+	int var_8 = 0;
+	int v0 = 0;
+	int v1 = 0;
 
-	v0 = GetFrames(item, &var_10[0], &var_8);
-	int v1 = var_8 >> 1;
+	v0 = GetFrames_CL(item, &var_10[0], &var_8);
+	v1 = var_8 >> 1;
 
 	if ((var_8 >> 1) < v0)
 	{
