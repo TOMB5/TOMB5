@@ -12,7 +12,7 @@ extern void draw_outlines();
 extern void _draw_gbackground2(int x, int y, int w, int h);
 extern void _DelDrawSprite(int x, int y, int w, int h);
 extern char aUEAAAAEEEAAEOO[];
-extern CHARDEF word_9230E[];
-extern CHARDEF loc_92020[];
+extern struct CHARDEF word_9230E[];
+extern struct CHARDEF loc_92020[];
 
 #endif
