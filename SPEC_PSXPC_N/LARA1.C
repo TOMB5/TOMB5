@@ -20,15 +20,22 @@ static int scratchPad[256];
 
 void sub_FC0L1(int x, int y, int z)
 {
-    int t0 = TRX;
-    int t1 = TRY;
-    int t2 = TRZ;
+    int t0 = 0;
+    int t1 = 0;
+    int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+
+	t0 = TRX;
+    t1 = TRY;
+    t2 = TRZ;
 
     x -= t0;
     y -= t1;
     z -= t2;
 
-    int t4 = y >> 15;
+    t4 = y >> 15;
     if (y < 0)
     {
         y = -y;
@@ -43,7 +50,7 @@ void sub_FC0L1(int x, int y, int z)
     }
 
     //loc_FFC
-    int t5 = z >> 15;
+    t5 = z >> 15;
     if (z < 0)
     {
         z = -z;
@@ -57,7 +64,7 @@ void sub_FC0L1(int x, int y, int z)
         z &= 0x7FFF;
     }
 
-    int t3 = x >> 15;
+    t3 = x >> 15;
     if (x < 0)
     {
         x = -x;
@@ -126,7 +133,14 @@ void sub_FC0L1(int x, int y, int z)
 
 void sub_1358L1(int x, int y, int z)
 {
-    int t4 = y >> 15;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+    int t4 = 0;
+	int t5 = 0;
+
+	t4 = y >> 15;
 
     if (y < 0)
     {
@@ -142,7 +156,7 @@ void sub_1358L1(int x, int y, int z)
         y &= 0x7FFF;
     }
 
-    int t5 = z >> 15;
+    t5 = z >> 15;
     if (z < 0)
     {
         z = -z;
@@ -157,7 +171,7 @@ void sub_1358L1(int x, int y, int z)
     }
 
     //loc_13A0
-    int t3 = x >> 15;
+    t3 = x >> 15;
     if (x < 0)
     {
         x = -x;
@@ -188,7 +202,7 @@ void sub_1358L1(int x, int y, int z)
 
     docop2(0x498012);
 
-    int t0 = t3 << 3;
+    t0 = t3 << 3;
     if (t3 < 0)
     {
         t3 = -t3;
@@ -197,7 +211,7 @@ void sub_1358L1(int x, int y, int z)
     }
 
     //loc_1408
-    int t1 = t4 << 3;
+    t1 = t4 << 3;
     if (t4 < 0)
     {
         t4 = -t4;
@@ -206,7 +220,7 @@ void sub_1358L1(int x, int y, int z)
     }
 
     //loc_1430
-    int t2 = t5 << 3;
+    t2 = t5 << 3;
     if (t5 < 0)
     {
         t5 = -t5;
@@ -280,24 +294,33 @@ void sub_C6CL1(int a0)
     //locret_CB4
 }   
 
-void sub_CBCL1(int a0)
+void sub_CBCL1(int a0)//(F)
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+
     a0 >>= 2;
     a0 &= 0x3FFC;
 
     if (a0 != 0)
     {
-        int t5 = ((int*)&rcossin_tbl[a0 >> 1])[0];
-        int t7 = 0xFFFF0000;
-        int t6 = t7 & t5;
+        t5 = ((int*)&rcossin_tbl[a0 >> 1])[0];
+        t7 = 0xFFFF0000;
+        t6 = t7 & t5;
 
         VX0 = t6 & 0xFFFF;
         VY0 = (t6 >> 16) & 0xFFFF;
         VZ0 = t5;
 
-        int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-        int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-        int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+        t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+        t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+        t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
         docop2(0x486012);
 
@@ -313,8 +336,8 @@ void sub_CBCL1(int a0)
         t1 &= t7;
         t3 &= 0xFFFF;
 
-        int t4 = MAC1;
-        int t2 = MAC2;
+        t4 = MAC1;
+        t2 = MAC2;
         t5 = MAC3;
 
         docop2(0x48E012);
@@ -347,25 +370,34 @@ void sub_CBCL1(int a0)
 
 void sub_D7CL1(int y_rot)
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t7 = 0;
+	int t6 = 0;
+
     y_rot >>= 2;
     y_rot &= 0x3FFC;
 
     if (y_rot != 0)
     {
         //t0 = rcossin_tbl
-        int t5 = ((int*)&rcossin_tbl[y_rot >> 1])[0];
-        int t7 = 0xFFFF0000;
-        int t6 = t5 >> 16;
+        t5 = ((int*)&rcossin_tbl[y_rot >> 1])[0];
+        t7 = 0xFFFF0000;
+        t6 = t5 >> 16;
         t5 &= 0xFFFF;
-        int t2 = -t5;
+        t2 = -t5;
 
         VX0 = t6 & 0xFFFF;
         VY0 = (t6 >> 16) & 0xFFFF;
         VZ0 = t2;
 
-        int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+        t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
         t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-        int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+        t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
         docop2(0x486012);
         VX1 = t5 & 0xFFFF;
@@ -375,8 +407,8 @@ void sub_D7CL1(int y_rot)
         t0 &= t7;
         t2 &= 0xFFFF;
         t3 &= t7;
-        int t4 = MAC1;
-        int t1 = MAC2;
+        t4 = MAC1;
+        t1 = MAC2;
         t5 = MAC3;
         docop2(0x48E012);
         t4 &= 0xFFFF;
@@ -406,6 +438,16 @@ void sub_D7CL1(int y_rot)
 
 void sub_1244L1(int y_rot, int x_rot, int z_rot)
 {
+	int t0 = 0;
+	int t7 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t4 = 0;
+	int t3 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int a0 = 0;
+
     sub_D7CL1(y_rot);
     sub_CBCL1(x_rot);
     
@@ -414,10 +456,10 @@ void sub_1244L1(int y_rot, int x_rot, int z_rot)
 
     if (z_rot != 0)
     {
-        int t0 = ((int*)&rcossin_tbl[z_rot >> 1])[0];
-        int t7 = 0xFFFF0000;
-        int t1 = (t0 >> 16) & 0xFFFF;
-        int t2 = t0 << 16;
+        t0 = ((int*)&rcossin_tbl[z_rot >> 1])[0];
+        t7 = 0xFFFF0000;
+        t1 = (t0 >> 16) & 0xFFFF;
+        t2 = t0 << 16;
         t1 |= t2;
 
         VX0 = t1 & 0xFFFF;
@@ -426,11 +468,11 @@ void sub_1244L1(int y_rot, int x_rot, int z_rot)
 
         t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
         t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-        int t4 = R33;
+        t4 = R33;
 
         docop2(0x486012);
 
-        int t3 = t0 & t7;
+        t3 = t0 & t7;
         t0 &= 0xFFFF;
         t0 = -t0;
         t0 &= 0xFFFF;
@@ -443,7 +485,7 @@ void sub_1244L1(int y_rot, int x_rot, int z_rot)
         t1 &= 0xFFFF;
 
         t0 = MAC1;
-        int t5 = MAC2;
+        t5 = MAC2;
         t3 = MAC3;
 
         docop2(0x48E012);
@@ -455,8 +497,8 @@ void sub_1244L1(int y_rot, int x_rot, int z_rot)
         t3 &= 0xFFFF;
 
         t5 = MAC1;
-        int t6 = MAC2;
-        int a0 = MAC3;
+        t6 = MAC2;
+        a0 = MAC3;
 
         t5 <<= 16;
         t0 |= t5;
@@ -478,7 +520,7 @@ void sub_1244L1(int y_rot, int x_rot, int z_rot)
 
 }
 
-void sub_BACL1(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
+void sub_BACL1(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)//(F)
 {
     *t2 = *t6 >> 7;
     *t2 &= *a3;
@@ -509,7 +551,7 @@ void sub_BACL1(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
     *t8 |= *t2;
 }
 
-int* sub_658L1(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
+int* sub_658L1(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)//(F)
 {
     unsigned int t00;
     int t0;
@@ -526,12 +568,17 @@ int* sub_658L1(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
     int v1;
     int* a3;
     int* a0;
+	int v0 = 0;
+	int* a2 = NULL;
+	unsigned int* a1 = NULL;
+	int a33 = 0;
+	struct PSXTEXTSTRUCT* a22 = NULL;
 
-    int v0 = ((int*)meshp)[2];
+    v0 = ((int*)meshp)[2];
     meshp += 6;
-    unsigned int* a1 = (unsigned int*)&meshp[v0 >> 17];
+    a1 = (unsigned int*)&meshp[v0 >> 17];
     v0 &= 0xFF;
-    int* a2 = &scratchPad[0];
+    a2 = &scratchPad[0];
 
     if (v0 != 0)
     {
@@ -719,9 +766,9 @@ int* sub_658L1(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
    }
     //loc_85C
    a0 = &scratchPad[0];
-   PSXTEXTSTRUCT* a22 = psxtextinfo;
+   a22 = psxtextinfo;
    v0 = a1[0];
-   int a33 = 0xF80000;
+   a33 = 0xF80000;
    at = v0 >> 16;
    DQA = at;
    v0 &= 0xFFFF;
@@ -1000,6 +1047,10 @@ loc_9FC:
 
 void sub_1184L1()
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
     int* s3 = &scratchPad[0];
     struct GUNSHELL_STRUCT* s1 = &Gunshells[0];///@FIXME GUNSHELL_STRUCT size not matching PSX!
     struct object_info* a0 = NULL;
@@ -1020,10 +1071,10 @@ void sub_1184L1()
             db.polyptr = (char*)sub_658L1((short*)((int*)meshes[a0->mesh_index])[0], (int*)db.polyptr, (int)db.ot);
 #endif
 
-            int t0 = scratchPad[128];
-            int t1 = scratchPad[129];
-            int t2 = scratchPad[130];
-            int t3 = scratchPad[131];
+            t0 = scratchPad[128];
+            t1 = scratchPad[129];
+            t2 = scratchPad[130];
+            t3 = scratchPad[131];
 
             R11 = t0 & 0xFFFF;
             R12 = (t0 >> 16) & 0xFFFF;
@@ -1061,7 +1112,9 @@ void sub_10DCL1(int a1, int a2)
 {
     struct HAIR_STRUCT* hair = &hairs[0][a1];//$a0
     int at = 0;
-    
+    int* a22 = NULL;
+	int* a00 = NULL;
+
     //v0 = &hairs[0]
     //v1 = a1 << 5
 
@@ -1089,8 +1142,8 @@ loc_1114:
     }
 
     //v1 = &ScratchVertNums[0];
-    int* a22 = (int*)&ScratchVertNums[((a2 << 1) + a2) << 2];
-    int* a00 = (int*)&HairRotScratchVertNums[0][a1];
+    a22 = (int*)&ScratchVertNums[((a2 << 1) + a2) << 2];
+    a00 = (int*)&HairRotScratchVertNums[0][a1];
     a22[0] = a00[0];
     ((unsigned char*)a22)[4] = ((unsigned char*)a00)[4];
 
@@ -1098,16 +1151,29 @@ loc_1114:
 
 void sub_E38L1()
 {
-    int* a3 = &scratchPad[0];
+    int* a3 = NULL;
+    int t0 = 0;
+    int t1 = 0;
+    int t2 = 0;
+    int t3 = 0;
+    int t4 = 0;
+    int t5 = 0;
+    int t6 = 0;
+    int t7 = 0;
+	struct HAIR_STRUCT* h = NULL;
+	short* s4 = NULL;
+	int s2 = 0;
+	short* s1 = NULL;
 
-    int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-    int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-    int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-    int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
-    int t4 = R33;
-    int t5 = TRX;
-    int t6 = TRY;
-    int t7 = TRZ;
+	a3 = &scratchPad[0];
+    t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+    t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+    t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+    t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+    t4 = R33;
+    t5 = TRX;
+    t6 = TRY;
+    t7 = TRZ;
 
     a3[128] = t0;
     a3[129] = t1;
@@ -1118,12 +1184,12 @@ void sub_E38L1()
     a3[134] = t6;
     a3[135] = t7;
 
-    struct HAIR_STRUCT* h = &hairs[0][1];//$s0
+    h = &hairs[0][1];//$s0
     //v0 = objects[HAIR].mesh_index
     //s4 = meshes
-    short* s4 = (short*)&meshes[objects[HAIR].mesh_index];
-    int s2 = 1;//Really hair index, see h
-    short* s1 = s4 + 4;
+    s4 = (short*)&meshes[objects[HAIR].mesh_index];
+    s2 = 1;//Really hair index, see h
+    s1 = s4 + 4;
 
     //loc_EA4
     do
@@ -1155,14 +1221,14 @@ void sub_E38L1()
 
         s2 += 2;
 
-        int t0 = scratchPad[128];
-        int t1 = scratchPad[129];
-        int t2 = scratchPad[130];
-        int t3 = scratchPad[131];
-        int t4 = scratchPad[132];
-        int t5 = scratchPad[133];
-        int t6 = scratchPad[134];
-        int t7 = scratchPad[135];
+        t0 = scratchPad[128];
+        t1 = scratchPad[129];
+        t2 = scratchPad[130];
+        t3 = scratchPad[131];
+        t4 = scratchPad[132];
+        t5 = scratchPad[133];
+        t6 = scratchPad[134];
+        t7 = scratchPad[135];
 
         R11 = t0 & 0xFFFF;
         R12 = (t0 >> 16) & 0xFFFF;
@@ -1207,13 +1273,25 @@ void sub_2CL1(struct ITEM_INFO* item)
     int underwater_node = 0;//$v1
     int a1 = 0;
     int v0;
-    int at;
     int v1;
-    struct CVECTOR a0;
+    CVECTOR a0;
     int* s0;
     int a00;
     int j;//$t6
-
+	int t0 = 0;
+    int t1 = 0;
+    int t2 = 0;
+    int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+	int* v11 = NULL;
+	short* s1 = NULL;
+	int a000 = 0;
+	long* bone = NULL;
+	int at = 0;
+	short a2 = 0;
     S_MemSet((char*)&scratchPad[0], 0, 1024);
 
     //v0 = item->hit_points
@@ -1290,10 +1368,10 @@ void sub_2CL1(struct ITEM_INFO* item)
     //loc_138
     for (i = 0; i < 15; i++)///@TODO check < 15
     {
-        int t0 = ((int*)&lara_matrices[i])[0];
-        int t1 = ((int*)&lara_matrices[i])[1];
-        int t2 = ((int*)&lara_matrices[i])[2];
-        int t3 = ((int*)&lara_matrices[i])[3];
+        t0 = ((int*)&lara_matrices[i])[0];
+        t1 = ((int*)&lara_matrices[i])[1];
+        t2 = ((int*)&lara_matrices[i])[2];
+        t3 = ((int*)&lara_matrices[i])[3];
 
         R11 = t0 & 0xFFFF;
         R12 = (t0 >> 16) & 0xFFFF;
@@ -1347,7 +1425,7 @@ void sub_2CL1(struct ITEM_INFO* item)
 
         //s2--;
         //int t7 = &NodesToStashFromScratch[0];
-        int t6 = 4;
+        t6 = 4;
         //t0 = &tsv_buffer[0]
         //t1 = &SkinVertNums[0];
 
@@ -1370,7 +1448,7 @@ void sub_2CL1(struct ITEM_INFO* item)
     //s0 = &SkinUseMatrix[0][0];
     //v0 = objects[LARA_SKIN_JOINTS].mesh_index
     //v1 = meshes
-    short* s1 = (short*)&meshes[objects[LARA_SKIN_JOINTS].mesh_index];
+    s1 = (short*)&meshes[objects[LARA_SKIN_JOINTS].mesh_index];
     s1 += 4;
     //s3 = NodesToStashToScratch[0][0]
     i = 0xE;//s2
@@ -1393,17 +1471,17 @@ void sub_2CL1(struct ITEM_INFO* item)
             //a0 = &LaraNodeUnderwater[lara_underwater_skin_sweetness_table[i]];
             //v0 = LaraNodeUnderwater[lara_underwater_skin_sweetness_table[i]];
 
-            int a0 = ((int*)&LaraNodeAmbient)[0];
+            a000 = ((int*)&LaraNodeAmbient)[0];
 
             if (LaraNodeUnderwater[lara_underwater_skin_sweetness_table[i]])
             {
-                a0 = ((int*)&LaraNodeAmbient)[1];
+                a000 = ((int*)&LaraNodeAmbient)[1];
             }
 
             //loc_2C8
-            RBK = (a0 & 0xFF) << 4;
-            GBK = (a0 >> 4) & 0xFF0;
-            BBK = (a0 >> 12) & 0xFF0;
+            RBK = (a000 & 0xFF) << 4;
+            GBK = (a000 >> 4) & 0xFF0;
+            BBK = (a000 >> 12) & 0xFF0;
 
             // int t2 = SkinUseMatrix[0][0];//derive from s0
              //t0 = &tsv_buffer[0];
@@ -1417,28 +1495,28 @@ void sub_2CL1(struct ITEM_INFO* item)
                   //t0 = lara_matrices
                   //v0 = &lara_matrices[SkinUseMatrix[0][0]];
                   //v1 = &lara_matrices[SkinUseMatrix[0][1]];
-                int t0 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[0];
-                int t1 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[1];
-                int t2 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[2];
-                int t3 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[3];
-                int t4 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[4];
-                int t5 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[5];
-                int t6 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[6];
-                int t7 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[7];
+                t0 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[0];
+                t1 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[1];
+                t2 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[2];
+                t3 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[3];
+                t4 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[4];
+                t5 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[5];
+                t6 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[6];
+                t7 = ((int*)&lara_matrices[SkinUseMatrix[i][1]])[7];
 
-                a0 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[4];
+                a000 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[4];
                 a1 = (t2 << 16) >> 16;
-                a0 *= a1;
+                a000 *= a1;
 
                 a1 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[1];
-                short a2 = ((short*)&lara_matrices[SkinUseMatrix[i][1]])[1];
-                int at = a0 >> 1;
-                a0 += at;
+                a2 = ((short*)&lara_matrices[SkinUseMatrix[i][1]])[1];
+                at = a000 >> 1;
+                a000 += at;
                 at = a1 * a2;
 
                 a1 = ((short*)&lara_matrices[SkinUseMatrix[i][0]])[7];
                 a2 = ((short*)&lara_matrices[SkinUseMatrix[i][1]])[7];
-                a0 += at;
+                a000 += at;
 
                 R11 = t0 & 0xFFFF;
                 R12 = (t0 >> 16) & 0xFFFF;
@@ -1456,13 +1534,13 @@ void sub_2CL1(struct ITEM_INFO* item)
                 TRY = t6;
                 TRZ = t7;
 
-                a0 += a1;
-                a0 >>= 12;
-                t0 = a0;
-                a0 = a0 * a0;
+                a000 += a1;
+                a000 >>= 12;
+                t0 = a000;
+                a000 = a000 * a000;
 
                 //0x1000000
-                v0 = phd_atan_asm(t0, mSqrt(0x1000000 - a0));
+                v0 = phd_atan_asm(t0, mSqrt(0x1000000 - a000));
                 //at = 0xD
 
                 if (i == 0xE - 0xD || i == 0xE - 0xA)//Really || 0xD and 0xA without 0xE - 
@@ -1470,9 +1548,9 @@ void sub_2CL1(struct ITEM_INFO* item)
                     v0 = -v0;
                 }
                 //loc_3FC
-                a0 = v0 >> 1;
-                a0 = -a0;
-                sub_CBCL1(a0);
+                a000 = v0 >> 1;
+                a000 = -a000;
+                sub_CBCL1(a000);
 
             }//loc_408
 
@@ -1507,15 +1585,15 @@ void sub_2CL1(struct ITEM_INFO* item)
         //v1 = objects
         s0 = (int*)&meshes[objects[lara.holster].mesh_index];
         s0 += 8;
-        int* v1 = (int*)&lara_matrices[1];
-        int t0 = v1[0];
-        int t1 = v1[1];
-        int t2 = v1[2];
-        int t3 = v1[3];
-        int t4 = v1[4];
-        int t5 = v1[5];
-        int t6 = v1[6];
-        int t7 = v1[7];
+        v11 = (int*)&lara_matrices[1];
+        t0 = v11[0];
+        t1 = v11[1];
+        t2 = v11[2];
+        t3 = v11[3];
+        t4 = v11[4];
+        t5 = v11[5];
+        t6 = v11[6];
+        t7 = v11[7];
 
         R11 = t0 & 0xFFFF;
         R12 = (t0 >> 16) & 0xFFFF;
@@ -1542,16 +1620,16 @@ void sub_2CL1(struct ITEM_INFO* item)
 #endif
         s0 += 8;
 
-        v1 = (int*)&lara_matrices[4];
+        v11 = (int*)&lara_matrices[4];
 
-        t0 = v1[0];
-        t1 = v1[1];
-        t2 = v1[2];
-        t3 = v1[3];
-        t4 = v1[4];
-        t5 = v1[5];
-        t6 = v1[6];
-        t7 = v1[7];
+        t0 = v11[0];
+        t1 = v11[1];
+        t2 = v11[2];
+        t3 = v11[3];
+        t4 = v11[4];
+        t5 = v11[5];
+        t6 = v11[6];
+        t7 = v11[7];
 
         R11 = t0 & 0xFFFF;
         R12 = (t0 >> 16) & 0xFFFF;
@@ -1585,20 +1663,20 @@ void sub_2CL1(struct ITEM_INFO* item)
     {
         //a2 = objects[lara.back_gun].bone_index
         //v1 = 
-        long* bone = &bones[objects[lara.back_gun].bone_index];//a2
+        bone = &bones[objects[lara.back_gun].bone_index];//a2
         //v0 =  objects[lara.back_gun].mesh_index
         s0 = (int*)&meshes[objects[lara.back_gun].mesh_index];//$s0
 
-        int* v1 = (int*)&lara_matrices[7];
+        v11 = (int*)&lara_matrices[7];
 
-        int t0 = v1[0];
-        int t1 = v1[1];
-        int t2 = v1[2];
-        int t3 = v1[3];
-        int t4 = v1[4];
-        int t5 = v1[5];
-        int t6 = v1[6];
-        int t7 = v1[7];
+        t0 = v11[0];
+        t1 = v11[1];
+        t2 = v11[2];
+        t3 = v11[3];
+        t4 = v11[4];
+        t5 = v11[5];
+        t6 = v11[6];
+        t7 = v11[7];
 
         R11 = t0 & 0xFFFF;
         R12 = (t0 >> 16) & 0xFFFF;
