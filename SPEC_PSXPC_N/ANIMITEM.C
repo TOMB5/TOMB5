@@ -165,6 +165,15 @@ void SetRotation_AI(int* fp, int t0, int t1, int t2, int t3, int t4)
 
 void mRotY_AI(int ry, int* fp)//0x81858
 {
+	int t4 = 0;
+	int t1 = 0;
+	int t5 = 0;
+	int t7 = 0;
+	int t6 = 0;
+	int t2 = 0;
+	int t0 = 0;
+	int t3 = 0;
+
 	ry = (ry >> 2) & 0x3FFC;
 	if (ry == 0)
 	{
@@ -173,18 +182,18 @@ void mRotY_AI(int ry, int* fp)//0x81858
 
 	//t0 = 0x9A8C8 rcossin_tbl
 	//loc_81870
-	int t5 = ((int*)&rcossin_tbl[ry >> 1])[0];
-	int t7 = 0xFFFF0000;
-	int t6 = (t5 >> 16) & 0xFFFF;
+	t5 = ((int*)&rcossin_tbl[ry >> 1])[0];
+	t7 = 0xFFFF0000;
+	t6 = (t5 >> 16) & 0xFFFF;
 	t5 &= 0xFFFF;
-	int t2 = -t5;
+	t2 = -t5;
 	VX0 = t6;
 	VY0 = (t6 >> 16) & 0xFFFF;
 	VZ0 = t2;
 
-	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
 	t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+	t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 	docop2(0x486012);
 
@@ -195,8 +204,8 @@ void mRotY_AI(int ry, int* fp)//0x81858
 	t0 &= t7;
 	t2 &= 0xFFFF;
 	t3 &= t7;
-	int t4 = MAC1;
-	int t1 = MAC2;
+	t4 = MAC1;
+	t1 = MAC2;
 	t5 = MAC3;
 
 	docop2(0x48E012);
@@ -221,6 +230,15 @@ void mRotY_AI(int ry, int* fp)//0x81858
 
 void mRotX_AI(int rx, int* fp)//0x817B0
 {
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t2 = 0;
+
 	rx = (rx >> 2) & 0x3FFC;
 	if (rx == 0)
 	{
@@ -228,17 +246,17 @@ void mRotX_AI(int rx, int* fp)//0x817B0
 	}
 
 	//loc_81870
-	int t5 = ((int*)&rcossin_tbl[rx >> 1])[0];
-	int t7 = 0xFFFF0000;
-	int t6 = t7 & t5;
+	t5 = ((int*)&rcossin_tbl[rx >> 1])[0];
+	t7 = 0xFFFF0000;
+	t6 = t7 & t5;
 
 	VX0 = t6 & 0xFFFF;
 	VY0 = (t6 >> 16) & 0xFFFF;
 	VZ0 = t5;
 
-	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-	int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+	t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 	docop2(0x486012);
 
@@ -253,8 +271,8 @@ void mRotX_AI(int rx, int* fp)//0x817B0
 	t1 &= t7;
 	t3 &= 0xFFFF;
 
-	int t4 = MAC1;
-	int t2 = MAC2;
+	t4 = MAC1;
+	t2 = MAC2;
 	t5 = MAC3;
 
 	docop2(0x48E012);
@@ -279,6 +297,16 @@ void mRotX_AI(int rx, int* fp)//0x817B0
 
 void mRotZ_AI(int rz, int* fp)//0x81918
 {
+	int a0 = 0;
+	int t6 = 0;
+	int t0 = 0;
+	int t7 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t4 = 0;
+	int t3 = 0;
+	int t5 = 0;
+
 	rz = (rz >> 2) & 0x3FFC;
 	if (rz == 0)
 	{
@@ -286,10 +314,10 @@ void mRotZ_AI(int rz, int* fp)//0x81918
 	}
 
 	//loc_81870
-	int t0 = ((int*)&rcossin_tbl[rz >> 1])[0];
-	int t7 = 0xFFFF0000;
-	int t1 = t0 >> 16;
-	int t2 = t0 << 16;
+	t0 = ((int*)&rcossin_tbl[rz >> 1])[0];
+	t7 = 0xFFFF0000;
+	t1 = t0 >> 16;
+	t2 = t0 << 16;
 	t1 |= t2;
 	VX0 = t1 & 0xFFFF;
 	VY0 = (t1 >> 16) & 0xFFFF;
@@ -297,11 +325,11 @@ void mRotZ_AI(int rz, int* fp)//0x81918
 
 	t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
 	t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-	int t4 = R33;
+	t4 = R33;
 
 	docop2(0x486012);
 
-	int t3 = t0 & t7;
+	t3 = t0 & t7;
 	t0 &= 0xFFFF;
 	t0 = -t0;
 	t0 &= 0xFFFF;
@@ -313,7 +341,7 @@ void mRotZ_AI(int rz, int* fp)//0x81918
 
 	t1 &= 0xFFFF;
 	t0 = MAC1;
-	int t5 = MAC2;
+	t5 = MAC2;
 	t3 = MAC3;
 
 	docop2(0x48E012);
@@ -324,8 +352,8 @@ void mRotZ_AI(int rz, int* fp)//0x81918
 	t1 |= t5;
 	t3 &= 0xFFFF;
 	t5 = MAC1;
-	int t6 = MAC2;
-	int a0 = MAC3;
+	t6 = MAC2;
+	a0 = MAC3;
 
 	t5 <<= 16;
 	t0 |= t5;
@@ -339,12 +367,12 @@ void mRotZ_AI(int rz, int* fp)//0x81918
 
 int GetFrames_AI(struct ITEM_INFO* item /*s3*/, int* fp)//81468
 {
-	struct ANIM_STRUCT* anim;//$t0
-	int t1;
-	int t2;
-	int t3;
-	short* t4;
-	short* t5;
+	struct ANIM_STRUCT* anim = NULL;//$t0
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	short* t4 = NULL;
+	short* t5 = NULL;
 
 	anim = &((struct ANIM_STRUCT*)fp[39])[item->anim_number];
 
@@ -355,7 +383,7 @@ int GetFrames_AI(struct ITEM_INFO* item /*s3*/, int* fp)//81468
 	t3 = t1 * (anim->interpolation >> 8);
 	t4 = &anim->frame_ptr[t3];
 	fp[30] = (int)t4;
-	t5 = &t4[(anim->interpolation >> 8)];
+	t5 = &anim->frame_ptr[t3 + (anim->interpolation >> 8)];
 	fp[31] = (int)t5;
 
 	if (t2 == 0)
@@ -375,7 +403,14 @@ int GetFrames_AI(struct ITEM_INFO* item /*s3*/, int* fp)//81468
 
 void mTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//81AB0
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t5 = 0;
+	int v0 = 0;
 	int t4 = ty >> 15;
+
 	if (ty < 0)
 	{
 		ty = -ty;
@@ -392,7 +427,7 @@ void mTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//81AB0
 	}
 
 	//loc_81AD4
-	int t5 = tz >> 15;
+	t5 = tz >> 15;
 	if (tz < 0)
 	{
 		tz = -tz;
@@ -408,7 +443,7 @@ void mTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//81AB0
 	}
 
 	//loc_81AF8
-	int t3 = tx >> 15;
+	t3 = tx >> 15;
 	if (tx < 0)
 	{
 		tx = -tx;
@@ -428,7 +463,7 @@ void mTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//81AB0
 	IR2 = t4;
 	IR3 = t5;
 
-	int v0 = fp[20];
+	v0 = fp[20];
 
 	docop2(0x41E012);
 
@@ -442,7 +477,7 @@ void mTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//81AB0
 
 	docop2(0x498012);
 
-	int t0 = t3 << 3;
+	t0 = t3 << 3;
 	if (t3 < 0)
 	{
 		t3 = -t3;
@@ -450,7 +485,7 @@ void mTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//81AB0
 		t0 = -t3;
 	}//loc_81B60
 
-	int t1 = t4 << 3;
+	t1 = t4 << 3;
 	if (t4 < 0)
 	{
 		t4 = -t4;
@@ -459,7 +494,7 @@ void mTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//81AB0
 	}
 
 	//loc_81B74
-	int t2 = t5 << 3;
+	t2 = t5 << 3;
 	if (t5 < 0)
 	{
 		t5 = -t5;
@@ -507,10 +542,28 @@ void mRotYXZ_AI(int y, int x, int z, int* fp)//818FC
 void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned short* s2, int* fp)//80DD8
 {
 	int* s1 = (int*)fp[25];
-	int t3;
-	int t2;
-	int t1;
-	int t0;
+	int t3 = 0;
+	int t2 = 0;
+	int t1 = 0;
+	int t0 = 0;
+	int s5 = 0;
+	int s4 = 0;
+	int s7 = 0;
+	int v0 = 0;
+	int v1 = 0;
+	int a0 = 0;
+	int t9 = 0;
+	int t8 = 0;
+	int t4 = 0;
+	int s22 = 0;
+	int* t5 = NULL;
+	int a2 = 0;
+	int t6 = 0;
+	int t55 = 0;
+	int a1 = 0;
+	int t7 = 0;
+	int at = 0;
+	int a3 = 0;
 
 	if ((unsigned)(item->object_number - 0x1A0) >= 0x1F && (unsigned)(item->object_number - 0x11C) >= 0x20)
 	{
@@ -565,15 +618,15 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 		((short*)fp)[29] = s2[3];
 		((short*)fp)[30] = s2[5];
 
-		int s5 = 32767;
-		int s4 = -32767;
-		int s7 = 32767;
-		int t9 = -32767;
-		int t8 = 32767;
-		int s2 = -32767;
-		int t4 = 8;
+		s5 = 32767;
+		s4 = -32767;
+		s7 = 32767;
+		t9 = -32767;
+		t8 = 32767;
+		s22 = -32767;
+		t4 = 8;
 
-		int* t5 = &fp[0];
+		 t5 = &fp[0];
 
 		//loc_80ED4
 		do
@@ -585,9 +638,9 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 			t4--;
 
 			docop2(0x480012);
-			int v1 = MAC1;
-			int v0 = MAC2;
-			int a2 = MAC3;
+			v1 = MAC1;
+			v0 = MAC2;
+			a2 = MAC3;
 
 			if (v1 < s5)
 			{
@@ -614,9 +667,9 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 				t8 = a2;
 			}
 
-			if (s2 < a2)
+			if (s22 < a2)
 			{
-				s2 = a2;
+				s22 = a2;
 			}
 
 			t5 += 2;
@@ -625,27 +678,27 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 
 		mmPopMatrix_AI(fp);
 
-		int v0 = item->pos.x_pos;
-		int v1 = item->pos.y_pos;
-		int a0 = item->pos.z_pos;
+		v0 = item->pos.x_pos;
+		v1 = item->pos.y_pos;
+		a0 = item->pos.z_pos;
 
 		s5 += v0;
 		s4 += v0;
 		s7 += v1;
 		t9 += v1;
 		t8 += a0;
-		s2 += a0;
+		s22 += a0;
 
-		int t6 = s1[5] + 1024;
-		int t55 = s1[7] + 1024;
+		t6 = s1[5] + 1024;
+		t55 = s1[7] + 1024;
 
 		a0 = t6 + ((((short*)s1)[21] - 2) << 10);
-		int a1 = t55 + ((((short*)s1)[20] - 2) << 10);
+		a1 = t55 + ((((short*)s1)[20] - 2) << 10);
 
-		int t7 = s1[9];
+		t7 = s1[9];
 		v1 = s1[8];
 
-		if (s5 < t6 || a0 < s4 || s7 < t7 || v1 < t9 || t8 < t55 || a1 < s2)
+		if (s5 < t6 || a0 < s4 || s7 < t7 || v1 < t9 || t8 < t55 || a1 < s22)
 		{
 			//loc_80FE4
 			t3 = s1[1];
@@ -667,14 +720,14 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 				//loc_8100C
 				do
 				{
-					int at = ((short*)t3)[0];
+					at = ((short*)t3)[0];
 					v1 = ((short*)fp)[53];
 					a1 = ((short*)t3)[4];
 
 					if (at == v1)
 					{
-						int a2 = ((short*)t3)[5];
-						int a3 = ((short*)t3)[6];
+						a2 = ((short*)t3)[5];
+						a3 = ((short*)t3)[6];
 						v0 = ((short*)t3)[7];
 						v1 = ((short*)t3)[8];
 						a0 = ((short*)t3)[9];
@@ -788,7 +841,7 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 						a3 = at + t55;
 						a2 += t7;
 
-						if (s4 >= t2 && a1 >= t55 && t9 >= t0 && a2 >= s7 && s2 >= t1 && a3 >= t8)
+						if (s4 >= t2 && a1 >= t55 && t9 >= t0 && a2 >= s7 && s22 >= t1 && a3 >= t8)
 						{
 							//loc_811DC
 							break;
@@ -814,16 +867,30 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 {
 	int t0 = TRZ - 20480;
 	int v0 = 0;
+	int t5 = 0;
+	int a00 = 0;
+	int a1 = 0;
+	int a2 = 0;
+	int a3 = 0;
+	int t3 = 0;
+	int t1 = 0;
+	int t4 = 0;
+	int t2 = 0;
+	int t7 = 0;
+	int at = 0;
+	int t9 = 0;
+	int t8 = 0;
+	int v1 = 0;
 
 	if (t0 < 0)
 	{
 		t0 = a0[0];
-		int t3 = a0[1];
-		int t1 = a0[2] << 16;
-		int t4 = a0[3] << 16;
-		int t2 = a0[4];
-		int t7 = a0[5];
-		int at = t0 | t1;
+		t3 = a0[1];
+		t1 = a0[2] << 16;
+		t4 = a0[3] << 16;
+		t2 = a0[4];
+		t7 = a0[5];
+		at = t0 | t1;
 
 		VX0 = at & 0xFFFF;
 		VY0 = (at >> 16) & 0xFFFF;
@@ -841,19 +908,19 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 
 		docop2(0x280030);
 
-		int t9 = t3 | t4;
-		int t8 = t2;
-		int a0 = 0x7FFFFFFF;
-		int a1 = 0x81000000;
-		int a2 = 0x7FFFFFFF;
-		int a3 = 0x81000000;
+		t9 = t3 | t4;
+		t8 = t2;
+		a00 = 0x7FFFFFFF;
+		a1 = 0x81000000;
+		a2 = 0x7FFFFFFF;
+		a3 = 0x81000000;
 
 		t0 = SXY0;
 		t1 = SXY1;
 		t2 = SXY2;
 		t3 = SZ1;
 		t4 = SZ2;
-		int t5 = SZ3;
+		t5 = SZ3;
 
 		VZ0 = t7;
 		VZ1 = t7;
@@ -866,7 +933,7 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 		t5 -= 33;
 
 		v0 = 0;
-		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
+		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a00, &a1, &t3, &t4, &t5);
 
 		t0 = SXY0;
 		t1 = SXY1;
@@ -884,7 +951,7 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 
 		docop2(0x280030);
 
-		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
+		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a00, &a1, &t3, &t4, &t5);
 
 		t0 = SXY0;
 		t1 = SXY1;
@@ -892,24 +959,24 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 		t4 = SZ2 - 33;
 		t2 = t1;
 		t5 = t4;
-		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
+		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a00, &a1, &t3, &t4, &t5);
 
 		t0 = ((short*)fp)[73];
 		t1 = ((short*)fp)[75];
 		t2 = ((short*)fp)[72];
 		t3 = ((short*)fp)[74];
 
-		a0 >>= 16;
+		a00 >>= 16;
 		a1 >>= 16;
 		a2 >>= 16;
 		a3 >>= 16;
 
-		int v1 = v0;
+		v1 = v0;
 
-		if (v1 == 0 || t0 < a0 || t1 < a2 || a1 < t2 || a3 < t3)
+		if (v1 == 0 || t0 < a00 || t1 < a2 || a1 < t2 || a3 < t3)
 			return 0;
 
-		if (v1 < 9 || a0 < t2 || a2 < t3 || t0 < a1 || t1 < a3)
+		if (v1 < 9 || a00 < t2 || a2 < t3 || t0 < a1 || t1 < a3)
 			return -1;
 
 		v0 = 1;
@@ -920,15 +987,24 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 
 void InitInterpolation_AI(int* fp, int a0, int* a2)//81DF4
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+
 	fp[22] = a0;
-	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-	int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-	int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
-	int t4 = (R33 & 0xFFFF);
-	int t5 = TRX;
-	int t6 = TRY;
-	int t7 = TRZ;
+	t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+	t4 = (R33 & 0xFFFF);
+	t5 = TRX;
+	t6 = TRY;
+	t7 = TRZ;
 
 	L11 = t0 & 0xFFFF;
 	L12 = (t0 >> 16) & 0xFFFF;
@@ -958,12 +1034,23 @@ void InitInterpolation_AI(int* fp, int a0, int* a2)//81DF4
 
 void iTranslateXYZ2_AI(int x/*a0*/, int y/*a1*/, int z/*a2*/, int x2/*a3*/, int* fp)//821DC
 {
+	int t5 = 0;
+	int t4 = 0;
+	int t3 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int v0 = 0;
+	int t6 = 0;
+	int t7 = 0;
+	int t8 = 0;
+
 	mTranslateXYZ_AI(x, y, z, fp);
 
 	y = fp[34];
 	z = fp[35];
 
-	int t0 = x2 >> 15;
+	t0 = x2 >> 15;
 	if (t0 < 0)
 	{
 		x2 = -x2;
@@ -978,7 +1065,7 @@ void iTranslateXYZ2_AI(int x/*a0*/, int y/*a1*/, int z/*a2*/, int x2/*a3*/, int*
 	}
 
 	//loc_82214
-	int t1 = y >> 15;
+	t1 = y >> 15;
 	if (y < 0)
 	{
 		y = -y;
@@ -993,7 +1080,7 @@ void iTranslateXYZ2_AI(int x/*a0*/, int y/*a1*/, int z/*a2*/, int x2/*a3*/, int*
 	}
 
 	//loc_82238
-	int t2 = z >> 15;
+	t2 = z >> 15;
 	if (z < 0)
 	{
 		z = -z;
@@ -1013,19 +1100,19 @@ void iTranslateXYZ2_AI(int x/*a0*/, int y/*a1*/, int z/*a2*/, int x2/*a3*/, int*
 
 	docop2(0x43E012);
 
-	int v0 = fp[21];
-	int t6 = MAC1;
+	v0 = fp[21];
+	t6 = MAC1;
 
 	IR1 = x2;
 	IR2 = y;
 	IR3 = z;
 
-	int t7 = MAC2;
-	int t8 = MAC3;
+	t7 = MAC2;
+	t8 = MAC3;
 
 	docop2(0x4BE012);
 
-	int t3 = t6 << 3;
+	t3 = t6 << 3;
 	if (t6 < 0)
 	{
 		t6 = -t6;
@@ -1033,7 +1120,7 @@ void iTranslateXYZ2_AI(int x/*a0*/, int y/*a1*/, int z/*a2*/, int x2/*a3*/, int*
 		t3 = -t6;
 	}
 
-	int t4 = t7 << 3;
+	t4 = t7 << 3;
 	if (t7 < 0)
 	{
 		t7 = -t7;
@@ -1041,7 +1128,7 @@ void iTranslateXYZ2_AI(int x/*a0*/, int y/*a1*/, int z/*a2*/, int x2/*a3*/, int*
 		t4 = -t7;
 	}
 	
-	int t5 = t8 << 3;
+	t5 = t8 << 3;
 	if (t8 < 0)
 	{
 		t8 = -t8;
@@ -1084,6 +1171,8 @@ void iTranslateXYZ_AI(int tx, int ty, int tz, int* fp)//821D0
 
 void mRotSuperPackedYXZ_AI(int* fp)//819FC
 {
+	int a0 = 0;
+	int v00 = 0;
 	unsigned short* a2 = (unsigned short*)fp[32];
 	unsigned short v0 = *a2++;
 	int at = v0 >> 14;
@@ -1109,9 +1198,9 @@ void mRotSuperPackedYXZ_AI(int* fp)//819FC
 	//loc_81A48
 	at = *a2++;
 	fp[32] = (int)a2;
-	int a0 = v0 << 16;
+	a0 = v0 << 16;
 	a0 |= at;
-	int v00 = a0;
+	v00 = a0;
 
 	mRotY_AI((v00 >> 4) & 0xFFC0, fp);
 	mRotX_AI((v00 >> 14) & 0xFFC0, fp);
@@ -1141,22 +1230,31 @@ void SetRotation_I_AI(int t0, int t1, int t2, int t3, int t4, int* fp)//82110
 
 void iRotY_AI(int ry, int* fp)
 {
+	int t5 = 0;
+	int t7 = 0;
+	int t6 = 0;
+	int t2 = 0;
+	int t0 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t1 = 0;
+
 	ry = (ry >> 2) & 0x3FFC;
 	if (ry != 0)
 	{
-		int t5 = ((int*)&rcossin_tbl[ry >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t6 = t5 >> 16;
+		t5 = ((int*)&rcossin_tbl[ry >> 1])[0];
+		t7 = 0xFFFF0000;
+		t6 = t5 >> 16;
 		t5 &= 0xFFFF;
-		int t2 = -t5;
+		t2 = -t5;
 
 		VX0 = t6 & 0xFFFF;
 		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
-		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+		t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
 		t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
-		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+		t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 		docop2(0x4A6012);
 
@@ -1166,8 +1264,8 @@ void iRotY_AI(int ry, int* fp)
 		t0 &= t7;
 		t2 &= 0xFFFF;
 		t3 &= t7;
-		int t4 = MAC1;
-		int t1 = MAC2;
+		t4 = MAC1;
+		t1 = MAC2;
 		t5 = MAC3;
 		docop2(0x4AE012);
 		t4 &= 0xFFFF;
@@ -1189,20 +1287,29 @@ void iRotY_AI(int ry, int* fp)
 
 void iRotX_AI(int rx, int* fp)
 {
+	int t5 = 0;
+	int t7 = 0;
+	int t6 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t2 = 0;
+
 	rx = (rx >> 2) & 0x3FFC;
 	if (rx != 0)
 	{
-		int t5 = ((int*)&rcossin_tbl[rx >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t6 = t7 & t5;
+		t5 = ((int*)&rcossin_tbl[rx >> 1])[0];
+		t7 = 0xFFFF0000;
+		t6 = t7 & t5;
 
 		VX0 = t6 & 0xFFFF;
 		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = t5;
 
-		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
-		int t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
-		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+		t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+		t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+		t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 		docop2(0x4A6012);
 
@@ -1218,8 +1325,8 @@ void iRotX_AI(int rx, int* fp)
 		t1 &= t7;
 		t3 &= 0xFFFF;
 
-		int t4 = MAC1;
-		int t2 = MAC2;
+		t4 = MAC1;
+		t2 = MAC2;
 		t5 = MAC3;
 
 		docop2(0x4AE012);
@@ -1243,13 +1350,23 @@ void iRotX_AI(int rx, int* fp)
 
 void iRotZ_AI(int rz, int* fp)
 {
+	int t0 = 0;
+	int t7 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t4 = 0;
+	int t3 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t8 = 0;
+
 	rz = (rz >> 2) & 0x3FFC;
 	if (rz != 0)
 	{
-		int t0 = ((int*)&rcossin_tbl[rz >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t1 = t0 >> 16;
-		int t2 = t0 << 16;
+		t0 = ((int*)&rcossin_tbl[rz >> 1])[0];
+		t7 = 0xFFFF0000;
+		t1 = t0 >> 16;
+		t2 = t0 << 16;
 		t1 |= t2;
 
 		VX0 = t1 & 0xFFFF;
@@ -1258,10 +1375,10 @@ void iRotZ_AI(int rz, int* fp)
 
 		t0 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
 		t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
-		int t4 = (L33 & 0xFFFF);
+		t4 = (L33 & 0xFFFF);
 
 		docop2(0x4A6012);
-		int t3 = t0 & t7;
+		t3 = t0 & t7;
 		t0 &= 0xFFFF;
 		t0 = -t0;
 		t0 &= 0xFFFF;
@@ -1273,7 +1390,7 @@ void iRotZ_AI(int rz, int* fp)
 
 		t1 &= 0xFFFF;
 		t0 = MAC1;
-		int t5 = MAC2;
+		t5 = MAC2;
 		t3 = MAC3;
 
 		docop2(0x4AE012);
@@ -1283,8 +1400,8 @@ void iRotZ_AI(int rz, int* fp)
 		t1 |= t5;
 		t3 &= 0xFFFF;
 		t5 = MAC1;
-		int t6 = MAC2;
-		int t8 = MAC3;
+		t6 = MAC2;
+		t8 = MAC3;
 		t5 <<= 16;
 		t0 |= t5;
 		t6 &= 0xFFFF;
@@ -1299,6 +1416,8 @@ void iRotZ_AI(int rz, int* fp)
 
 void iRotSuperPackedYXZ_AI(int* fp)//82140
 {
+	int a0 = 0;
+	int a22 = 0;
 	unsigned short* a2 = (unsigned short*)fp[33];
 	unsigned short v0 = *a2++;
 	int at = v0 >> 14;
@@ -1324,9 +1443,9 @@ void iRotSuperPackedYXZ_AI(int* fp)//82140
 	//loc_8218C
 	at = *a2++;
 	fp[33] = (int)a2;
-	int a0 = v0 << 16;
+	a0 = v0 << 16;
 	a0 |= at;
-	int a22 = a0;
+	a22 = a0;
 
 	iRotY_AI((a22 >> 4) & 0xFFC0, fp);
 	iRotX_AI((a22 >> 14) & 0xFFC0, fp);
@@ -1337,27 +1456,39 @@ void InterpolateMatrix_AI(int v1, int* fp)
 {
 	int* a0 = (int*)fp[17];
 	int v0 = fp[19];
+	int* at = NULL;
+	int a1 = 0;
+	int a2 = 0;
+	int t6 = 0;
+	int t7 = 0;
+	int a3 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int att = 0;
 
 	a0[0] = v1;
-	int* at = &a0[9];
+	at = &a0[9];
 	v0 = 1;
 	fp[19] = v0;
 	fp[17] = (int)at;
 	a0++;
 
-	int a2 = fp[20];
-	int a1 = fp[21];
-	int t6 = fp[23];
-	int t7 = fp[22];
+	a2 = fp[20];
+	a1 = fp[21];
+	t6 = fp[23];
+	t7 = fp[22];
 
 	v0 = ((short*)a1)[0];
 	v1 = ((short*)a2)[0];
-	int a3 = ((short*)a1)[1];
-	int t0 = ((short*)a2)[1];
-	int t1 = ((short*)a1)[2];
-	int t2 = ((short*)a2)[2];
-	int t3 = ((short*)a1)[3];
-	int t4 = ((short*)a2)[3];
+	a3 = ((short*)a1)[1];
+	t0 = ((short*)a2)[1];
+	t1 = ((short*)a1)[2];
+	t2 = ((short*)a2)[2];
+	t3 = ((short*)a1)[3];
+	t4 = ((short*)a2)[3];
 
 	if (t6 == 2)
 	{
@@ -1414,7 +1545,7 @@ void InterpolateMatrix_AI(int v1, int* fp)
 		//loc_82448
 		if (t7 == 1)
 		{
-			int att = v0 - v1;
+			att = v0 - v1;
 			v0 = att >> 2;
 			v1 += v0;
 			a3 = (a3 - t0) >> 2;
@@ -1477,7 +1608,7 @@ void InterpolateMatrix_AI(int v1, int* fp)
 		else
 		{
 			//loc_82540
-			int att = v0 - v1;
+			att = v0 - v1;
 			v1 = att >> 2;
 			v0 -= v1;
 			t0 = (a3 - t0) >> 2;
@@ -1586,17 +1717,29 @@ void iPopMatrix_AI(int* fp)//81EB0
 
 void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object /*s6*/, int s0, short* s2, long* s5, short* s7, int* fp)//81C60
 {
+	int v11 = 0;
+	short* v0 = NULL;
+	short* v1 = NULL;
+
+	int a0 = 0;
+	int a1 = 0;
+	int a2 = 0;
+	int a3 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int s4 = 0;
+
 	InitInterpolation_AI(fp, s0, (int*)&fp[151]);
 
-	short* v0 = (short*)fp[30];
-	short* v1 = (short*)fp[31];
+	v0 = (short*)fp[30];
+	v1 = (short*)fp[31];
 
-	int a0 = v0[6];
-	int a1 = v0[7];
-	int a2 = v0[8];
-	int a3 = v1[6];
-	int t0 = v1[7];
-	int t1 = v1[8];
+	a0 = v0[6];
+	a1 = v0[7];
+	a2 = v0[8];
+	a3 = v1[6];
+	t0 = v1[7];
+	t1 = v1[8];
 
 	v0 += 9;
 	v1 += 9;
@@ -1614,7 +1757,7 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 
 	if ((item->mesh_bits & 1))
 	{
-		int v11 = 0;
+		v11 = 0;
 		if ((item->meshswap_meshbits & 1))
 		{
 			v11 = ((int*)s7)[1];
@@ -1627,7 +1770,7 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 		}
 	}
 	//loc_81CDC
-	int s4 = object->nmeshes - 1;
+	s4 = object->nmeshes - 1;
 	s7 += 4;
 	if (object->nmeshes - 1 <= 0)
 	{
@@ -1706,6 +1849,14 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 	int frames;//$s0
 	short* s2;
 	int s4;
+	int at = 0;
+	int v0 = 0;
+	int* a2 = NULL;
+	int v1 = 0;
+	short* s7 = NULL;
+	short* v00 = NULL;
+	int a0 = 0;
+	long* s5 = NULL;
 
 	//v0 = 0x1FF0000
 	//v1 = 0xEF0000
@@ -1727,31 +1878,31 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 	//loc_81584
 	calc_animating_item_clip_window(item, (unsigned short*)fp[30], fp);
 
-	int at = 0;
-	int v0 = mClipBoundingBox_AI((unsigned short*)fp[30], fp);
+	at = 0;
+	v0 = mClipBoundingBox_AI((unsigned short*)fp[30], fp);
 
 	if (v0 != 0)
 	{
 		fp[19] = 0;
-		int* a2 = (int*)fp[16];
-		int v1 = fp[30];
+		a2 = (int*)fp[16];
+		v1 = fp[30];
 		((short*)a2)[0] = v0;
 		a2[1] = (int)item;
 		a2[2] = v1;
 		s2 = (short*)item->data;
 		//s1 = 1
 		//v0 = object->mesh_index
-		short* s7 = (short*)(fp[40] + (object->mesh_index << 2));
+		s7 = (short*)(fp[40] + (object->mesh_index << 2));
 		//v0 = object->bone_index
-		long* s5 = (long*)(fp[41] + (object->bone_index << 2));
+		s5 = (long*)(fp[41] + (object->bone_index << 2));
 
 		if (frames != 0)
 		{
 			erk_interpolated(item, object, frames, s2, s5, s7, fp);//loc_81C60
-			assert(false);///@todo check return?
+			assert(FALSE);///@todo check return?
 		}
 
-		short* v00 = (short*)fp[30];
+		v00 = (short*)fp[30];
 		mTranslateXYZ_AI(v00[6], v00[7], v00[8], fp);
 		//v0 = fp[30];
 		//gp = item->meshswap_meshbits
@@ -1761,7 +1912,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 		if ((item->mesh_bits & 1))
 		{
-			int a0 = 0;
+			a0 = 0;
 			if ((item->meshswap_meshbits & 1))
 			{
 				a0 = ((int*)s7)[1];
@@ -1881,139 +2032,6 @@ void stash_the_info(int meshp/*a0*/, int* fp)//81750
 	fp[17] = (int)at;
 }
 
-int mClipBoundingBox2(unsigned short* bounds, int* sp /*fp*/)//811FC
-{
-	int t0 = TRZ - 20480;
-	int t3;
-	int t1;
-	int t4;
-	int t2;
-	int t7;
-	int v0 = 0;
-	int at;
-	int t9;
-	int t8;
-	int a0;
-	int a1;
-	int a2;
-	int t5;
-	int a3;
-
-	if (t0 < 0)
-	{
-		t0 = bounds[0];
-		t3 = bounds[1];
-		t1 = bounds[2];
-		t4 = bounds[3];
-		t2 = bounds[4];
-		t7 = bounds[5];
-
-		t1 <<= 16;
-		t4 <<= 16;
-
-		at = t0 | t1;
-		VX0 = (at & 0xFFFF);
-		VY0 = (at >> 16) & 0xFFFF;
-		VZ0 = t2;
-
-		at = t3 | t1;
-		VX1 = (at & 0xFFFF);
-		VY1 = (at >> 16) & 0xFFFF;
-		VZ1 = t2;
-
-		at = t0 | t4;
-		VX2 = (at & 0xFFFF);
-		VY2 = (at >> 16) & 0xFFFF;
-		VZ2 = t2;
-
-		docop2(0x280030);
-
-		t9 = t3 | t4;
-		t8 = t2;
-
-		a0 = 0x7FFFFFFF;
-		a1 = 0x81000000;
-		a2 = a0;
-		t0 = SXY0;
-		t1 = SXY1;
-		t2 = SXY2;
-		t3 = SZ1;
-		t4 = SZ2;
-		t5 = SZ3;
-
-		VZ0 = t7;
-		VZ1 = t7;
-		VZ2 = t7;
-
-		a3 = a1;
-
-		docop2(0x280030);
-
-		t3 -= 33;
-		t4 -= 33;
-		t5 -= 33;
-
-		v0 = 0;
-		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
-
-		t0 = SXY0;
-		t1 = SXY1;
-		t2 = SXY2;
-		t3 = SZ1;
-		t4 = SZ2;
-		t5 = SZ3;
-
-		VX0 = (t9 & 0xFFFF);
-		VY0 = (t9 >> 16) & 0xFFFF;
-		VZ0 = t8;
-
-		VX1 = (t9 & 0xFFFF);
-		VY1 = (t9 >> 16) & 0xFFFF;
-
-		t2 -= 0x21;
-		docop2(0x280030);
-		t4 -= 0x21;
-		t5 -= 0x21;
-
-		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
-	
-		t0 = SXY0;
-		t1 = SXY1;
-		t3 = SZ1;
-		t4 = SZ2;
-
-		t3 -= 0x21;
-		t4 -= 0x21;
-		t2 = t1;
-		t5 = t4;
-
-		GetBounds_AI(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
-		t0 = ((short*)sp)[73];
-		t1 = ((short*)sp)[75];
-		t2 = ((short*)sp)[72];
-		t3 = ((short*)sp)[74];
-
-		a0 >>= 16;
-		a1 >>= 16;
-		a2 >>= 16;
-		a3 >>= 16;
-
-		if (v0 == 0 || t0 < a0 || t1 < a2 || a1 < t2 || a3 < t3)
-		{
-			return 0;
-		}
-
-		if (v0 < 9 || a0 < t2 || a2 < t3 || t0 < a1 || t1 < a3)
-		{
-			return -1;
-		}
-
-		return 1;
-	}
-
-	return v0;
-}
-
 void init_scratchpad(int* fp)//8281C(<) (F)
 {
 	int t0;
@@ -2071,7 +2089,7 @@ void init_scratchpad(int* fp)//8281C(<) (F)
 }
 
 
-void CalcAllAnimatingItems_ASM()//82640
+void CalcAllAnimatingItems_ASM()//82640, 84684
 {
 	int scratchPad[256];
 	int* fp;
@@ -2125,7 +2143,7 @@ void CalcAllAnimatingItems_ASM()//82640
 							s5++;
 						}//loc_82704
 
-						v0 = mClipBoundingBox2((unsigned short*)&s5->x_minp, fp);
+						v0 = mClipBoundingBox_AI((unsigned short*)&s5->x_minp, fp);
 
 						if (v0)
 						{
@@ -2197,8 +2215,8 @@ void CalcAllAnimatingItems_ASM()//82640
 void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 {
 	struct ITEM_INFO* item;//$a3
-	STASHEDOBJ* sobject;//$s0
-	STASHEDDAT* sdat;//$s2
+	struct STASHEDOBJ* sobject;//$s0
+	struct STASHEDDAT* sdat;//$s2
 	int i;//$s4
 	int j;//$s1
 	int s6;
