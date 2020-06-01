@@ -30,6 +30,7 @@ void DrawSkyMesh(short* mesh)
 	int t8;
 	int t7;
 	int t6;
+	struct PSXTEXTSTRUCT* a22 = NULL;
 
 	s7 = gfLevelFlags & 0x200;
 	s5 = db.polyptr;
@@ -89,7 +90,7 @@ void DrawSkyMesh(short* mesh)
 	} while (v0 > 0);
 
 	a0 = &scratchPad[0];
-	struct PSXTEXTSTRUCT* a22 = &psxtextinfo[0];
+	a22 = &psxtextinfo[0];
 	v0 = ((int*)a1)[0];
 	a3 = 0xF80000;
 	at = v0 >> 16;
