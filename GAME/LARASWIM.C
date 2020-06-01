@@ -851,8 +851,8 @@ void LaraSwimCollision(struct ITEM_INFO* item/*s3*/, struct COLL_INFO* coll/*s4*
 	//a2 = 0x88
 	//v0 = -0x40
 	coll->bad_neg = -64;
-	S_MemCpy((char*)&coll2, (char*)coll, sizeof(COLL_INFO));///@FIXME original size is 0x88?
-	S_MemCpy((char*)&coll3, (char*)coll, sizeof(COLL_INFO));///@FIXME original size is 0x88?
+	S_MemCpy((char*)&coll2, (char*)coll, sizeof(struct COLL_INFO));///@FIXME original size is 0x88?
+	S_MemCpy((char*)&coll3, (char*)coll, sizeof(struct COLL_INFO));///@FIXME original size is 0x88?
 
 	//s1 = &coll3
 	//a0 = &coll3
