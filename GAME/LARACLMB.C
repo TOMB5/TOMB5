@@ -225,13 +225,14 @@ void lara_as_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//46984(<),
 
 void lara_col_climbright(struct ITEM_INFO* item, struct COLL_INFO* coll)//46908(<), 46D6C(<) (F)
 {
+	int shift = 0;
+	int res = 0;
+
 	if (!LaraCheckForLetGo(item, coll))
 	{
-		int shift;
-
 		lara.move_angle = item->pos.y_rot + ANGLE(90);
 
-		int res = LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, &shift);
+		res = LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, &shift);
 		LaraDoClimbLeftRight(item, coll, res, shift);
 	}
 }
@@ -250,13 +251,14 @@ void lara_as_climbright(struct ITEM_INFO* item, struct COLL_INFO* coll)//468B8(<
 
 void lara_col_climbleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//46834(<), 46C98(<) (F)
 {
+	int shift = 0;
+	int res = 0;
+
 	if (!LaraCheckForLetGo(item, coll))
 	{
-		int shift;
-
 		lara.move_angle = item->pos.y_rot - ANGLE(90);
 
-		int res = LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, &shift);
+		res = LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, &shift);
 		LaraDoClimbLeftRight(item, coll, res, shift);
 	}
 }
