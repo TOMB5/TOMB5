@@ -8,8 +8,9 @@
 #include "TEXT_S.H"
 
 #include <EMULATOR_PRIVATE.H>
-#include <EMULATOR.H>
 
+#include <LIBGTE.H>
+#include <LIBGPU.H>
 #include <LIBETC.H>
 #include "GAMEFLOW.H"
 #include "SHADOWS.H"
@@ -263,6 +264,7 @@ void draw_rotate_sprite(long x, long y, long a2) //5F134, 5FE14 (F)
 	long t5;
 	long t1;
 	long t4;
+	POLY_FT4* ptr = NULL;
 
 	DelRotAng = (DelRotAng - 52) & 0xFFF;
 	r_cossinptr = &rcossin_tbl[DelRotAng * 2];
@@ -270,7 +272,7 @@ void draw_rotate_sprite(long x, long y, long a2) //5F134, 5FE14 (F)
 	t6 = ((-a2 / 2) * r_cossinptr[0]) / 4096;
 	t5 = ((-a2 / 2) * r_cossinptr[1]) / 4096;
 
-	POLY_FT4* ptr = (POLY_FT4*)db.polyptr;
+	ptr = (POLY_FT4*)db.polyptr;
 
 	t0 = t6 - t5;
 	a2 = -t6;
@@ -428,6 +430,18 @@ void frig_with_monitor_screen(int a0)
 
 void S_AnimateTextures(long nFrames)
 {
+	int t0 = 0;
+	int a2 = 0;
+	unsigned short* t3 = NULL;
+	unsigned short num = 0;
+	struct MMTEXTURE* a0tm = NULL;
+	short* t1 = NULL;
+	int i = 0;
+	int j = 0;
+	int a3 = 0;
+	unsigned short* ptr = NULL;
+	struct MMTEXTURE tmp;
+
 #if DEBUGSKIP || 1///@FIXME @zdimension this doesn't work.
 	return;
 #endif
@@ -436,13 +450,13 @@ void S_AnimateTextures(long nFrames)
 
 	while (AnimComp > 5)
 	{
-		uint16_t* ptr = AnimTextureRanges;
+		ptr = AnimTextureRanges;
 
-		for (uint16_t i = *(ptr++); i > 0; i--, ptr++)
+		for (i = *(ptr++); i > 0; i--, ptr++)
 		{
-			MMTEXTURE tmp = RoomTextInfo[*(ptr + 1)];
+			tmp = RoomTextInfo[*(ptr + 1)];
 
-			for (uint16_t j = *ptr++; j > 0; j--, ptr++)
+			for (j = *ptr++; j > 0; j--, ptr++)
 			{
 				RoomTextInfo[*ptr] = RoomTextInfo[*(ptr + 1)];
 			}
@@ -455,25 +469,25 @@ void S_AnimateTextures(long nFrames)
 
 	if (gfUVRotate) // 19d8
 	{
-		uint16_t* t3 = AnimTextureRanges;
+		t3 = AnimTextureRanges;
 		AnimatingTexturesVOffset = (AnimatingTexturesVOffset - gfUVRotate * (nFrames / 2)) & 0x1f;
 		if (nAnimUVRanges > 0)
 		{
 			short (*t2)[8][3] = AnimatingTexturesV;
 
-			for (int i = 0; i < nAnimUVRanges; i++, t2++)
+			for (i = 0; i < nAnimUVRanges; i++, t2++)
 			{
-				unsigned short num = *t3++;
+				num = *t3++;
 				if (num > 0)
 				{
-					short* t1 = t2[i][num];
+					t1 = t2[i][num];
 
-					for (int j = 0; j <= num; j++, t1-=3, t3++)
+					for (j = 0; j <= num; j++, t1-=3, t3++)
 					{
-						int t0 = 32;
-						int a2 = AnimatingTexturesVOffset;
-						MMTEXTURE* a0tm = &RoomTextInfo[*t3];
-						for (int a3 = 0; a3 < 3; a3++, a2 >>= 1, t0 >>= 1)
+						t0 = 32;
+						a2 = AnimatingTexturesVOffset;
+						a0tm = &RoomTextInfo[*t3];
+						for (a3 = 0; a3 < 3; a3++, a2 >>= 1, t0 >>= 1)
 						{
 							uint8_t v0__ = (uint8_t)(t1[a3] >> 8);
 
