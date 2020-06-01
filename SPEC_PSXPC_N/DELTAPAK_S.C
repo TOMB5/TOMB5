@@ -278,11 +278,14 @@ int GetTrackWord(unsigned long off, char* packed, unsigned char packmethod)
 {
 	int a0 = off * packmethod;
 	int v0 = a0 >> 3;
+	unsigned int at = 0;
+	unsigned int v1 = 0;
+
 	packed = &packed[v0];
 	a0 &= 7;
-	unsigned int at = ((unsigned char*)packed)[0] | (((unsigned char*)packed)[1] << 8) | (((unsigned char*)packed)[2] << 16) | (((unsigned char*)packed)[3] << 24);
+	at = ((unsigned char*)packed)[0] | (((unsigned char*)packed)[1] << 8) | (((unsigned char*)packed)[2] << 16) | (((unsigned char*)packed)[3] << 24);
 	at = at >> a0;
-	unsigned int v1 = (1 << packmethod) - 1;
+	v1 = (1 << packmethod) - 1;
 	at &= v1;
 	packmethod -= 1;
 	v0 = (1 << packmethod);
@@ -385,6 +388,9 @@ int DecodeTrack(char* packed, struct RTDECODE* decode)//90BD8(<), ?
 void DecodeAnim(struct PACKNODE* node, int a1, int frame, unsigned short a3)//90A88(<), ?
 {
 	int t4 = 0;
+	int xrot_run = 0;
+	int yrot_run = 0;
+	int zrot_run = 0;
 
 	if (frame == 0)
 	{
@@ -441,9 +447,9 @@ void DecodeAnim(struct PACKNODE* node, int a1, int frame, unsigned short a3)//90
 	//loc_90B6C
 	do
 	{
-		int xrot_run = ((unsigned short)node->xrot_run + DecodeTrack(node->xpacked, &node->decode_x)) & a3;
-		int yrot_run = ((unsigned short)node->yrot_run + DecodeTrack(node->ypacked, &node->decode_y)) & a3;
-		int zrot_run = ((unsigned short)node->zrot_run + DecodeTrack(node->zpacked, &node->decode_z)) & a3;
+		xrot_run = ((unsigned short)node->xrot_run + DecodeTrack(node->xpacked, &node->decode_x)) & a3;
+		yrot_run = ((unsigned short)node->yrot_run + DecodeTrack(node->ypacked, &node->decode_y)) & a3;
+		zrot_run = ((unsigned short)node->zrot_run + DecodeTrack(node->zpacked, &node->decode_z)) & a3;
 		
 		node->xrot_run = xrot_run;
 		node->yrot_run = yrot_run;
