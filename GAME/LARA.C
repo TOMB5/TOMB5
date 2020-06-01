@@ -2385,6 +2385,8 @@ void lara_as_fastback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1959C(<),
 
 void lara_as_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//192EC, 19420 (F)
 {
+	int jump_ok = 0;
+
 	if (item->hit_points <= 0)
 	{
 		item->goal_anim_state = STATE_LARA_DEATH;
@@ -2445,7 +2447,7 @@ void lara_as_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//192EC, 19420 (
 			item->pos.z_rot = ANGLE(11);
 	}
 
-	static int jump_ok = 1;
+	jump_ok = 1;
 
 	if (item->anim_number == ANIMATION_LARA_STAY_TO_RUN)
 	{
@@ -5613,10 +5615,12 @@ int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll)//11B6C, 11C1C (F)
 
 int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll)//11998, 11A48
 {
+	short old_ang = 0;
+	short ang_diff = 0;
+	short ang = 0;
+
 	if ((ABS(coll->tilt_x)) <= 2 && (ABS(coll->tilt_z)) <= 2)
 		return(0);
-
-	short ang = 0;
 
 	if (coll->tilt_x > 2)
 		ang = ANGLE(-90);
@@ -5628,8 +5632,8 @@ int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll)//11998, 11A48
 	else if ((coll->tilt_z < -2) && (-coll->tilt_z > ABS(coll->tilt_x)))
 		ang = 0;
 
-	static short old_ang = 1; // a0634
-	short ang_diff = ang - item->pos.y_rot;
+	old_ang = 1; // a0634
+	ang_diff = ang - item->pos.y_rot;
 	ShiftItem(item, coll);
 
 	if (ang_diff >= -16384 && ang_diff <= 16384)
