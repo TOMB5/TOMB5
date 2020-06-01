@@ -29,7 +29,7 @@ long AnimFileLen;
 short* floor_data;
 unsigned long* SetupPtr;
 unsigned short ClutStartY;
-struct SVECTOR* RoomBBoxes;
+SVECTOR* RoomBBoxes;
 short* mesh_base;
 struct PSXSPRITESTRUCT* GLOBAL_default_sprites_ptr;
 struct PSXTEXTI* AnimatingWaterfalls[6];
