@@ -7,7 +7,9 @@
 #include <d3d9.h>
 #endif
 
+#if defined(SDL2)
 #include <SDL_timer.h>
+#endif
 
 void(*vsync_callback)(void) = NULL;
 
@@ -27,6 +29,7 @@ extern unsigned int g_swapTime;
 
 int VSync(int mode)
 {
+#if defined(SDL2)
 	if (mode < 0)
 		return SDL_GetTicks() - g_swapTime;
 
@@ -40,6 +43,9 @@ int VSync(int mode)
 	}
 
 	return SDL_GetTicks();
+#else
+	return 0;
+#endif
 }
 
 int VSyncCallback(void(*f)(void))

@@ -2739,9 +2739,10 @@ void PopMatrix()
     }
 }
 
-long RotTransPers(struct SVECTOR* v0, long* sxy, long* p, long* flag)
+long RotTransPers(SVECTOR* v0, long* sxy, long* p, long* flag)
 {
-    VX0 = v0->vx;
+
+	VX0 = v0->vx;
     VY0 = v0->vy;
     VZ0 = v0->vz;
 
@@ -2754,22 +2755,22 @@ long RotTransPers(struct SVECTOR* v0, long* sxy, long* p, long* flag)
     return SZ3 >> 2;
 }
 
-void RotTrans(struct SVECTOR* v0, VECTOR* v1, long* flag)
+void RotTrans(SVECTOR* v0, VECTOR* v1, long* flag)
 {
     UNIMPLEMENTED();
 }
 
-void NormalColorDpq(struct SVECTOR* v0, struct CVECTOR* v1, long p, struct CVECTOR* v2)
+void NormalColorDpq(SVECTOR* v0, CVECTOR* v1, long p, CVECTOR* v2)
 {
     UNIMPLEMENTED();
 }
 
-void NormalColorCol(struct SVECTOR* v0, struct CVECTOR* v1, struct CVECTOR* v2)
+void NormalColorCol(SVECTOR* v0, CVECTOR* v1, CVECTOR* v2)
 {
     UNIMPLEMENTED();
 }
 
-long RotAverageNclip4(struct SVECTOR* v0, struct SVECTOR* v1, struct SVECTOR* v2, struct SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
+long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
     VX0 = v0->vx;
     VY0 = v0->vy;
@@ -2841,7 +2842,7 @@ void SetFarColor(long rfc, long gfc, long bfc)
     UNIMPLEMENTED();
 }
 
-MATRIX* RotMatrix(struct SVECTOR* r, MATRIX* m)
+MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 {
     int t7 = r->vx;
     int t9 = t7 & 0xFFF;

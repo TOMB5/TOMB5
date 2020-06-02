@@ -2,9 +2,12 @@
 
 #include "EMULATOR.H"
 
+#if defined(SDL2)
 #include <SDL.h>
 
 SDL_GameController* padHandle[MAX_CONTROLLERS];
+#endif
+
 unsigned char* padData[MAX_CONTROLLERS];
 const unsigned char* keyboardState;
 
@@ -22,6 +25,7 @@ void PadInitDirect(unsigned char* pad1, unsigned char* pad2)
 		padData[1][0] = 0xFF;
 	}
 
+#if defined(SDL2)
 	if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0)
 	{
 		eprinterr("Failed to initialise subsystem GAMECONTROLLER\n");
@@ -43,6 +47,7 @@ void PadInitDirect(unsigned char* pad1, unsigned char* pad2)
 	}
 
 	keyboardState = SDL_GetKeyboardState(NULL);
+#endif
 }
 
 void PadInitMtap(unsigned char* unk00, unsigned char* unk01)
@@ -89,6 +94,7 @@ void PadRemoveGun()
 
 int PadGetState(int port)
 {
+#if defined(SDL2)
 #if _DEBUG || 1
 	return PadStateStable;//FIXME should check if keyboard is connected
 #endif
@@ -102,6 +108,9 @@ int PadGetState(int port)
 	}
 
 	return 0;
+#else
+	return 0;
+#endif
 }
 
 int PadInfoMode(int unk00, int unk01, int unk02)
@@ -138,9 +147,11 @@ void PadSetAct(int unk00, unsigned char* unk01, int unk02)
 	UNIMPLEMENTED();
 }
 
+#if defined(SDL2)
 unsigned short UpdateGameControllerInput(SDL_GameController* pad)
 {
 	unsigned short ret = 0xFFFF;
+
 
 	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_X))//Square
 	{
@@ -221,14 +232,15 @@ unsigned short UpdateGameControllerInput(SDL_GameController* pad)
 	{
 		ret &= ~0x8;
 	}
-	
 	return ret;
 }
+#endif
 
 unsigned short UpdateKeyboardInput()
 {
 	unsigned short ret = 0xFFFF;
 
+#if defined(SDL2)
 	//Not initialised yet
 	if (keyboardState == NULL)
 	{
@@ -306,6 +318,6 @@ unsigned short UpdateKeyboardInput()
 	{
 		ret &= ~0x8;
 	}
-
+#endif
 	return ret;
 }

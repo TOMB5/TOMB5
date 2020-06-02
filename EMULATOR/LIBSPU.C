@@ -173,6 +173,9 @@ void SpuGetAllKeysStatus(char* status)
 
 void SpuSetVoiceAttr(SpuVoiceAttr* arg)//
 {
+#if 0//TRC only ;-(
+    _SpuRSetVoiceAttr();
+#else
     //s0 = arg
     int a0 = 0;
     int a1 = 0;
@@ -493,6 +496,7 @@ void SpuSetVoiceAttr(SpuVoiceAttr* arg)//
         scratchPad[9] <<= 13;
         scratchPad[10]++;
     }
+#endif
 }
 
 void SpuSetKey(long on_off, unsigned long voice_bit)

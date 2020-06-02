@@ -36,6 +36,8 @@
 #define ES3_SHADERS
 #endif
 #define SDL2
+#elif defined(_XBOX)
+#define XED3D
 #endif
 
 #if defined(GLEW)
@@ -82,6 +84,11 @@
 #elif defined(D3D9)
 #include <Windows.h>
 #include <d3d9.h>
+#elif defined(XED3D)
+#include <xtl.h>
+#if _XDK_VER != 21256
+#error "Invalid XDK version"
+#endif
 #endif
 
 #if !defined (__EMSCRIPTEN__)
