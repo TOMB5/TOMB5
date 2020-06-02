@@ -643,6 +643,7 @@ void DrawPrim(void* p)
 	}
 
 	AggregatePTAGsToSplits((u_long*)p, TRUE);
+	DrawAggregatedSplits();
 
 #if defined(PGXP)
 	/* Reset the ztable */
