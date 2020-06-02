@@ -188,13 +188,15 @@ void CreateNewVertexRL2(int* t2, int* t7, int* t8, int t1)
 int* SubdivTri64RL2(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//(F)
 {
     int sp[256];
+	int* t2 = NULL;
+	int t1 = 0;
 
     S_MemSet((char*)&sp[0], 0, 1024);
     sp[1] = t3;
     sp[2] = t4;
     sp[3] = t5;
-    int* t2 = &sp[0];
-    int t1 = 0xFFF8F8F8;
+    t2 = &sp[0];
+    t1 = 0xFFF8F8F8;
 
     CreateNewVertexRL2(t2, (int*)t3, (int*)t4, t1);
     t2 += 5;
@@ -218,22 +220,28 @@ int* SubPolyGTLoopRL2(int gp, int* t0, int* t1, int s1)
 {
     int* t00 = (int*)t0[0];
     int t2 = 0xF8F8F8;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+	int t8 = 0;
 
     //loc_C94
     do
     {
-        int t3 = t00[0];
+        t3 = t00[0];
         t00++;
 
-        int t4 = t3 >> 16;
+        t4 = t3 >> 16;
         t3 &= 0xFFFF;
         t3 += s1;
         t4 += s1;
 
-        int t5 = ((short*)t3)[4];
-        int t6 = ((short*)t3)[5];
-        int t7 = ((short*)t4)[4];
-        int t8 = ((short*)t4)[5];
+        t5 = ((short*)t3)[4];
+        t6 = ((short*)t3)[5];
+        t7 = ((short*)t4)[4];
+        t8 = ((short*)t4)[5];
         t5 += t7;
         t5 >>= 1;
         t6 += t8;
@@ -298,6 +306,7 @@ int* SubPolyGT4RL2(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
     int s4;
     int s5;
     int s6;
+	int att = 0;
 //    int t00;
 
     t0 = SubPolyGTLoopRL2(5, t0, t1, (int)s1);
@@ -342,7 +351,7 @@ int* SubPolyGT4RL2(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
 
         //loc_75A30
         t8 = ((short*)t6)[2];
-        int att = t7 < t8 ? 1 : 0;
+        att = t7 < t8 ? 1 : 0;
         if (at != 0)
         {
             t7 = t9;
@@ -447,10 +456,7 @@ int* SubPolyGT4RL2(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
             }
 
         }
-    loc_75B24:
-        int test = 0;
-        test++;
-
+    loc_75B24:;
     } while (gp-- != 0);
 
     return a3;
@@ -766,20 +772,24 @@ void UnpackRGBRL2(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp,
 
 long ClipXYRL2(int t1, int t2, int t3, int t4)
 {
+	int t8 = 0;
+	int fp = 0;
+	int t6 = 0;
+	int t7 = 0;
     int t9 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
     int t5 = t1 << 16;
 
     if (t1 >= t9 || t2 >= t9 || t3 >= t9 || t4 >= t9)
     {
-        int t6 = t2 << 16;
+        t6 = t2 << 16;
         t9 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
-        int t7 = t3 << 16;
+        t7 = t3 << 16;
 
         if (t1 < t9 || t2 < t9 || t3 < t9 || t4 < t9)
         {
-            int t8 = t4 << 16;
-            int t9 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
-            int fp = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+            t8 = t4 << 16;
+            t9 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+            fp = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
 
             if (t5 >= t9 || t6 >= t9 || t7 >= t9 || t8 >= t9)
             {
@@ -795,16 +805,15 @@ long ClipXYRL2(int t1, int t2, int t3, int t4)
 
 char* DrawMeshRL2(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
 {
-    sp2 = &sp2[-14];
-    int* a2 = &sp[0];
-    short* s0 = &LOffset[0];
-    char* s1 = &LTab[0];
-    int* s5 = (int*)&OurSqrt[0];
-    int s2 = sp2[25];
-    int s3 = sp2[26];
-    int s4 = sp2[27];
-    int* s7 = &sp[192];
-    int v0 = ((unsigned short*)mesh)[3];
+    int* a2;
+    short* s0;
+    char* s1;
+    int* s5;
+    int s2;
+    int s3;
+    int s4;
+    int* s7;
+    int v0;
     int t5;
     int t6;
     int t7;
@@ -825,6 +834,20 @@ char* DrawMeshRL2(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
     int t3;
     int t9;
     int gp;
+	struct MMTEXTURE* a22 = NULL;
+	int fpp = 0;
+	char* t00 = NULL;
+
+	sp2 = &sp2[-14];
+    a2 = &sp[0];
+    s0 = &LOffset[0];
+    s1 = &LTab[0];
+    s5 = (int*)&OurSqrt[0];
+    s2 = sp2[25];
+    s3 = sp2[26];
+    s4 = sp2[27];
+    s7 = &sp[192];
+    v0 = ((unsigned short*)mesh)[3];
 
     mesh += 8;
     LR1 = mesh & 0xFFFF;
@@ -869,7 +892,7 @@ char* DrawMeshRL2(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
         t4 &= 0x1F;
         t3 &= 0x1F;
 
-        int t9 = s7[3];
+        t9 = s7[3];
         s6 = s7;
         t0 -= t6;
 
@@ -1003,7 +1026,7 @@ char* DrawMeshRL2(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
     a1 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
     v0 = DQA;
 
-    struct MMTEXTURE* a22 = &RoomTextInfo[0];
+    a22 = &RoomTextInfo[0];
     a3 = ((int*)a1)[2];
     s0 = (short*)((int*)a1)[1];
     s1 = (char*)&sp[0];
@@ -1093,7 +1116,6 @@ loc_15A8:
                 t7 = ((int*)t0)[2];
                 t8 = t7 << 8;
 
-                int fpp;
                 UnpackRGBRL2(&t5, &s44, &t6, &fpp, &t8, &s55, &gp, &s66, &s3);
 
                 t5 = ((int*)t0)[0];
@@ -1252,9 +1274,8 @@ loc_172C:
                 t0 <<= 1;
                 t0 += t7;
                 t0 += t6;
-                char* t00 = &((char*)RoomTextInfo)[t0];
+                t00 = &((char*)RoomTextInfo)[t0];
                 t8 = ((int*)t00)[2];
-                int fpp;
                 UnpackRGBRL2(&t5, &s444, &t6, &fpp, &t8, &s555, &gp, &s666, &s3);
                 t5 = s777 >> 7;
                 t5 &= 0xF80000;
@@ -1345,9 +1366,7 @@ loc_172C:
                     a3 += sizeof(POLY_GT4);
                 }
             }
-        loc_1884:
-            int test = 0;
-            test++;
+        loc_1884:;
         }
     } while (v1--);
     goto loc_172C;
@@ -1486,23 +1505,29 @@ void sub_158RL2(long underwater, struct room_info* r)
     int a1;
     int a2;
     int a3;
+	int s55 = 0;
     int t9;
     int v0;
     int v1;
+	struct DYNAMIC* dyn = NULL;
     int ra;
+	int s0 = 0;
+    int* s3 = NULL;
+    short* s4 = NULL;
     int scratchPad[256];
     int scratchPad2[512];
     int* sp = &scratchPad[0];
     int* sp2 = &scratchPad2[0];
+	struct DYNAMIC* dyn2 = NULL;
 
     S_MemSet((char*)&scratchPad[0], 0, 1024);
     S_MemSet((char*)&scratchPad2[0], 0, 2048);
     RFC = (unsigned int)underwater;
     RGB0 = (unsigned int)r;
 
-    int s0 = number_draw_rooms;
-    int* s3 = (int*)RoomBBoxes;
-    short* s4 = &draw_rooms[0];
+    s0 = number_draw_rooms;
+    s3 = (int*)RoomBBoxes;
+    s4 = &draw_rooms[0];
     //t2 = wibble & 0xFC
     s2 = (unsigned int*)&tsv_buffer[0];
     LB3 = wibble & 0xFC;
@@ -1779,7 +1804,7 @@ loc_4A0:
         a2 = 2048;
         a3 = -2048;
 
-        int s55 = 0;
+        s55 = 0;
 
         t1 = SZ1;
         t6 = SXY1;
@@ -1939,7 +1964,7 @@ loc_6DC:
         t8 = (int)&scratchPad[0];
         t9 = 0;
 
-        struct DYNAMIC* dyn = &dynamics[0];//$s1
+        dyn = &dynamics[0];//$s1
         a3 = 0x20;
         //loc_760
         do
@@ -1993,7 +2018,7 @@ loc_6DC:
             dyn++;
         } while (a3 != 0);
 
-        struct DYNAMIC* dyn2 = &dynamics[32];
+        dyn2 = &dynamics[32];
 
     loc_7F8:
         if (t9 >= 0x60)
