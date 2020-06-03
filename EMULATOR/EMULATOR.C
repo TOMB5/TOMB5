@@ -81,20 +81,20 @@ void Emulator_ResetDevice()
 	assert(!FAILED(hr));
 #if defined(D3D9)
 	hr = d3ddev->CreateVertexBuffer(sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, D3DUSAGE_WRITEONLY | D3DUSAGE_DYNAMIC, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, &dynamic_vertex_buffer, NULL);
-	assert(!FAILED(hr));
-#else
-	eprinterr("Unimplemented!\n");
-	assert(FALSE);
+#elif defined(XED3D)
+	hr = d3ddev->CreateVertexBuffer(sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, D3DUSAGE_WRITEONLY, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, &dynamic_vertex_buffer, NULL);
 #endif
+	assert(!FAILED(hr));
 
 	d3ddev->SetRenderState(D3DRS_ZENABLE,  D3DZB_FALSE);
 	d3ddev->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 #endif
 }
 
-#if defined(D3D9)
+#if defined(D3D9) || defined(XED3D)
 static int Emulator_InitialiseD3D9Context(char* windowName)
 {
+#if defined(SDL2)
 	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_RESIZABLE);
 	if (g_window == NULL)
 	{
@@ -105,15 +105,21 @@ static int Emulator_InitialiseD3D9Context(char* windowName)
 	SDL_SysWMinfo wmInfo;
 	SDL_VERSION(&wmInfo.version);
 	SDL_GetWindowWMInfo(g_window, &wmInfo);
-
+#endif
 	memset(&d3dpp, 0, sizeof(d3dpp));
+#if defined(D3D9)
 	d3dpp.Windowed               = TRUE;
+#elif defined(XED3D)
+	d3dpp.Windowed               = FALSE;
+#endif
 	d3dpp.BackBufferCount        = 1;
 	d3dpp.BackBufferFormat       = D3DFMT_A8R8G8B8;
 	d3dpp.BackBufferWidth        = windowWidth;
 	d3dpp.BackBufferHeight       = windowHeight;
 	d3dpp.SwapEffect             = D3DSWAPEFFECT_DISCARD;
+#if defined(D3D9)
 	d3dpp.hDeviceWindow          = wmInfo.info.win.window;
+#endif
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
 	d3dpp.PresentationInterval   = D3DPRESENT_INTERVAL_ONE;
@@ -124,7 +130,12 @@ static int Emulator_InitialiseD3D9Context(char* windowName)
 		return FALSE;
 	}
 
+#if defined(D3D9)
 	HRESULT hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, d3dpp.hDeviceWindow, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &d3ddev);
+#elif defined(XED3D)
+	HRESULT hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &d3ddev);
+#endif
+	
 	if (FAILED(hr)) {
 		eprinterr("Failed to obtain D3D9 device!\n");
 		return FALSE;
@@ -248,12 +259,18 @@ static int Emulator_InitialiseGLESContext(char* windowName)
 
 #endif
 
-#if defined(SDL2)
+
 static int Emulator_InitialiseSDL(char* windowName, int width, int height)
 {
+#if defined(XED3D)
+	windowWidth = 1280;
+	windowHeight = 720;
+#else
 	windowWidth  = width;
 	windowHeight = height;
+#endif
 
+#if defined(SDL2)
 	//Initialise SDL2
 	if (SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
@@ -289,6 +306,7 @@ static int Emulator_InitialiseSDL(char* windowName, int width, int height)
 		eprinterr("Error: Failed to initialise SDL\n");
 		return FALSE;
 	}
+#endif
 
 #if defined(OGL)
 	if (Emulator_InitialiseGLContext(windowName) == FALSE)
@@ -302,7 +320,7 @@ static int Emulator_InitialiseSDL(char* windowName, int width, int height)
 		eprinterr("Failed to Initialise GLES Context!\n");
 		return FALSE;
 	}
-#elif defined(D3D9)
+#elif defined(D3D9) || defined(XED3D)
 	if (Emulator_InitialiseD3D9Context(windowName) == FALSE)
 	{
 		eprinterr("Failed to Initialise D3D9 Context!\n");
@@ -312,7 +330,6 @@ static int Emulator_InitialiseSDL(char* windowName, int width, int height)
 
 	return TRUE;
 }
-#endif
 
 static int Emulator_InitialiseGLEW()
 {
@@ -340,13 +357,11 @@ void Emulator_Initialise(char* windowName, int width, int height)
 	eprintf("VERSION: %d.%d\n", EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION);
 	eprintf("Compile Date: %s Time: %s\n", EMULATOR_COMPILE_DATE, EMULATOR_COMPILE_TIME);
 
-#if defined(SDL2)
 	if (Emulator_InitialiseSDL(windowName, width, height) == FALSE)
 	{
 		eprinterr("Failed to Intialise SDL\n");
 		Emulator_ShutDown();
 	}
-#endif
 
 #if defined(GLEW)
 	if (Emulator_InitialiseGLEW() == FALSE)
@@ -2068,6 +2083,8 @@ void Emulator_WaitForTimestep(int count)
 	}
 
 	g_swapTime = SDL_GetTicks();
+#elif defined(XED3D)
+
 #endif
 }
 
@@ -2227,8 +2244,6 @@ void Emulator_SetRenderTarget(const RenderTargetID &frameBufferObject)
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
 #elif defined(D3D9) || defined(XED3D)
 	d3ddev->SetRenderTarget(0, frameBufferObject);
-#elif defined(XED3D)
-
 #else
     #error
 #endif
@@ -2253,11 +2268,15 @@ void Emulator_UpdateVertexBuffer(const Vertex *vertices, int num_vertices)
 #if defined(D3D9)
 	dynamic_vertex_buffer->Lock(0, 0, &ptr, D3DLOCK_DISCARD);
 #elif defined(XED3D)
-	eprinterr("Unimplemented!");
-	assert(FALSE);
+	d3ddev->SetStreamSource(0, NULL, 0, 0);
+	dynamic_vertex_buffer->Lock(0, 0, &ptr, 0);
 #endif
 	memcpy(ptr, vertices, num_vertices * sizeof(Vertex));
 	dynamic_vertex_buffer->Unlock();
+
+#if defined(XED3D)
+	d3ddev->SetStreamSource(0, dynamic_vertex_buffer, 0, sizeof(Vertex));
+#endif
 #else
 	#error
 #endif

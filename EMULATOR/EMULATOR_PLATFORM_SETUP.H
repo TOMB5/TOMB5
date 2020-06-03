@@ -19,6 +19,10 @@
 //Direct3D9
 //#define D3D9
 
+#if defined(D3D9)
+#define SDL2
+#endif
+
 #if defined(OGL)
 #define SDL2
 #define GLEW
