@@ -40,6 +40,7 @@ int _spu_AllocLastNum = 0;
 int _spu_memList = 0;
 int _spu_trans_mode = 0;
 int _spu_transMode = 0;
+int _spu_addrMode = 0;
 int _spu_keystat = 0;
 int _spu_RQmask = 0;
 int _spu_RQvoice = 0;
@@ -53,6 +54,8 @@ int _spu_mem_mode_plus = 3;
 void* _spu_transferCallback = NULL;///@TODO initial value check
 int _spu_inTransfer = 0;///@TODO initial value check
 unsigned short _spu_tsa = 0;
+int PrimaryDMAControlRegister = 0;///@TODO check initials wil likely be stripped though
+int* dword_E10 = &PrimaryDMAControlRegister;//Base address is 1F8010F0.
 
 int _spu_note2pitch(int a0, int a1, int a2, int a3)
 {
@@ -529,7 +532,6 @@ void SpuSetKey(long on_off, unsigned long voice_bit)
                 _spu_RQ[_spu_RQmask + 1] = _spu_RQ[_spu_RQmask + 1] & (a2 ^ -1);
 
             }//locret_3B4
-
         }
         else
         {
@@ -726,18 +728,18 @@ unsigned long SpuSetTransferStartAddr(unsigned long addr)
 
 long SpuIsTransferCompleted(long flag)//(F)
 {
-    long v0 = 0;
+    long event = 0;
 
     if (_spu_trans_mode == 1 || _spu_inTransfer == 1)
     {
         return 1;
     }
 
-    v0 = TestEvent(_spu_EVdma);
+    event = TestEvent(_spu_EVdma);
 
     if (flag == 1)
     {
-        if (v0 != 0)
+        if (event != 0)
         {
             _spu_inTransfer = 1;
             return 1;
@@ -747,20 +749,20 @@ long SpuIsTransferCompleted(long flag)//(F)
             //loc_260
             do
             {
-                v0 = TestEvent(_spu_EVdma);
-            } while (v0 == 0);
+                event = TestEvent(_spu_EVdma);
+            } while (event == 0);
 
             _spu_inTransfer = 1;
             return 1;
         }
     }
     //loc_280
-    if (v0 == 1)
+    if (event == 1)
     {
         _spu_inTransfer = 1;
     }
 
-	return v0;
+	return event;
 }
 
 void _SpuDataCallback(int a0)
@@ -785,8 +787,174 @@ void SpuStart()//(F)
 	//loc_348
 }
 
+unsigned int/*v1*/ _spu_Fw1ts()//(F)
+{
+    unsigned int result = 1;
+
+    for (int i = 0; i < 60; i++)
+    {
+        result *= 13;
+    }
+
+    return result;
+}
+
 void _spu_init(int a0)
 {
+    unsigned int v1 = 0;
+    //int s0 = a0
+    //a0 = dword_E10
+    //v0 = dword_E10[0];
+    dword_E10[0] |= 0xB0000;
+
+    //v0 = _spu_RXX
+    _spu_transMode = 0;
+    _spu_addrMode = 0;
+    _spu_tsa = 0;
+    _spu_RXX[192] = 0;
+    _spu_RXX[193] = 0;
+    _spu_RXX[213] = 0;
+
+    v1 = _spu_Fw1ts();///@TODO returns v1!
+    //v0 = _spu_RXX
+    _spu_RXX[192] = 0;
+    _spu_RXX[193] = 0;
+
+    //v1 = 0;
+    if (((unsigned short)_spu_RXX[215] & 0x7FF))
+    {
+
+    }
+    //loc_2D0
+#if 0
+        beqz    $v0, loc_2D0
+        move    $v1, $zero
+        addiu   $v1, (printf + 1)
+
+        loc_288:
+    sltiu   $v0, $v1, 0xF01
+        bnez    $v0, loc_2B0
+        nop
+        la      $a0, aSpuTOS     # "SPU:T/O [%s]\n"
+        lui     $a1, (aWaitReset >> 16)  # "wait (reset)"
+        jal     printf
+        la      $a1, % lo(aWaitReset)  # "wait (reset)"
+        j       loc_2D4
+        move    $a0, $zero
+
+        loc_2B0 :
+    lw      $v0, _spu_RXX
+        nop
+        lhu     $v0, 0x1AE($v0)
+        nop
+        andi    $v0, 0x7FF
+        bnez    $v0, loc_288
+        addiu   $v1, 1
+
+        loc_2D0:
+    move    $a0, $zero
+
+        loc_2D4 :
+    la      $a1, _spu_RQ
+        li      $v0, 2
+        sw      $v0, _spu_mem_mode
+        li      $v0, 3
+        sw      $v0, _spu_mem_mode_plus
+        li      $v0, 8
+        sw      $v0, _spu_mem_mode_unit
+        li      $v0, 7
+        sw      $v0, _spu_mem_mode_unitM
+        lw      $v0, _spu_RXX
+        li      $v1, 4
+        sh      $v1, 0x1AC($v0)
+        li      $v1, 0xFFFF
+        sh      $zero, 0x184($v0)
+        sh      $zero, 0x186($v0)
+        sh      $v1, 0x18C($v0)
+        sh      $v1, 0x18E($v0)
+        sh      $zero, 0x198($v0)
+        sh      $zero, 0x19A($v0)
+
+        loc_338:
+    sh      $zero, 0($a1)
+        addiu   $a0, 1
+        slti    $v0, $a0, 0xA
+        bnez    $v0, loc_338
+        addiu   $a1, 2
+        bnez    $s0, loc_440
+        move    $v0, $zero
+        la      $a0, asc_E40     # "\a\a\a\a\a\a\a\a\a\a\a\a\a\a\a\a"
+        lw      $v0, _spu_RXX
+        li      $v1, 0x200
+        sh      $v1, _spu_tsa
+        sh      $zero, 0x190($v0)
+        sh      $zero, 0x192($v0)
+        sh      $zero, 0x194($v0)
+        sh      $zero, 0x196($v0)
+        sh      $zero, 0x1B0($v0)
+        sh      $zero, 0x1B2($v0)
+        sh      $zero, 0x1B4($v0)
+        sh      $zero, 0x1B6($v0)
+        jal     sub_480
+        li      $a1, 0x10
+        move    $a0, $zero
+        li      $a2, 0x3FFF
+        li      $a1, 0x200
+        lw      $v1, _spu_RXX
+        nop
+
+        loc_3B0 :
+    sh      $zero, 0($v1)
+        sh      $zero, 2($v1)
+        sh      $a2, 4($v1)
+        sh      $a1, 6($v1)
+        sh      $zero, 8($v1)
+        sh      $zero, 0xA($v1)
+        addiu   $a0, 1
+        slti    $v0, $a0, 0x18
+        bnez    $v0, loc_3B0
+        addiu   $v1, 0x10
+        li      $s1, 0xFFFF
+        lw      $v0, _spu_RXX
+        li      $s0, 0xFF
+        sh      $s1, 0x188($v0)
+        jal     _spu_Fw1ts
+        sh      $s0, 0x18A($v0)
+        jal     _spu_Fw1ts
+        nop
+        jal     _spu_Fw1ts
+        nop
+        jal     _spu_Fw1ts
+        nop
+        lw      $v0, _spu_RXX
+        nop
+        sh      $s1, 0x18C($v0)
+        jal     _spu_Fw1ts
+        sh      $s0, 0x18E($v0)
+        jal     _spu_Fw1ts
+        nop
+        jal     _spu_Fw1ts
+        nop
+        jal     _spu_Fw1ts
+        nop
+        move    $v0, $zero
+
+        loc_440 :
+    lw      $a0, _spu_RXX
+        li      $v1, 1
+        sw      $v1, _spu_inTransfer
+        li      $v1, 0xC000
+        sh      $v1, 0x1AA($a0)
+        sw      $zero, _spu_transferCallback
+        sw      $zero, _spu_IRQCallback
+        lw      $ra, 0x20 + var_8($sp)
+        lw      $s1, 0x20 + var_C($sp)
+        lw      $s0, 0x20 + var_10($sp)
+        jr      $ra
+        addiu   $sp, 0x20
+        # End of function _spu_init
+
+#endif
 	UNIMPLEMENTED();
 }
 
@@ -839,7 +1007,7 @@ void _SpuInit(int a0)
 	_spu_env = 0;
 }
 
-void SpuInit(void)
+void SpuInit(void)//(F)
 {
 	_SpuInit(0);
 }
