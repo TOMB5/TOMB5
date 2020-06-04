@@ -787,7 +787,7 @@ void SpuStart()//(F)
 	//loc_348
 }
 
-unsigned int/*v1*/ _spu_Fw1ts()//(F)
+void _spu_Fw1ts()//(F)
 {
     unsigned int result = 1;
 
@@ -796,7 +796,7 @@ unsigned int/*v1*/ _spu_Fw1ts()//(F)
         result *= 13;
     }
 
-    return result;
+    return;
 }
 
 void _spu_init(int a0)
@@ -815,7 +815,7 @@ void _spu_init(int a0)
     _spu_RXX[193] = 0;
     _spu_RXX[213] = 0;
 
-    v1 = _spu_Fw1ts();///@TODO returns v1!
+    _spu_Fw1ts();
     //v0 = _spu_RXX
     _spu_RXX[192] = 0;
     _spu_RXX[193] = 0;
