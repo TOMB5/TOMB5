@@ -1259,7 +1259,7 @@ void LoadLevel(FILE* nHandle)
 	OutsideRoomTable = ptr;
 	ptr += level->outsideRoomTableLength;
 
-	RoomBBoxes = (struct SVECTOR*)ptr;
+	RoomBBoxes = (SVECTOR*)ptr;
 	ptr += level->roomBoundingBoxesLength;
 
 	mesh_base = (short*)ptr;
