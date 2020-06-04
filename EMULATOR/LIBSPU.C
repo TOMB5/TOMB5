@@ -724,10 +724,43 @@ unsigned long SpuSetTransferStartAddr(unsigned long addr)
 	return 0;
 }
 
-long SpuIsTransferCompleted(long flag)
+long SpuIsTransferCompleted(long flag)//(F)
 {
-	UNIMPLEMENTED();
-	return 0;
+    long v0 = 0;
+
+    if (_spu_trans_mode == 1 || _spu_inTransfer == 1)
+    {
+        return 1;
+    }
+
+    v0 = TestEvent(_spu_EVdma);
+
+    if (flag == 1)
+    {
+        if (v0 != 0)
+        {
+            _spu_inTransfer = 1;
+            return 1;
+        }
+        else
+        {
+            //loc_260
+            do
+            {
+                v0 = TestEvent(_spu_EVdma);
+            } while (v0 == 0);
+
+            _spu_inTransfer = 1;
+            return 1;
+        }
+    }
+    //loc_280
+    if (v0 == 1)
+    {
+        _spu_inTransfer = 1;
+    }
+
+	return v0;
 }
 
 void _SpuDataCallback(int a0)
