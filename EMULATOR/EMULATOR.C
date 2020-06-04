@@ -521,6 +521,8 @@ void Emulator_GenerateVertexArrayTriangle(struct Vertex* vertex, short* p0, shor
 	{
 		vertex[0].x = pgxp_vertex_0->x;
 		vertex[0].y = pgxp_vertex_0->y;
+		vertex[0].z = 0.95f;
+		vertex[0].w = pgxp_vertex_0->z;
 	}
 	else
 	{
@@ -532,6 +534,8 @@ void Emulator_GenerateVertexArrayTriangle(struct Vertex* vertex, short* p0, shor
 	{
 		vertex[1].x = pgxp_vertex_1->x;
 		vertex[1].y = pgxp_vertex_1->y;
+		vertex[1].z = 0.95f;
+		vertex[1].w = pgxp_vertex_1->z;
 	}
 	else
 	{
@@ -543,6 +547,8 @@ void Emulator_GenerateVertexArrayTriangle(struct Vertex* vertex, short* p0, shor
 	{
 		vertex[2].x = pgxp_vertex_2->x;
 		vertex[2].y = pgxp_vertex_2->y;
+		vertex[2].z = 0.95f;
+		vertex[2].w = pgxp_vertex_2->z;
 	}
 	else
 	{
@@ -623,44 +629,68 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	{
 		vertex[0].x = pgxp_vertex_0->x;
 		vertex[0].y = pgxp_vertex_0->y;
+		vertex[0].z = 0.95f;
+		vertex[0].w = pgxp_vertex_0->z;
 	}
 	else
 	{
 		vertex[0].x = (float)p0[0];
 		vertex[0].y = (float)p0[1];
+#if defined(PGXP)
+		vertex[0].z = 0.95f;
+		vertex[0].w = 1.0f;
+#endif
 	}
 
 	if (pgxp_vertex_1 != NULL)
 	{
 		vertex[1].x = pgxp_vertex_1->x;
 		vertex[1].y = pgxp_vertex_1->y;
+		vertex[1].z = 0.95f;
+		vertex[1].w = pgxp_vertex_1->z;
 	}
 	else
 	{
 		vertex[1].x = (float)p1[0];
 		vertex[1].y = (float)p1[1];
+#if defined(PGXP)
+		vertex[1].z = 0.95f;
+		vertex[1].w = 1.0f;
+#endif
 	}
 
 	if (pgxp_vertex_2 != NULL)
 	{
 		vertex[2].x = pgxp_vertex_2->x;
 		vertex[2].y = pgxp_vertex_2->y;
+		vertex[2].z = 0.95f;
+		vertex[2].w = pgxp_vertex_2->z;
 	}
 	else
 	{
 		vertex[2].x = (float)p2[0];
 		vertex[2].y = (float)p2[1];
+#if defined(PGXP)
+		vertex[2].z = 0.95f;
+		vertex[2].w = 1.0f;
+#endif
 	}
 
 	if (pgxp_vertex_3 != NULL)
 	{
 		vertex[3].x = pgxp_vertex_3->x;
 		vertex[3].y = pgxp_vertex_3->y;
+		vertex[3].z = 0.95f;
+		vertex[3].w = pgxp_vertex_3->z;
 	}
 	else
 	{
 		vertex[3].x = (float)p3[0];
 		vertex[3].y = (float)p3[1];
+#if defined(PGXP)
+		vertex[3].z = 0.95f;
+		vertex[3].w = 1.0f;
+#endif
 	}
 #else
 	vertex[0].x = p0[0];
@@ -1152,6 +1182,14 @@ GLint u_Projection;
 		"	vec2 VRAM(vec2 uv) { return texture2D(s_texture, uv).rg; }\n"
 #endif
 
+#if defined(PGXP)
+	#define GTE_PERSPECTIVE_CORRECTION \
+		"		gl_Position.z = a_z;\n" \
+		"		gl_Position *= a_w;\n"
+#else
+	#define GTE_PERSPECTIVE_CORRECTION
+#endif
+
 const char* gte_shader_4 =
 	"varying vec4 v_texcoord;\n"
 	"varying vec4 v_color;\n"
@@ -1160,6 +1198,8 @@ const char* gte_shader_4 =
 	"	attribute vec4 a_position;\n"
 	"	attribute vec4 a_texcoord; // uv, color multiplier, dither\n"
 	"	attribute vec4 a_color;\n"
+	"	attribute float a_z;\n"
+	"	attribute float a_w;\n"
 	"	uniform mat4 Projection;\n"
 	"	void main() {\n"
 	"		v_texcoord = a_texcoord;\n"
@@ -1170,6 +1210,7 @@ const char* gte_shader_4 =
 	"		v_page_clut.z = fract(a_position.w / 64.0);\n"
 	"		v_page_clut.w = floor(a_position.w / 64.0) / 512.0;\n"
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
+	GTE_PERSPECTIVE_CORRECTION
 	"	}\n"
 	"#else\n"
 	GTE_FETCH_VRAM_FUNC
@@ -1201,6 +1242,8 @@ const char* gte_shader_8 =
 	"	attribute vec4 a_position;\n"
 	"	attribute vec4 a_texcoord; // uv, color multiplier, dither\n"
 	"	attribute vec4 a_color;\n"
+	"	attribute float a_z;\n"
+	"	attribute float a_w;\n"
 	"	uniform mat4 Projection;\n"
 	"	void main() {\n"
 	"		v_texcoord = a_texcoord;\n"
@@ -1211,6 +1254,7 @@ const char* gte_shader_8 =
 	"		v_page_clut.z = fract(a_position.w / 64.0);\n"
 	"		v_page_clut.w = floor(a_position.w / 64.0) / 512.0;\n"
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
+	GTE_PERSPECTIVE_CORRECTION
 	"	}\n"
 	"#else\n"
 	GTE_FETCH_VRAM_FUNC
@@ -1235,6 +1279,8 @@ const char* gte_shader_16 =
 	"	attribute vec4 a_position;\n"
 	"	attribute vec4 a_texcoord; // uv, color multiplier, dither\n"
 	"	attribute vec4 a_color;\n"
+	"	attribute float a_z;\n"
+	"	attribute float a_w;\n"
 	"	uniform mat4 Projection;\n"
 	"	void main() {\n"
 	"		vec2 page\n;"
@@ -1246,6 +1292,7 @@ const char* gte_shader_16 =
 	"		v_color = a_color;\n"
 	"		v_color.xyz *= a_texcoord.z;\n"
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
+	GTE_PERSPECTIVE_CORRECTION
 	"	}\n"
 	"#else\n"
 	GTE_FETCH_VRAM_FUNC
@@ -1367,6 +1414,11 @@ ShaderID Shader_Compile(const char *source)
     glBindAttribLocation(program, a_texcoord, "a_texcoord");
     glBindAttribLocation(program, a_color,    "a_color");
 
+#if defined(PGXP)
+	glBindAttribLocation(program, a_z, "a_z");
+	glBindAttribLocation(program, a_w, "a_w");
+#endif
+
     glLinkProgram(program);
     Shader_CheckProgramStatus(program);
 
@@ -1478,6 +1530,13 @@ int Emulator_Initialise()
 #endif
 	glVertexAttribPointer(a_texcoord, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->u);
 	glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(Vertex), &((Vertex*)NULL)->r);
+#if defined(PGXP)
+	glVertexAttribPointer(a_z,        1, GL_FLOAT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->z);
+	glVertexAttribPointer(a_w,        1, GL_FLOAT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->w);
+
+	glEnableVertexAttribArray(a_z);
+	glEnableVertexAttribArray(a_w);
+#endif
 	glBindVertexArray(0);
 #elif defined(D3D9) || defined(XED3D)
 	if (FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, 0, D3DFMT_A8L8, D3DPOOL_MANAGED, &vramTexture, NULL)))
