@@ -30,6 +30,11 @@ unsigned short E40[] =
     1799, 1799, 1799, 1799, 1799, 1799, 1799, 1799
 };
 
+unsigned short _spu_rev_attr[] =
+{
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
 short _spu_RQ[10];
 
 SpuCommonAttr dword_424;//Might be wrong struct, need to check
@@ -1161,7 +1166,10 @@ long SpuSetReverbModeType(long mode)
 	return 0;
 }
 
-void SpuSetReverbModeDepth(short depth_left, short depth_right)
+void SpuSetReverbModeDepth(short depth_left, short depth_right)//(F)
 {
-	UNIMPLEMENTED();
+    _spu_RXX[194] = depth_left;
+    _spu_RXX[195] = depth_right;
+    _spu_rev_attr[4] = depth_left;
+    _spu_rev_attr[5] = depth_right;
 }
