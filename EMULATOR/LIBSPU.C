@@ -58,6 +58,7 @@ unsigned short* _spu_RXX = (unsigned short*)&spu[0];
 int _spu_mem_mode_plus = 3;
 void* _spu_transferCallback = NULL;///@TODO initial value check
 int _spu_inTransfer = 0;///@TODO initial value check
+int _spu_IRQCallback = 0;
 unsigned short _spu_tsa = 0;
 int PrimaryDMAControlRegister = 0;///@TODO check initials wil likely be stripped though
 int* dword_E10 = &PrimaryDMAControlRegister;//Base address is 1F8010F0.
@@ -903,6 +904,7 @@ void sub_480(unsigned short* buffer, int count)
 void _spu_init(int a0)
 {
     unsigned int v1 = 0;
+
     //int s0 = a0
     //a0 = dword_E10
     //v0 = dword_E10[0];
@@ -966,6 +968,7 @@ void _spu_init(int a0)
     if (a0 == 0)
     {
         //a0 = E40
+
         //v0 = _spu_RXX
         _spu_tsa = 512;
         _spu_RXX[200] = 0;
@@ -978,70 +981,47 @@ void _spu_init(int a0)
         _spu_RXX[219] = 0;
 
         sub_480(&E40[0], 16);
+        //a0 = 0
+        //a2 = 0x3FFF
+        //a1 = 0x200
+        //v1 = _spu_RXX
+
+        //loc_3B0
+        for (int i = 0; i < 24; i++)
+        {
+            _spu_RXX[0 + (i * 8)] = 0;
+            _spu_RXX[1 + (i * 8)] = 0;
+            _spu_RXX[2 + (i * 8)] = 16383;
+            _spu_RXX[3 + (i * 8)] = 512;
+            _spu_RXX[4 + (i * 8)] = 0;
+            _spu_RXX[5 + (i * 8)] = 0;
+        }
+
+        //s1 = 0xFFFF
+        //v0 = _spu_RXX
+        //s0 = 0xFF
+        _spu_RXX[196] = 65535;
+        _spu_Fw1ts();
+        _spu_RXX[197] = 255;
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        _spu_RXX[198] = 65535;
+        _spu_Fw1ts();
+        _spu_RXX[199] = 255;
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        //v0 = 0;
     }
     //loc_440
-#if 0
-        jal     sub_480
-        li      $a1, 0x10
-        move    $a0, $zero
-        li      $a2, 0x3FFF
-        li      $a1, 0x200
-        lw      $v1, _spu_RXX
-        nop
+    //a0 = _spu_RXX
+    _spu_inTransfer = 1;
+    _spu_RXX[213] = 49152;
+    _spu_transferCallback = 0;
+    _spu_IRQCallback = 0;
 
-        loc_3B0 :
-    sh      $zero, 0($v1)
-        sh      $zero, 2($v1)
-        sh      $a2, 4($v1)
-        sh      $a1, 6($v1)
-        sh      $zero, 8($v1)
-        sh      $zero, 0xA($v1)
-        addiu   $a0, 1
-        slti    $v0, $a0, 0x18
-        bnez    $v0, loc_3B0
-        addiu   $v1, 0x10
-        li      $s1, 0xFFFF
-        lw      $v0, _spu_RXX
-        li      $s0, 0xFF
-        sh      $s1, 0x188($v0)
-        jal     _spu_Fw1ts
-        sh      $s0, 0x18A($v0)
-        jal     _spu_Fw1ts
-        nop
-        jal     _spu_Fw1ts
-        nop
-        jal     _spu_Fw1ts
-        nop
-        lw      $v0, _spu_RXX
-        nop
-        sh      $s1, 0x18C($v0)
-        jal     _spu_Fw1ts
-        sh      $s0, 0x18E($v0)
-        jal     _spu_Fw1ts
-        nop
-        jal     _spu_Fw1ts
-        nop
-        jal     _spu_Fw1ts
-        nop
-        move    $v0, $zero
-
-        loc_440 :
-    lw      $a0, _spu_RXX
-        li      $v1, 1
-        sw      $v1, _spu_inTransfer
-        li      $v1, 0xC000
-        sh      $v1, 0x1AA($a0)
-        sw      $zero, _spu_transferCallback
-        sw      $zero, _spu_IRQCallback
-        lw      $ra, 0x20 + var_8($sp)
-        lw      $s1, 0x20 + var_C($sp)
-        lw      $s0, 0x20 + var_10($sp)
-        jr      $ra
-        addiu   $sp, 0x20
-        # End of function _spu_init
-
-#endif
-	UNIMPLEMENTED();
+	return /*0*/;
 }
 
 void _spu_FsetRXX(int a0, int a1, int a2)//(F)
