@@ -793,9 +793,14 @@ long SpuIsTransferCompleted(long flag)//(F)
 	return event;
 }
 
-void _SpuDataCallback(int a0)
+void DMACallback(int a0, int callback)
 {
-	UNIMPLEMENTED();
+    UNIMPLEMENTED();
+}
+
+void _SpuDataCallback(int callback)//(F)
+{
+    DMACallback(4, callback);
 }
 
 void SpuStart()//(F)
@@ -807,7 +812,7 @@ void SpuStart()//(F)
 		_spu_isCalled = 1;
 		EnterCriticalSection();
 		_SpuDataCallback(_spu_FiDMA);
-		//event = OpenEvent(HwSPU, EvSpCOMP, EvMdNOINTR, NULL);
+		event = OpenEvent(HwSPU, EvSpCOMP, EvMdNOINTR, NULL);
 		_spu_EVdma = event;
 		EnableEvent(event);
 		ExitCriticalSection();
