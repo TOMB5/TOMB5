@@ -25,6 +25,11 @@ unsigned short word_318[] =
   0x8000,0x800e,0x801d,0x802c,0x803b,0x804a,0x8058,0x8067,0x8076,0x8085,0x8094,0x80a3
 };
 
+unsigned short E40[] =
+{
+    1799, 1799, 1799, 1799, 1799, 1799, 1799, 1799
+};
+
 short _spu_RQ[10];
 
 SpuCommonAttr dword_424;//Might be wrong struct, need to check
@@ -49,7 +54,7 @@ int _spu_mem_mode = 2;
 int _spu_mem_mode_unit = 8;
 int _spu_mem_mode_unitM = 7;
 char spu[440];//0x1F801C00 is base address
-short* _spu_RXX = (short*)&spu[0];
+unsigned short* _spu_RXX = (unsigned short*)&spu[0];
 int _spu_mem_mode_plus = 3;
 void* _spu_transferCallback = NULL;///@TODO initial value check
 int _spu_inTransfer = 0;///@TODO initial value check
@@ -161,7 +166,7 @@ void SpuGetAllKeysStatus(char* status)
 		else
 		{
 			//loc_330
-			if ((unsigned short)_spu_RXX[(i << 3) + 6] != 0)
+			if (_spu_RXX[(i << 3) + 6] != 0)
 			{
 				*status = 2;
 			}
@@ -595,11 +600,11 @@ long SpuGetKeyStatus(unsigned long voice_bit)
 				//loc_248
 				if ((_spu_keystat & (1 << i)) == 0)
 				{
-					return (0 < (unsigned short)_spu_RXX[(i << 3) + 6]) << 1;
+					return (0 < _spu_RXX[(i << 3) + 6]) << 1;
 				}
 				else
 				{
-					if ((unsigned short)_spu_RXX[(i << 3) + 6] == 0)
+					if (_spu_RXX[(i << 3) + 6] == 0)
 					{
 						return 3;
 					}
@@ -620,11 +625,11 @@ long SpuGetKeyStatus(unsigned long voice_bit)
 		//loc_248
 		if ((_spu_keystat & (1 << a1)) == 0)
 		{
-			return (0 < (unsigned short)_spu_RXX[a1 << 3]) << 1;
+			return (0 < _spu_RXX[a1 << 3]) << 1;
 		}
 		else
 		{
-			if ((unsigned short)_spu_RXX[a1 << 3] == 0)
+			if (_spu_RXX[a1 << 3] == 0)
 			{
 				return 3;
 			}
@@ -799,6 +804,102 @@ void _spu_Fw1ts()//(F)
     return;
 }
 
+void sub_480(unsigned short* buffer, int count)
+{
+    int s0 = 0;
+    int v1 = 0;
+    int s1 = 0;
+    int a1 = 0;
+    //v0 = _spu_RXX
+    //v1 = (unsigned short)_spu_tsa
+    s1 = count;
+    //a1 = (unsigned short)_spu_RXX[215];
+    //s2 = buffer
+    _spu_RXX[211] = _spu_tsa;
+    _spu_Fw1ts();
+
+    //s3 = (unsigned short)_spu_RXX[215] & 0x7FF;
+    a1 = (unsigned short)_spu_RXX[215] & 0x7FF;
+    //v0 = s1 < 0x41 ? 1 : 0
+    if (s1 != 0)
+    {
+        do
+        {
+            if (s1 <= 64)
+            {
+                s0 = s1;
+            }
+            else
+            {
+                s0 = 64;
+            }
+
+            //loc_4D4
+            v1 = 0;
+            if (s0 > 0)
+            {
+                //loc_4E4
+                do
+                {
+                    v1 += 2;
+                    _spu_RXX[212] = *buffer++;
+                } while (v1 < s0);
+            }//loc_500
+
+            //v1 = _spu_RXX
+            _spu_RXX[213] = (_spu_RXX[213] & 0xFFCF) | 0x10;
+            _spu_Fw1ts();
+
+            v1 = 0;
+            if ((_spu_RXX[215] & 0x400))
+            {
+                v1 = 1;
+            }//loc_590
+            else
+            {
+                //loc_548
+                do
+                {
+                    if (v1 >= 3841)
+                    {
+                        printf("SPU:T/O [%s]\n", "wait (wrdy H -> L)");
+                        break;
+                    }
+                    //loc_570
+                    v1++;
+                } while ((_spu_RXX[215] & 0x400));
+            }
+            //loc_590
+            _spu_Fw1ts();
+            s1 -= s0;
+            _spu_Fw1ts();
+        } while (s1 != 0);
+    }
+    //loc_5A8
+    //v0 = _spu_RXX
+    _spu_RXX[213] &= 0xFFCF;
+    //a1 = s3 & 0xFFFF
+
+    v1 = 0;
+    if ((_spu_RXX[215] & 0x7FF) != (a1 & 0xFFFF))
+    {
+        do
+        {
+            v1 = 1;
+
+            //loc_5DC
+            if (v1 >= 3841)
+            {
+                printf("SPU:T/O [%s]\n", "wait (dmaf clear/W)");
+                break;
+            }
+            //loc_604
+            v1++;
+        } while ((_spu_RXX[215] & 0x7FF) != a1);///@FIXME suspected lock?
+    }
+    //loc_624
+}
+
 void _spu_init(int a0)
 {
     unsigned int v1 = 0;
@@ -820,81 +921,66 @@ void _spu_init(int a0)
     _spu_RXX[192] = 0;
     _spu_RXX[193] = 0;
 
-    //v1 = 0;
-    if (((unsigned short)_spu_RXX[215] & 0x7FF))
+    v1 = 0;
+    if ((_spu_RXX[215] & 0x7FF))
     {
+        v1 = 1;
 
+        //loc_288
+        do
+        {
+            if (v1 >= 3841)
+            {
+                printf("SPU:T/O [%s]\n", "wait (reset)");
+                break;
+            }//loc_2B0
+            v1++;
+        } while ((_spu_RXX[215] & 0x7FF));
     }
     //loc_2D0
+    //a0 = 0
+
+    //loc_2D4
+    //a1 = &_spu_RQ[0];
+    _spu_mem_mode = 2;
+    _spu_mem_mode_plus = 3;
+    _spu_mem_mode_unit = 8;
+    _spu_mem_mode_unitM = 7;
+    //v0 = _spu_RXX
+    _spu_RXX[214] = 4;
+    //v1 = 0xFFFF;
+    _spu_RXX[194] = 0;
+    _spu_RXX[195] = 0;
+    _spu_RXX[198] = 65535;
+    _spu_RXX[199] = 65535;
+    _spu_RXX[204] = 0;
+    _spu_RXX[205] = 0;
+
+    //loc_338
+    for (int i = 0; i < 10; i++)
+    {
+        _spu_RQ[i] = 0;
+    }
+
+    //v0 = 0;
+    if (a0 == 0)
+    {
+        //a0 = E40
+        //v0 = _spu_RXX
+        _spu_tsa = 512;
+        _spu_RXX[200] = 0;
+        _spu_RXX[201] = 0;
+        _spu_RXX[202] = 0;
+        _spu_RXX[203] = 0;
+        _spu_RXX[216] = 0;
+        _spu_RXX[217] = 0;
+        _spu_RXX[218] = 0;
+        _spu_RXX[219] = 0;
+
+        sub_480(&E40[0], 16);
+    }
+    //loc_440
 #if 0
-        beqz    $v0, loc_2D0
-        move    $v1, $zero
-        addiu   $v1, (printf + 1)
-
-        loc_288:
-    sltiu   $v0, $v1, 0xF01
-        bnez    $v0, loc_2B0
-        nop
-        la      $a0, aSpuTOS     # "SPU:T/O [%s]\n"
-        lui     $a1, (aWaitReset >> 16)  # "wait (reset)"
-        jal     printf
-        la      $a1, % lo(aWaitReset)  # "wait (reset)"
-        j       loc_2D4
-        move    $a0, $zero
-
-        loc_2B0 :
-    lw      $v0, _spu_RXX
-        nop
-        lhu     $v0, 0x1AE($v0)
-        nop
-        andi    $v0, 0x7FF
-        bnez    $v0, loc_288
-        addiu   $v1, 1
-
-        loc_2D0:
-    move    $a0, $zero
-
-        loc_2D4 :
-    la      $a1, _spu_RQ
-        li      $v0, 2
-        sw      $v0, _spu_mem_mode
-        li      $v0, 3
-        sw      $v0, _spu_mem_mode_plus
-        li      $v0, 8
-        sw      $v0, _spu_mem_mode_unit
-        li      $v0, 7
-        sw      $v0, _spu_mem_mode_unitM
-        lw      $v0, _spu_RXX
-        li      $v1, 4
-        sh      $v1, 0x1AC($v0)
-        li      $v1, 0xFFFF
-        sh      $zero, 0x184($v0)
-        sh      $zero, 0x186($v0)
-        sh      $v1, 0x18C($v0)
-        sh      $v1, 0x18E($v0)
-        sh      $zero, 0x198($v0)
-        sh      $zero, 0x19A($v0)
-
-        loc_338:
-    sh      $zero, 0($a1)
-        addiu   $a0, 1
-        slti    $v0, $a0, 0xA
-        bnez    $v0, loc_338
-        addiu   $a1, 2
-        bnez    $s0, loc_440
-        move    $v0, $zero
-        la      $a0, asc_E40     # "\a\a\a\a\a\a\a\a\a\a\a\a\a\a\a\a"
-        lw      $v0, _spu_RXX
-        li      $v1, 0x200
-        sh      $v1, _spu_tsa
-        sh      $zero, 0x190($v0)
-        sh      $zero, 0x192($v0)
-        sh      $zero, 0x194($v0)
-        sh      $zero, 0x196($v0)
-        sh      $zero, 0x1B0($v0)
-        sh      $zero, 0x1B2($v0)
-        sh      $zero, 0x1B4($v0)
-        sh      $zero, 0x1B6($v0)
         jal     sub_480
         li      $a1, 0x10
         move    $a0, $zero
