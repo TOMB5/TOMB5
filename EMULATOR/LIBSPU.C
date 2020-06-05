@@ -1149,10 +1149,10 @@ void SpuFree(unsigned long addr)
 	/*free((void*)(uintptr_t)addr)*/;
 }
 
-void SpuSetCommonMasterVolume(short mvol_left, short mvol_right)// (F)
+void SpuSetCommonMasterVolume(short mvol_left, short mvol_right)//(F)
 {
-	//MasterVolume.VolumeLeft.Raw = mvol_left;
-	//MasterVolume.VolumeRight.Raw = mvol_right;
+    _spu_RXX[192] = mvol_left & 0x7FFF;
+    _spu_RXX[193] = mvol_right & 0x7FFF;
 }
 
 long SpuSetReverbModeType(long mode)
