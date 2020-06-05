@@ -716,14 +716,31 @@ unsigned long SpuWrite(unsigned char* addr, unsigned long size)
 	return size;
 }
 
-long SpuSetTransferMode(long mode)
+long SpuSetTransferMode(long mode)//(F)
 {
-	long mode_fix = mode == 0 ? 0 : 1;
+    int trans_mode = 1;
 
-	//trans_mode = mode;
-	//transMode = mode_fix;
+    if (mode != 0)
+    {
+        if (mode == 1)
+        {
+            trans_mode = 1;
+        }
+        else
+        {
+            trans_mode = 0;
+        }
+    }
+    else
+    {
+        //loc_218
+        trans_mode = 0;
+    }
 
-	return mode_fix;
+    _spu_trans_mode = mode;
+    _spu_transMode = trans_mode;
+
+	return trans_mode;
 }
 
 unsigned long SpuSetTransferStartAddr(unsigned long addr)
@@ -805,7 +822,7 @@ void _spu_Fw1ts()//(F)
     return;
 }
 
-void sub_480(unsigned short* buffer, int count)
+void sub_480(unsigned short* buffer, int count)//(F)
 {
     int s0 = 0;
     int v1 = 0;
@@ -901,7 +918,7 @@ void sub_480(unsigned short* buffer, int count)
     //loc_624
 }
 
-void _spu_init(int a0)
+void _spu_init(int a0)//(F)
 {
     unsigned int v1 = 0;
 
