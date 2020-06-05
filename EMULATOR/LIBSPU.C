@@ -1112,10 +1112,15 @@ long SpuSetReverb(long on_off)
 	return 0;
 }
 
+unsigned long _SpuSetAnyVoice(long on_off, unsigned long voice_bit, int a2, int a3)
+{
+    UNIMPLEMENTED();
+    return 0;
+}
+
 unsigned long SpuSetReverbVoice(long on_off, unsigned long voice_bit)
 {
-	UNIMPLEMENTED();
-	return 0;
+    return _SpuSetAnyVoice(on_off, voice_bit, 204, 205);
 }
 
 void SpuSetCommonAttr(SpuCommonAttr* attr)
