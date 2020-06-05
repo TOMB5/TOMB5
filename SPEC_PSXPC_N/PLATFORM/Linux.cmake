@@ -1,4 +1,4 @@
-if(UNIX)
+if(UNIX AND NOT(ANDROID))
 
 #Find libs
 find_package(SDL2 REQUIRED)
