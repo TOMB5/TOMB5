@@ -10,11 +10,11 @@
  */
 #if (defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__) || defined(__MINGW32__)) && !defined(__ANDROID__)
 //Open Graphics Library (Embedded Systems)
-//#define OGLES
-//#define OGLES_VERSION 2
+#define OGLES
+#define OGLES_VERSION 3
 
 //Open Graphics Library
-#define OGL
+//#define OGL
 
 //Direct3D9
 //#define D3D9
@@ -34,14 +34,16 @@
 #elif defined(__ANDROID__)
 #define OGLES
 #define OGLES_VERSION (3)
+#define SDL2
+#elif defined(_XBOX)
+#define XED3D
+#endif
+#if defined(OGLES)
 #if OGLES_VERSION == 2
 #define ES2_SHADERS
 #elif OGLES_VERSION == 3
 #define ES3_SHADERS
 #endif
-#define SDL2
-#elif defined(_XBOX)
-#define XED3D
 #endif
 
 #if defined(GLEW)
@@ -71,6 +73,9 @@
 #include <SDL.h>
 #elif defined (__ANDROID__)
 #include <SDL.h>
+#if (OGLES_VERSION == 3)
+#include <GLES3/gl3.h>
+#endif
 #endif
 
 #if defined (OGL)
