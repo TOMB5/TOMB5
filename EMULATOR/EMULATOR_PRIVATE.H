@@ -1,6 +1,11 @@
 #ifndef EMULATOR_PRIVATE_H
 #define EMULATOR_PRIVATE_H
 
+//Required for SDL_main define.
+#if defined(__ANDROID__)
+    #include <SDL_main.h>
+#endif
+
 /* Usually called at the beginning of main function */
 extern void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight);
 
