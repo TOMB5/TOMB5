@@ -10,11 +10,11 @@
  */
 #if (defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__) || defined(__MINGW32__)) && !defined(__ANDROID__)
 //Open Graphics Library (Embedded Systems)
-#define OGLES
-#define OGLES_VERSION 3
+//#define OGLES
+//#define OGLES_VERSION 3
 
 //Open Graphics Library
-//#define OGL
+#define OGL
 
 //Direct3D9
 //#define D3D9
