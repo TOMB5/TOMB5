@@ -14,8 +14,6 @@ extern LPDIRECT3DVERTEXBUFFER9 g_vertexBufferObject;
 extern TextureID        whiteTexture;
 extern TextureID        vramTexture;
 
-extern int screenWidth;
-extern int screenHeight;
 extern int windowWidth;
 extern int windowHeight;
 extern unsigned int DMAControlRegister;
