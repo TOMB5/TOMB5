@@ -123,10 +123,10 @@ void mmPushMatrix_AI(int* fp)
 {
 	int* a0 = (int*)fp[20];
 	a0 += 8;
-	a0[0] = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
-	a0[1] = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
-	a0[2] = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
-	a0[3] = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
+	a0[0] = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	a0[1] = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	a0[2] = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	a0[3] = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 	a0[4] = R33;
 	a0[5] = TRX;
 	a0[6] = TRY;
@@ -877,7 +877,7 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 	int t4 = 0;
 	int t2 = 0;
 	int t7 = 0;
-	int at = 0;
+	unsigned int at = 0;
 	int t9 = 0;
 	int t8 = 0;
 	int v1 = 0;
@@ -1912,15 +1912,12 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 		if ((item->mesh_bits & 1))
 		{
-			a0 = 0;
+			a0 = ((int*)s7)[0];
 			if ((item->meshswap_meshbits & 1))
 			{
 				a0 = ((int*)s7)[1];
 			}
-			else
-			{
-				a0 = ((int*)s7)[0];
-			}
+
 			//loc_81628
 			stash_the_info(a0, fp);
 		}
