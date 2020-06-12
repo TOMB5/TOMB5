@@ -345,6 +345,9 @@ struct PHD_3DPOS
 	short x_rot; // off 12 [76]
 	short y_rot; // off 14 [78]
 	short z_rot; // off 16 [80]
+#if PSXPC_TEST
+	short padding;
+#endif
 };
 
 struct FLOOR_INFO
