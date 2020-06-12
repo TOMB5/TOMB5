@@ -130,6 +130,9 @@ struct Vertex
 #endif
 	u_char u, v, bright, dither;
 	u_char r, g, b, a;
+#if defined(PGXP)
+	float z, w;
+#endif
 };
 #pragma pack(pop)
 
@@ -137,7 +140,11 @@ enum ShaderAttrib
 {
 	a_position,
 	a_texcoord,
-	a_color
+	a_color,
+#if defined(PGXP)
+	a_w,
+	a_z
+#endif
 };
 
 enum BlendMode
@@ -163,7 +170,7 @@ enum TexFormat
 typedef GLuint TextureID;
 typedef GLuint ShaderID;
 typedef GLuint RenderTargetID;
-#elif defined(D3D9)
+#elif defined(D3D9) || defined(XED3D)
 typedef IDirect3DTexture9* TextureID;
 
 struct ShaderID {
@@ -177,7 +184,6 @@ typedef IDirect3DSurface9* RenderTargetID;
 #endif
 
 extern int  Emulator_Initialise();
-extern void Emulator_StoreFrameBuffer(int x, int y, int w, int h);
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_CopyVRAM(unsigned short* src, int x, int y, int w, int h, int dst_x, int dst_y);
 extern void Emulator_ReadVRAM(unsigned short* dst, int x, int y, int dst_w, int dst_h);
@@ -213,7 +219,7 @@ extern void Emulator_SetWireframe(bool enable);
 extern void Emulator_UpdateVertexBuffer(const Vertex* vertices, int count);
 extern void Emulator_DrawTriangles(int start_vertex, int triangles);
 
-#if defined(D3D9)
+#if defined(D3D9) || defined(XED3D)
 extern IDirect3DDevice9* d3ddev;
 #endif
 

@@ -1,6 +1,7 @@
 #include "CD.H"
 
 #include "CONTROL.H"
+#include "MISC.H"
 
 #include <assert.h>
 #include <stdio.h>
@@ -17,6 +18,9 @@
 #define XA_FILE_NAME "\\XA%d.XA;1"
 
 #define CDS "CDS!" + __TIMESTAMP__ + " ."
+
+//sprintf warning disable
+#pragma warning(disable : 4996)
 
 unsigned short XATrackClip[] =//Probably used for XA audio start/end pos of each track
 {
@@ -103,6 +107,8 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 	int ret;
 	unsigned char io[8];
 	int cnt;
+
+	S_MemSet((char*)&io[0], 0, 8);
 
 	switch (XAFlag)
 	{
@@ -348,7 +354,9 @@ void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F) (*) (D)
 void InitNewCDSystem()//5DDE8(<), 5E264(<) (F) (*) (D) (ND)
 {
 	int i;
+#if 0///@TODO?
 	long local_wadfile_header[512];
+#endif
 	CdlFILE fp;
 	char buf[80];
 

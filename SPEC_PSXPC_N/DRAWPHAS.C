@@ -44,6 +44,10 @@
 #include "SOUND.H"
 #include "ITEMS.H"
 #include "LARA1.H"
+#include "LARA2.H"
+#include "LARA3.H"
+#include "LARA4.H"
+#include "LARA5.H"
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "TEXT_S.H"
@@ -323,7 +327,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			if (gfLevelFlags & GF_LVOP_LAYER2_USED)
 			{
-				DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
+				//DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
 			}//loc_64758
 
 			if (gfLevelFlags & GF_LVOP_LAYER1_USED)
@@ -384,7 +388,24 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 #endif
 
 #if !AUG_VERSION && !JULY_VERSION
-			DrawLara();
+			switch (LaraDrawType)
+			{
+			case 1:
+				DrawLaraL1();
+				break;
+			case 2:
+				DrawLaraL2();
+				break;
+			case 3:
+				DrawLaraL3();
+				break;
+			case 4:
+				DrawLaraL4();
+				break;
+			case 5:
+				DrawLaraL5();
+				break;
+			}
 #endif
 
 #if DEBUG_VERSION

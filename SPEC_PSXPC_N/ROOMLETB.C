@@ -15,6 +15,7 @@
 #include "CONTROL.H"
 #include "EMULATOR_PRIVATE.H"
 #include <assert.h>
+#include <LIBGTE.H>
 
 #include <string.h>
 
@@ -227,13 +228,15 @@ int* Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int* t9, int*
 int* SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//(F)
 {
 	int sp[256];
+	int* t2 = NULL;
+	int t1 = 0;
 
 	S_MemSet((char*)&sp[0], 0, 1024);
 	sp[1] = t3;
 	sp[2] = t4;
 	sp[3] = t5;
-	int* t2 = &sp[0];
-	int t1 = 0xFFF8F8F8;
+	t2 = &sp[0];
+	t1 = 0xFFF8F8F8;
 
 	CreateNewVertex(t2, (int*)t3, (int*)t4, t1);
 	t2 += 5;
@@ -253,7 +256,7 @@ int* SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//(F)
 	return a3;
 }
 
-int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int*& t1)//(F)
+int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)//(F)
 {
 	int t0;
 	int t2;
@@ -354,6 +357,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 	int s4;
 	int s5;
 	int s6;
+	int att = 0;
 //	int t00;
 
 	t0 = SubPolyGTLoop(5, t0, (int)s1, t1);
@@ -398,7 +402,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 
 		//loc_75A30
 		t8 = ((short*)t6)[2];
-		int att = t7 < t8 ? 1 : 0;
+		att = t7 < t8 ? 1 : 0;
 		if (at != 0)
 		{
 			t7 = t9;
@@ -504,10 +508,7 @@ loc_75B20:
 			}
 
 		}
-	loc_75B24:
-		int test = 0;
-		test++;
-
+	loc_75B24:;
 	} while (gp-- != 0);
 
 	return a3;
@@ -632,10 +633,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 				}//loc_759AC
 			}
 		}
-	loc_759AC:
-		int test = 0;
-		test++;
-
+	loc_759AC:;
 	} while(gp-- != 0);
 
 	return a3;
@@ -885,8 +883,13 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)//(F)
 	int t1;
 	int t2;
 	int t3;
+	char* s66 = NULL;
+	char* s55 = NULL;
+	char* s44 = NULL;
 	int t4;
 	int t5;
+	int fpp = 0;
+	struct MMTEXTURE* t00 = NULL;
 	int t6;
 	int t7;
 	int t8;
@@ -900,12 +903,16 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)//(F)
 	char* s1;
 	int* fp;
 	int gp;
-	char* s66;
-	char* s55;
-	char* s44;
 	char* s77;
 	int s777;
-
+	int* a11;
+	int s444 = 0;
+	int s555 = 0;
+	int s666 = 0;
+	struct MMTEXTURE* a22 = NULL;
+	int s00 = 0;
+	int* s11 = NULL;
+	
 	sp2 = &sp2[-14];
 	a2 = &sp[0];
 	s0 = &LOffset[0];
@@ -1155,14 +1162,14 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)//(F)
 	} while (v0 != 0);
 
 	//a11 is db
-	int* a11 = (int*)(((LG3 & 0xFFFF) << 16) | (LG2 & 0xFFFF));
+	a11 = (int*)(((LG3 & 0xFFFF) << 16) | (LG2 & 0xFFFF));
 	v0 = DQA;
 
-	struct MMTEXTURE* a22 = RoomTextInfo;
+	a22 = RoomTextInfo;
 	//a3 = db.polyptr
 	a3 = a11[2];
-	int s00 = a11[1];
-	int* s11 = &sp[0];
+	s00 = a11[1];
+	s11 = &sp[0];
 
 	v0 >>= 8;
 
@@ -1173,9 +1180,9 @@ loc_76080:
 		s777 = 0;
 		DQB = t0;
 
-		char* s66 = &((char*)s11)[(t0 >> 11) & 0x3F8];
-		char* s55 = &((char*)s11)[(t0 >> 4) & 0x3F8];
-		char* s44 = &((char*)s11)[(t0 << 3) & 0x3F8];
+		s66 = &((char*)s11)[(t0 >> 11) & 0x3F8];
+		s55 = &((char*)s11)[(t0 >> 4) & 0x3F8];
+		s44 = &((char*)s11)[(t0 << 3) & 0x3F8];
 
 		t1 = ((int*)s44)[0];
 		t2 = ((int*)s55)[0];
@@ -1195,9 +1202,9 @@ loc_76080:
 
 		if (t5 == 0)
 		{
-			int s444 = ((int*)s44)[1];
-			int s555 = ((int*)s55)[1];
-			int s666 = ((int*)s66)[1];
+			s444 = ((int*)s44)[1];
+			s555 = ((int*)s55)[1];
+			s666 = ((int*)s66)[1];
 
 			t5 = s444 & 0xFFFF;
 			t6 = s555 & 0xFFFF;
@@ -1236,7 +1243,6 @@ loc_76080:
 					t7 = ((int*)t0)[2];
 					t8 = t7 << 8;
 
-					int fpp;
 					UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5, &t6, &s3);
 
 					//t5 = uv
@@ -1376,8 +1382,7 @@ loc_761EC:
 					LB1 = (t7 & 0xFFFF);
 					LB2 = (t7 >> 16) & 0xFFFF;
 
-					struct MMTEXTURE* t00 = &RoomTextInfo[t0];
-					int fpp;
+					t00 = &RoomTextInfo[t0];
 					t8 = ((int*)t00)[2];
 					UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5, &t6, &s3);
 
@@ -1617,7 +1622,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 {
 	int s0;
-	struct SVECTOR* s3;
+	SVECTOR* s3;
 	short* s4;
 	int t2;
 	int* s2;
@@ -1634,7 +1639,7 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	int fpp;
 	int s7;
 	int* a0;
-	struct SVECTOR* t00;
+	SVECTOR* t00;
 	struct room_info* fp;
 	struct WATERTAB* t11;
 	struct room_info* s5;
@@ -1650,8 +1655,18 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	int a2;
 	int v1;
 	int* a22;
+	struct DYNAMIC* t888 = NULL;
 	int* a33;
 	int ra;
+	int a00;
+	int a11;
+	int s55;
+	SVECTOR* t33;///@CHECKME result of t3 :S
+	int a222 = 0;
+	int a333 = 0;
+	SVECTOR* t55 = NULL;
+	int* t88 = NULL;
+	struct DYNAMIC* s11 = NULL;
 
 	S_MemSet((char*)&scratchPad[0], 0, 1024);
 	S_MemSet((char*)&scratchPad2[0], 0, 2048);
@@ -1897,7 +1912,7 @@ loc_74F78:
 		t0 <<= 16;
 		t0 |= at;
 
-		SVECTOR* t33;///@CHECKME result of t3 :S
+		
 		t33 = &s3[((t3 >> 13) & 0xFFF8) >> 3];
 
 		at = t33->vx;
@@ -1934,13 +1949,10 @@ loc_74F78:
 		t4 |= t7;
 		t5 |= t6;
 
-		int a00, a22, a11, a33;
-		int s55;
-
 		a00 = 2048;
 		a11 = -2048;
-		a22 = 2048;
-		a33 = -2048;
+		a222 = 2048;
+		a333 = -2048;
 
 		s55 = 0;
 
@@ -1963,7 +1975,7 @@ loc_74F78:
 
 		docop2(0x280030);
 		v0 = 0;
-		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a22, &a33, &v0, &s55);
+		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a222, &a333, &v0, &s55);
 
 		t0 = SXY0;
 		t1 = SZ1;
@@ -1977,7 +1989,7 @@ loc_74F78:
 
 		docop2(0x280030);
 
-		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a22, &a33, &v0, &s55);
+		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a222, &a333, &v0, &s55);
 
 		t0 = SXY0;
 		t1 = SZ1;
@@ -1986,7 +1998,7 @@ loc_74F78:
 		t8 = t6;
 		t9 = t7;
 
-		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a22, &a33, &v0, &s55);
+		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a222, &a333, &v0, &s55);
 
 		if ((unsigned)v0 < 9u && (unsigned)s55 < 9u)
 		{
@@ -1995,7 +2007,7 @@ loc_74F78:
 			t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
 			t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
-			if (!(a11 < t0) && a00 < t1 && !(a33 < t2) && a22 < t3)
+			if (!(a11 < t0) && a00 < t1 && !(a333 < t2) && a222 < t3)
 			{
 				s2++;
 			}//loc_75100
@@ -2094,7 +2106,7 @@ loc_751B4:
 
 		t5 >>= 13;
 		t5 &= 0xFFF8;
-		SVECTOR* t55 = &s3[t5 >> 3];
+		t55 = &s3[t5 >> 3];
 
 		t3 = *(int*)& t55->vx;
 		t5 = t55->vz;
@@ -2116,11 +2128,9 @@ loc_751B4:
 		t5 += t9;
 		t7 = 1;
 
-		int* t88;
 		t88 = &sp[0];
 		t9 = 0;
-
-		struct DYNAMIC* s11 = dynamics;
+		s11 = dynamics;
 		a3 = 32;
 
 	loc_75238:
@@ -2184,7 +2194,7 @@ loc_751B4:
 		}
 
 
-		struct DYNAMIC* t888 = &dynamics[32];
+		t888 = &dynamics[32];
 
 	loc_752D0:
 		t7 = 0xFFF0000;
@@ -2273,7 +2283,7 @@ loc_751B4:
 					goto loc_75304;
 				}
 
-				int t2 = (int)a22;
+				t2 = (int)a22;
 				if (t7 >= t0)
 				{
 					goto loc_75304;

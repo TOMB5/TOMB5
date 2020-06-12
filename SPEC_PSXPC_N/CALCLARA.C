@@ -37,18 +37,27 @@ void setup_rotation_matrix(int* mat)
 
 void copy_matrix_from_scratch(int* a0, int* a1)
 {
-	int t0 = a0[0];
-	int t1 = a0[1];
-	int t2 = a0[2];
-	int t3 = a0[3];
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+
+	t0 = a0[0];
+	t1 = a0[1];
+	t2 = a0[2];
+	t3 = a0[3];
 	a1[0] = t0;
 	a1[1] = t1;
 	a1[2] = t2;
 	a1[3] = t3;
-	int t4 = a0[4];
-	int t5 = a0[5];
-	int t6 = a0[6];
-	int t7 = a0[7];
+	t4 = a0[4];
+	t5 = a0[5];
+	t6 = a0[6];
+	t7 = a0[7];
 	a1[4] = t4;
 	a1[5] = t5;
 	a1[6] = t6;
@@ -66,6 +75,15 @@ void mLoadMatrix_CL(int* mat)
 
 void mRotY_CL(long y)
 {
+	int t5 = 0;
+	int t7 = 0;
+	int t6 = 0;
+	int t2 = 0;
+	int t0 = 0;
+	int t3 = 0;
+	int t1 = 0;
+	int t4 = 0;
+
 	y >>= 2;
 	y &= 0x3FFC;
 	
@@ -73,19 +91,19 @@ void mRotY_CL(long y)
 	{
 
 		//loc_84DA4
-		int t5 = ((int*)&rcossin_tbl[y >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t6 = t5 >> 16;
+		t5 = ((int*)&rcossin_tbl[y >> 1])[0];
+		t7 = 0xFFFF0000;
+		t6 = t5 >> 16;
 		t5 &= 0xFFFF;
-		int t2 = -t5;
+		t2 = -t5;
 
 		VX0 = t6 & 0xFFFF;
 		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
-		int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+		t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
 		t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-		int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+		t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 		docop2(0x486012);
 
@@ -97,8 +115,8 @@ void mRotY_CL(long y)
 		t2 &= 0xFFFF;
 		t3 &= t7;
 
-		int t4 = MAC1;
-		int t1 = MAC2;
+		t4 = MAC1;
+		t1 = MAC2;
 		t5 = MAC3;
 
 		docop2(0x48E012);
@@ -137,24 +155,33 @@ void SetRotation_CL_I(int t0, int t1, int t2, int t3, int t4)
 
 void iRotY_CL(long y)
 {
+	int t5 = 0;
+	int t7 = 0;
+	int t6 = 0;
+	int t2 = 0;
+	int t0 = 0;
+	int t3 = 0;
+	int t1 = 0;
+	int t4 = 0;
+
 	y >>= 2;
 	y &= 0x3FFC;
 
 	if (y != 0)
 	{
-		int t5 = ((int*)&rcossin_tbl[y >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t6 = t5 >> 16;
+		t5 = ((int*)&rcossin_tbl[y >> 1])[0];
+		t7 = 0xFFFF0000;
+		t6 = t5 >> 16;
 		t5 &= 0xFFFF;
-		int t2 = -t5;
+		t2 = -t5;
 
 		VX0 = (t6 & 0xFFFF);
 		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = (t2 & 0xFFFF);
 
-		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+		t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
 		t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
-		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+		t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 		docop2(0x4A6012);
 
@@ -166,8 +193,8 @@ void iRotY_CL(long y)
 		t2 &= 0xFFFF;
 		t3 &= t7;
 
-		int t4 = MAC1;
-		int t1 = MAC2;
+		t4 = MAC1;
+		t1 = MAC2;
 		t5 = MAC3;
 
 		docop2(0x4AE012);
@@ -192,22 +219,31 @@ void iRotY_CL(long y)
 
 void iRotX_CL(long x)
 {
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t2 = 0;
+
 	x >>= 2;
 	x &= 0x3FFC;
 
 	if (x != 0)
 	{
-		int t5 = ((int*)&rcossin_tbl[x >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t6 = t7 & t5;
+		t5 = ((int*)&rcossin_tbl[x >> 1])[0];
+		t7 = 0xFFFF0000;
+		t6 = t7 & t5;
 
 		VX0 = (t6 & 0xFFFF);
 		VY0 = ((t6 >> 16) & 0xFFFF);
 		VZ0 = (t5 & 0xFFFF);
 
-		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
-		int t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
-		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+		t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+		t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+		t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 		docop2(0x4A6012);
 
@@ -223,8 +259,8 @@ void iRotX_CL(long x)
 		t1 &= t7;
 		t3 &= 0xFFFF;
 
-		int t4 = MAC1;
-		int t2 = MAC2;
+		t4 = MAC1;
+		t2 = MAC2;
 		t5 = MAC3;
 
 		docop2(0x4AE012);
@@ -250,15 +286,24 @@ void iRotX_CL(long x)
 
 void iRotZ_CL(long z)
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t7 = 0;
+	int t4 = 0;
+	int t3 = 0;
+	int t5 = 0;
+	int t6 = 0;
+
 	z >>= 2;
 	z &= 0x3FFC;
 
 	if (z != 0)
 	{
-		int t0 = ((int*)&rcossin_tbl[z >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t1 = t0 >> 16;
-		int t2 = t0 << 16;
+		t0 = ((int*)&rcossin_tbl[z >> 1])[0];
+		t7 = 0xFFFF0000;
+		t1 = t0 >> 16;
+		t2 = t0 << 16;
 		t1 |= t2;
 
 		VX0 = (t1 & 0xFFFF);
@@ -267,9 +312,9 @@ void iRotZ_CL(long z)
 
 		t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
 		t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
-		int t4 = (L33 & 0xFFFF);
+		t4 = (L33 & 0xFFFF);
 		docop2(0x4A6012);
-		int t3 = t0 & t7;
+		t3 = t0 & t7;
 		t0 &= 0xFFFF;
 		t0 = -t0;
 		t0 &= 0xFFFF;
@@ -279,7 +324,7 @@ void iRotZ_CL(long z)
 		VZ1 = 0;
 		t1 &= 0xFFFF;
 		t0 = MAC1;
-		int t5 = MAC2;
+		t5 = MAC2;
 		t3 = MAC3;
 
 		docop2(0x4AE012);
@@ -289,7 +334,7 @@ void iRotZ_CL(long z)
 		t1 |= t5;
 		t3 &= 0xFFFF;
 		t5 = MAC1;
-		int t6 = MAC2;
+		t6 = MAC2;
 		t7 = MAC3;
 		t5 <<= 16;
 		t0 |= t5;
@@ -305,23 +350,32 @@ void iRotZ_CL(long z)
 
 void mRotX_CL(long x)
 {
+	int t2 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t7 = 0;
+	int t6 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t3 = 0;
+
 	x >>= 2;
 	x &= 0x3FFC;
 
 	if (x != 0)
 	{
 		//loc_84D04
-		int t5 = ((int*)&rcossin_tbl[x >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t6 = t7 & t5;
+		t5 = ((int*)&rcossin_tbl[x >> 1])[0];
+		t7 = 0xFFFF0000;
+		t6 = t7 & t5;
 
 		VX0 = t6 & 0xFFFF;
 		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = (t5 & 0xFFFF);
 
-		int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-		int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-		int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+		t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+		t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+		t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 		docop2(0x486012);
 
@@ -337,8 +391,8 @@ void mRotX_CL(long x)
 		t1 &= t7;
 		t3 &= 0xFFFF;
 
-		int t4 = MAC1;
-		int t2 = MAC2;
+		t4 = MAC1;
+		t2 = MAC2;
 		t5 = MAC3;
 
 		docop2(0x48E012);
@@ -364,15 +418,25 @@ void mRotX_CL(long x)
 
 void mRotZ_CL(long z)
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t7 = 0;
+	int t4 = 0;
+	int t3 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int a0 = 0;
+
 	z >>= 2;
 	z &= 0x3FFC;
 
 	if (z != 0)
 	{
-		int t0 = ((int*)&rcossin_tbl[z >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t1 = t0 >> 16;
-		int t2 = t0 << 16;
+		t0 = ((int*)&rcossin_tbl[z >> 1])[0];
+		t7 = 0xFFFF0000;
+		t1 = t0 >> 16;
+		t2 = t0 << 16;
 		t1 |= t2;
 		VX0 = t1 & 0xFFFF;
 		VY0 = (t1 >> 16) & 0xFFFF;
@@ -380,10 +444,10 @@ void mRotZ_CL(long z)
 
 		t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
 		t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-		int t4 = R33;
+		t4 = R33;
 
 		docop2(0x486012);
-		int t3 = t0 & t7;
+		t3 = t0 & t7;
 		t0 &= 0xFFFF;
 		t0 = -t0;
 		t0 &= 0xFFFF;
@@ -396,7 +460,7 @@ void mRotZ_CL(long z)
 		t1 &= 0xFFFF;
 
 		t0 = MAC1;
-		int t5 = MAC2;
+		t5 = MAC2;
 		t3 = MAC3;
 
 		docop2(0x48E012);
@@ -408,8 +472,8 @@ void mRotZ_CL(long z)
 		t3 &= 0xFFFF;
 
 		t5 = MAC1;
-		int t6 = MAC2;
-		int a0 = MAC3;
+		t6 = MAC2;
+		a0 = MAC3;
 
 		t5 <<= 16;
 		t0 |= t5;
@@ -433,6 +497,9 @@ void iRotSuperPackedYXZ_CL(int* t8, int a1)
 {
 	unsigned short* a2 = (unsigned short*)t8[10];
 	int v0 = a2[0];
+	int at = 0;
+	int a0 = 0;
+	int a22 = 0;
 
 	if (a1 != 0)
 	{
@@ -455,7 +522,7 @@ void iRotSuperPackedYXZ_CL(int* t8, int a1)
 	//loc_8524C
 	a2++;
 	
-	int at = v0 >> 14;
+	at = v0 >> 14;
 	if (at-- != 0)
 	{
 		t8[10] = (int)a2;
@@ -472,14 +539,14 @@ void iRotSuperPackedYXZ_CL(int* t8, int a1)
 			iRotY_CL(a0 << 4);
 			return;
 		}//loc_85280
-		int a0 = v0 & 0xFFF;
+		a0 = v0 & 0xFFF;
 		iRotX_CL(a0 << 4);
 		return;
 	}//loc_8528C
 
 	at = *a2++;
 	t8[10] = (int)a2;
-	int a22 = v0 << 16;
+	a22 = v0 << 16;
 	a22 |= at;
 
 	iRotY_CL((a22 >> 4) & 0xFFC0);
@@ -498,6 +565,7 @@ void mRotSuperPackedYXZ_CL(int* t8, int a1)
 {
 	unsigned short* a2 = (unsigned short*)t8[9];
 	int v0 = a2[0];
+	int at = 0;
 
 	if (a1 != 0)
 	{
@@ -518,7 +586,7 @@ void mRotSuperPackedYXZ_CL(int* t8, int a1)
 	}
 	//loc_84C6C
 	a2++;
-	int at = v0 >> 14;
+	at = v0 >> 14;
 
 	if (at-- != 0)
 	{
@@ -554,7 +622,17 @@ void mRotSuperPackedYXZ_CL(int* t8, int a1)
 
 void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
 {
-	int t0 = x >> 15;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t6 = 0;
+	int t7 = 0;
+	int v0 = 0;
+	int t3 = 0;
+	int t5 = 0;
+	int t4 = 0;
+
+	t0 = x >> 15;
 	if (x < 0)
 	{
 		x = -x;
@@ -569,7 +647,7 @@ void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
 		x &= 0x7FFF;
 	}
 
-	int t1 = y >> 15;
+	t1 = y >> 15;
 	if (y < 0)
 	{
 		y = -y;
@@ -585,7 +663,7 @@ void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
 	}
 
 	//loc_85340
-	int t2 = z >> 15;
+	t2 = z >> 15;
 	if (t2 < 0)
 	{
 		z = -z;
@@ -606,18 +684,18 @@ void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
 
 	docop2(0x43E012);
 
-	int t6 = MAC1;
+	t6 = MAC1;
 
-	IR1 = x;
-	IR2 = y;
-	IR3 = z;
+	IR1 = (short)x;
+	IR2 = (short)y;
+	IR3 = (short)z;
 
-	int t7 = MAC2;
-	int v0 = MAC3;
+	t7 = MAC2;
+	v0 = MAC3;
 
 	docop2(0x4BE012);
 
-	int t3 = t6 << 3;
+	t3 = t6 << 3;
 	if (t3 < 0)
 	{
 		t6 = -t6;
@@ -626,7 +704,7 @@ void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
 	}
 
 	//loc_853A8
-	int t4 = t7 << 3;
+	t4 = t7 << 3;
 	if (t7 < 0)
 	{
 		t7 = -t7;
@@ -635,7 +713,7 @@ void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
 	}
 
 	//loc_853BC
-	int t5 = v0 << 3;
+	t5 = v0 << 3;
 	if (v0 < 0)
 	{
 		v0 = -v0;
@@ -667,7 +745,14 @@ void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
 
 void mTranslateXYZ_CL(long x, long y, long z)
 {
-	int t4 = y >> 15;
+	int t4 = 0;
+	int t5 = 0;
+	int t3 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+
+	t4 = y >> 15;
 	if (y < 0)
 	{
 		y = -y;
@@ -682,7 +767,7 @@ void mTranslateXYZ_CL(long x, long y, long z)
 	}
 
 	//loc_84B5C
-	int t5 = z >> 15;
+	t5 = z >> 15;
 	if (z < 0)
 	{
 		z = -z;
@@ -697,7 +782,7 @@ void mTranslateXYZ_CL(long x, long y, long z)
 		z &= 0x7FFF;
 	}
 
-	int t3 = x >> 15;
+	t3 = x >> 15;
 	if (x < 0)
 	{
 		x = -x;
@@ -722,13 +807,13 @@ void mTranslateXYZ_CL(long x, long y, long z)
 	t4 = MAC2;
 	t5 = MAC3;
 
-	IR1 = x;
-	IR2 = y;
-	IR3 = z;
+	IR1 = (short)x;
+	IR2 = (short)y;
+	IR3 = (short)z;
 
 	docop2(0x498012);
 
-	int t0 = t3 << 3;
+	t0 = t3 << 3;
 	if (t3 < 0)
 	{
 		t3 = -t3;
@@ -737,7 +822,7 @@ void mTranslateXYZ_CL(long x, long y, long z)
 	}
 
 	//loc_84BEC
-	int t1 = t4 << 3;
+	t1 = t4 << 3;
 	if (t4 < 0)
 	{
 		t4 = -t4;
@@ -746,7 +831,7 @@ void mTranslateXYZ_CL(long x, long y, long z)
 	}
 
 	//loc_84C00
-	int t2 = t5 << 3;
+	t2 = t5 << 3;
 	if (t5 < 0)
 	{
 		t5 = -t5;
@@ -807,12 +892,15 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	struct ITEM_INFO* item = lara_item;
 	short* t9 = frame;
 	long* s1 = bone;
+	struct MATRIX3D* a0 = NULL;
+	int* s0 = NULL;
+	int a3 = 0;
+
 	S_MemSet((char*)&sp[0], 0, 1024);
 	frame += 9;
 	GLaraShadowframe = t9;
 	t8[9] = (int)frame;
 	snaff_current_gte_matrix_V1(&t8[38]);
-	struct MATRIX3D* a0 = NULL;
 
 	if ((flag & 0x1))
 	{
@@ -837,9 +925,9 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	mTranslateXYZ_CL(t9[6], t9[7], t9[8]);
 	mRotSuperPackedYXZ_CL(t8, 0);
 
-	int* s0 = (int*)t8[13];
+	s0 = (int*)t8[13];
 	snaff_current_gte_matrix_V1(&t8[22]);
-	int a3 = 6;
+	a3 = 6;
 
 	//loc_83CB4
 	do
@@ -1044,10 +1132,19 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 
 void DEL_restore_both_matrices(int* t8, int* a0)
 {
-	int t0 = t8[56];
-	int t1 = t8[57];
-	int t2 = t8[58];
-	int t3 = t8[59];
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+
+	t0 = t8[56];
+	t1 = t8[57];
+	t2 = t8[58];
+	t3 = t8[59];
 
 	L11 = t0 & 0xFFFF;
 	L12 = (t0 >> 16) & 0xFFFF;
@@ -1061,10 +1158,10 @@ void DEL_restore_both_matrices(int* t8, int* a0)
 	L31 = t3 & 0xFFFF;
 	L32 = (t3 >> 16) & 0xFFFF;
 
-	int t4 = t8[60];
-	int t5 = t8[61];
-	int t6 = t8[62];
-	int t7 = t8[63];
+	t4 = t8[60];
+	t5 = t8[61];
+	t6 = t8[62];
+	t7 = t8[63];
 
 	L33 = t4;
 	RBK = t5;
@@ -1076,20 +1173,29 @@ void DEL_restore_both_matrices(int* t8, int* a0)
 
 void DEL_stash_both_matrices(int* t8, int* a0)
 {
-	int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
-	int t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
-	int t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
-	int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+
+	t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+	t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+	t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+	t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 	t8[56] = t0;
 	t8[57] = t1;
 	t8[58] = t2;
 	t8[59] = t3;
 
-	int t4 = L33;
-	int t5 = RBK;
-	int t6 = GBK;
-	int t7 = BBK;
+	t4 = L33;
+	t5 = RBK;
+	t6 = GBK;
+	t7 = BBK;
 
 	t8[60] = t4;
 	t8[61] = t5;
@@ -1101,12 +1207,24 @@ void DEL_stash_both_matrices(int* t8, int* a0)
 
 void InterpolateMatrix(int* t8, int* a0)//85414
 {
-	int t0 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-	int t1 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
-	int t2 = R33;
-	int t3 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
-	int t4 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
-	int t5 = L33;
+	int at = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int v1 = 0;
+	int t7 = 0;
+	int t6 = 0;
+	int a3 = 0;
+
+	t0 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	t1 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+	t2 = R33 & 0xFFFF;
+	t3 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+	t4 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+	t5 = L33 & 0xFFFF;
 
 	t8[90] = t0;
 	t8[91] = t1;
@@ -1116,12 +1234,12 @@ void InterpolateMatrix(int* t8, int* a0)//85414
 	t8[83] = t4;
 	t8[84] = t5;
 
-	int v1 = t8[47];
-	int t7 = t8[46];
+	v1 = t8[47];
+	t7 = t8[46];
 
-	int t6 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	t6 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
 	t3 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-	int a3 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+	a3 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
 	t2 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
 
 	t1 = t6 >> 16;
@@ -1199,7 +1317,7 @@ void InterpolateMatrix(int* t8, int* a0)//85414
 	else if(t7 == 1)
 	{
 		//loc_8556C
-		int at = t0 - t1;
+		at = t0 - t1;
 		t0 = at >> 2;
 		t0 = t1 + t0;
 		a3 -= t6;
@@ -1273,7 +1391,7 @@ void InterpolateMatrix(int* t8, int* a0)//85414
 	else
 	{
 		//loc_85664
-		int at = t0 - t1;
+		at = t0 - t1;
 		t1 = at >> 2;
 		t0 -= t1;
 		t6 = a3 - t6;
@@ -1357,19 +1475,27 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 {
 	int sp[256];
 	int* t8 = &sp[0];
+	struct ITEM_INFO* item = NULL;
+	short* s0 = NULL;
+	short* s1 = NULL;
+	struct MATRIX3D* a0 = NULL;
+	struct ANIM_STRUCT* anim = NULL;
+	int t9 = 0;
+	struct ANIM_STRUCT* t99 = NULL;
+
 	S_MemSet((char*)&sp[0], 0, 1024);
-	struct ITEM_INFO* item = lara_item;//$t9
+	item = lara_item;//$t9
 	t8[46] = frac;
 	t8[47] = rate;
-	short* s0 = frame1;
-	short* s1 = frame2;
+	s0 = frame1;
+	s1 = frame2;
 	frame1 += 9;
 	frame2 += 9;
 	t8[9] = (int)frame1;
 	t8[10] = (int)frame2;
 	snaff_current_gte_matrix_V1(&t8[72]);
-	struct MATRIX3D* a0 = NULL;
-	struct ANIM_STRUCT* anim = NULL;
+	a0 = NULL;
+	anim = NULL;
 
 	if ((flag & 0x1))
 	{
@@ -1416,7 +1542,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	DEL_stash_both_matrices(t8, &t8[48]);
 
 	s1 = (short*)&bone[0];
-	int t9 = 6;
+	t9 = 6;
 
 	//loc_84480
 	do
@@ -1441,7 +1567,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	s0 -= 96;
 	s1 -= 48;
 
-	struct ANIM_STRUCT* t99 = &anims[0];
+	t99 = &anims[0];
 	Hardcore_iTranslateXYZ_CL((long*)&s1[50], t8);
 
 	//a0 = lara.weapon_item
@@ -1573,7 +1699,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	mLoadMatrix_CL(&t8[72]);
 }
 
-int GetFrames(struct ITEM_INFO* item, int* a1, int* a2)//8582C
+int GetFrames_CL(struct ITEM_INFO* item, int* a1, int* a2)//8582C
 {
 	struct ANIM_STRUCT* anim;//$t0
 	int t1;
@@ -1621,7 +1747,7 @@ short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 	short* t5;
 	short* a2;
 
-	t0 = GetFrames(item, &var_10[0], &var_8);
+	t0 = GetFrames_CL(item, &var_10[0], &var_8);
 
 	if (t0 == 0)
 	{
@@ -1672,13 +1798,24 @@ void snaff_current_gte_matrix_V1(int* mat)
 
 void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 {
+	int a0 = 0;
+	int a1 = 0;
+	int a2 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int v0 = 0;
+	int v1 = 0;
 	struct MATRIX3D* joint_matrix = &lara_joint_matrices[joint];//$a1
 	struct MATRIX3D m;//var_30
 
-	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-	int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-	int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+	t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 	((int*)&m)[0] = t0;
 	((int*)&m)[1] = t1;
@@ -1719,11 +1856,11 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 	TRY = t2;
 	TRZ = t3;
 
-	int a0 = pos->x;
-	int a1 = pos->y;
-	int a2 = pos->z;
+	a0 = pos->x;
+	a1 = pos->y;
+	a2 = pos->z;
 
-	int t4 = a1 >> 15;
+	t4 = a1 >> 15;
 	if (a1 < 0)
 	{
 		a1 = -a1;
@@ -1738,7 +1875,7 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 		a1 &= 0x7FFF;
 	}
 
-	int t5 = a2 >> 15;
+	t5 = a2 >> 15;
 	if (a2 < 0)
 	{
 		a2 = -a2;
@@ -1818,8 +1955,8 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 	t1 += t4;
 	t2 += t5;
 
-	int v0 = lara_item->pos.x_pos;
-	int v1 = lara_item->pos.y_pos;
+	v0 = lara_item->pos.x_pos;
+	v1 = lara_item->pos.y_pos;
 	a0 = lara_item->pos.z_pos;
 
 	t0 += v0;
@@ -1858,11 +1995,12 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 short* GetBestFrame(struct ITEM_INFO* item)//858C8(<)
 {
 	int var_10[2];
-	int var_8;
-	int v0;
+	int var_8 = 0;
+	int v0 = 0;
+	int v1 = 0;
 
-	v0 = GetFrames(item, &var_10[0], &var_8);
-	int v1 = var_8 >> 1;
+	v0 = GetFrames_CL(item, &var_10[0], &var_8);
+	v1 = var_8 >> 1;
 
 	if ((var_8 >> 1) < v0)
 	{

@@ -6,13 +6,13 @@ include_directories(${ROOT_DIR}/EXTERNAL/SDL/include)
 
 set(SDL2MAIN_LIBRARY SDL2main)
 set(SDL2_LIBRARY SDL2)
-#set(GLES3_LIBRARY GLESv2)
+set(GLES3_LIBRARY GLESv3)
 set(EGL_LIBRARY EGL)
 
 target_link_libraries(${PROJECT_NAME}
   ${SDL2MAIN_LIBRARY}
   ${SDL2_LIBRARY}
-#  ${GLES3_LIBRARY}
+  ${GLES3_LIBRARY}
   ${EGL_LIBRARY}
 )
 

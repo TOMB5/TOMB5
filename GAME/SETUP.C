@@ -1077,7 +1077,7 @@ void LoadLevel(FILE* nHandle)
 #if DISC_VERSION
 		DEL_CDFS_Read(ptr2, level->soundWadLength);
 #else
-		FILE_Read(ptr, level->soundWadLength, sizeof(char), nHandle);
+		FILE_Read(ptr2, level->soundWadLength, sizeof(char), nHandle);
 #endif
 		GtSFXEnabled = LoadSoundEffects(level->numSoundEffects, (long*)ptr, ptr2, level->soundWadLength);//LoadSoundEffects
 
@@ -1259,7 +1259,7 @@ void LoadLevel(FILE* nHandle)
 	OutsideRoomTable = ptr;
 	ptr += level->outsideRoomTableLength;
 
-	RoomBBoxes = (struct SVECTOR*)ptr;
+	RoomBBoxes = (SVECTOR*)ptr;
 	ptr += level->roomBoundingBoxesLength;
 
 	mesh_base = (short*)ptr;

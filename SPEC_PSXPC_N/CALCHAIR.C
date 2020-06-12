@@ -19,16 +19,22 @@
 
 long phd_sqrt_asm_CH(long value)//83B30(<), 85B74(<) (F)
 {
+	int v0 = 0;
+	int v1 = 0;
+	int at = 0;
+
 	LZCR = gte_leadingzerocount(value);
 
-	long v0 = 0x1F;
+	v0 = 0x1F;
+	v1 = 0;
+	at = 0;
 
 	if (value != 0)
 	{
-		long v1 = LZCR;
+		v1 = LZCR;
 		v1 &= 0xFFFFFFFE;
-		v0 = v0 - v1 >> 1;
-		long at = v1 - 0x18;
+		v0 = (v0 - v1) >> 1;
+		at = v1 - 0x18;
 
 		if (v1 - 0x18 < 0)
 		{
@@ -88,7 +94,12 @@ void snaff_sphere_normal(short* s7, int* at, int* fp)
 
 void mTranslateXYZ_CH(int x, int y, int z)
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t5 = 0;
 	int t4 = y >> 15;
+	int t3 = 0;
 
 	if (y < 0)
 	{
@@ -104,7 +115,7 @@ void mTranslateXYZ_CH(int x, int y, int z)
 		y &= 0x7FFF;
 	}
 
-	int t5 = z >> 15;
+	t5 = z >> 15;
 	if (z < 0)
 	{
 		z = -z;
@@ -119,7 +130,7 @@ void mTranslateXYZ_CH(int x, int y, int z)
 	}
 
 	//loc_13A0
-	int t3 = x >> 15;
+	t3 = x >> 15;
 	if (x < 0)
 	{
 		x = -x;
@@ -150,7 +161,7 @@ void mTranslateXYZ_CH(int x, int y, int z)
 
 	docop2(0x498012);
 
-	int t0 = t3 << 3;
+	t0 = t3 << 3;
 	if (t3 < 0)
 	{
 		t3 = -t3;
@@ -159,7 +170,7 @@ void mTranslateXYZ_CH(int x, int y, int z)
 	}
 
 	//loc_1408
-	int t1 = t4 << 3;
+	t1 = t4 << 3;
 	if (t4 < 0)
 	{
 		t4 = -t4;
@@ -168,7 +179,7 @@ void mTranslateXYZ_CH(int x, int y, int z)
 	}
 
 	//loc_1430
-	int t2 = t5 << 3;
+	t2 = t5 << 3;
 	if (t5 < 0)
 	{
 		t5 = -t5;
@@ -192,24 +203,33 @@ void mTranslateXYZ_CH(int x, int y, int z)
 
 void mRotY_CH(int y_rot)
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+	
 	y_rot >>= 2;
 	y_rot &= 0x3FFC;
 
 	if (y_rot != 0)
 	{
-		int t5 = ((int*)&rcossin_tbl[y_rot >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t6 = t5 >> 16;
+		t5 = ((int*)&rcossin_tbl[y_rot >> 1])[0];
+		t7 = 0xFFFF0000;
+		t6 = t5 >> 16;
 		t5 &= 0xFFFF;
-		int t2 = -t5;
+		t2 = -t5;
 
 		VX0 = t6 & 0xFFFF;
 		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
-		int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+		t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
 		t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-		int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+		t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 		docop2(0x486012);
 		VX1 = t5 & 0xFFFF;
@@ -219,8 +239,8 @@ void mRotY_CH(int y_rot)
 		t0 &= t7;
 		t2 &= 0xFFFF;
 		t3 &= t7;
-		int t4 = MAC1;
-		int t1 = MAC2;
+		t4 = MAC1;
+		t1 = MAC2;
 		t5 = MAC3;
 		docop2(0x48E012);
 		t4 &= 0xFFFF;
@@ -250,22 +270,31 @@ void mRotY_CH(int y_rot)
 
 void mRotX_CH(int a0)
 {
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t2 = 0;
+
 	a0 >>= 2;
 	a0 &= 0x3FFC;
 
 	if (a0 != 0)
 	{
-		int t5 = ((int*)&rcossin_tbl[a0 >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t6 = t7 & t5;
+		t5 = ((int*)&rcossin_tbl[a0 >> 1])[0];
+		t7 = 0xFFFF0000;
+		t6 = t7 & t5;
 
 		VX0 = t6 & 0xFFFF;
 		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = t5;
 
-		int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-		int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
-		int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+		t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+		t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+		t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 		docop2(0x486012);
 
@@ -281,8 +310,8 @@ void mRotX_CH(int a0)
 		t1 &= t7;
 		t3 &= 0xFFFF;
 
-		int t4 = MAC1;
-		int t2 = MAC2;
+		t4 = MAC1;
+		t2 = MAC2;
 		t5 = MAC3;
 
 		docop2(0x48E012);
@@ -315,15 +344,24 @@ void mRotX_CH(int a0)
 
 void mRotZ_CH(int a0)
 {
+	int t0 = 0;
+	int t7 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t4 = 0;
+	int t3 = 0;
+	int t5 = 0;
+	int t6 = 0;
+
 	a0 >>= 2;
 	a0 &= 0x3FFC;
 
 	if (a0 != 0)
 	{
-		int t0 = ((int*)&rcossin_tbl[a0 >> 1])[0];
-		int t7 = 0xFFFF0000;
-		int t1 = (t0 >> 16) & 0xFFFF;
-		int t2 = t0 << 16;
+		t0 = ((int*)&rcossin_tbl[a0 >> 1])[0];
+		t7 = 0xFFFF0000;
+		t1 = (t0 >> 16) & 0xFFFF;
+		t2 = t0 << 16;
 		t1 |= t2;
 
 		VX0 = t1 & 0xFFFF;
@@ -332,11 +370,11 @@ void mRotZ_CH(int a0)
 
 		t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
 		t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-		int t4 = R33;
+		t4 = R33;
 
 		docop2(0x486012);
 
-		int t3 = t0 & t7;
+		t3 = t0 & t7;
 		t0 &= 0xFFFF;
 		t0 = -t0;
 		t0 &= 0xFFFF;
@@ -349,7 +387,7 @@ void mRotZ_CH(int a0)
 		t1 &= 0xFFFF;
 
 		t0 = MAC1;
-		int t5 = MAC2;
+		t5 = MAC2;
 		t3 = MAC3;
 
 		docop2(0x48E012);
@@ -361,8 +399,8 @@ void mRotZ_CH(int a0)
 		t3 &= 0xFFFF;
 
 		t5 = MAC1;
-		int t6 = MAC2;
-		int a0 = MAC3;
+		t6 = MAC2;
+		a0 = MAC3;
 
 		t5 <<= 16;
 		t0 |= t5;
@@ -387,6 +425,7 @@ void mRotSuperPackedYXZ_CH(int* fp, int a1)
 {
 	unsigned short* a2 = (unsigned short*)fp[10];
 	int v0 = *a2;
+	int at = 0;
 
 	if (a1 != 0)
 	{
@@ -409,7 +448,7 @@ void mRotSuperPackedYXZ_CH(int* fp, int a1)
 	//loc_83AAC
 	a2++;
 
-	int at = v0 >> 14;
+	at = v0 >> 14;
 	if (at-- != 0)
 	{
 		fp[10] = (int)a2;
@@ -474,16 +513,22 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	int height;//$a2
 	int t3;
 	struct room_info* r = NULL;
+	int a0 = 0;
+	int* fp = NULL;
+	int v0 = 0;
+	int v1 = 0;
+	int* t4 = NULL;
+	int t2 = 0;
 	S_MemSet((char*)&scratchPad, 0, 1024);
 
 	//s0 = gfLevelFlags & 1
-	int* fp = &scratchPad[0];
+	fp = &scratchPad[0];
 	//s5 = lara_item
 	//v1 = lara.hit_direction
 	//s4 = bIsYoungLara
 	fp[11] = unk01;
 	hit_frame = frame;
-	int a0 = 0;
+	a0 = 0;
 
 	if (frame == NULL)
 	{
@@ -597,7 +642,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	//a0 = v0 >> 2
 	if ((gfLevelFlags & 1))
 	{
-		fp[24] = lara.mesh_ptrs[7][3] - ((lara.mesh_ptrs[7][3] >> 2) + lara.mesh_ptrs[7][3] >> 3);
+		fp[24] = lara.mesh_ptrs[7][3] - ((lara.mesh_ptrs[7][3] >> 2) + (lara.mesh_ptrs[7][3] >> 3));
 	}
 	else
 	{
@@ -728,8 +773,8 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	}
 
 	//loc_831F0
-	int v1 = (hair_wind - 3) + (GetRandomControl() & 7);
-	int v0 = 1;
+	v1 = (hair_wind - 3) + (GetRandomControl() & 7);
+	v0 = 1;
 
 	if (v1 >= -1)
 	{
@@ -856,7 +901,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 
 		//loc_8344C
 		t3 = 5;
-		int* t4 = &fp[17];
+		t4 = &fp[17];
 
 		//loc_83454
 		do
@@ -869,9 +914,9 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 			//v0 = fp[18];
 			//v1 = fp[19];
 
-			IR1 = s7->pos.x_pos - fp[0];
-			IR2 = s7->pos.y_pos - fp[1];
-			IR3 = s7->pos.z_pos - fp[2];
+			IR1 = (short)(s7->pos.x_pos - fp[0]);
+			IR2 = (short)(s7->pos.y_pos - fp[1]);
+			IR3 = (short)(s7->pos.z_pos - fp[2]);
 
 			//v0 = fp[20] * fp[20]
 			docop2(0xA00428);
@@ -916,17 +961,17 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 		//a0 = s7->pos.x_pos;
 		//a1 = s7[-1].x_pos;
 
-		IR1 = s7->pos.z_pos - s7[-1].pos.z_pos;
-		IR2 = s7->pos.x_pos - s7[-1].pos.x_pos;
+		IR1 = (short)(s7->pos.z_pos - s7[-1].pos.z_pos);
+		IR2 = (short)(s7->pos.x_pos - s7[-1].pos.x_pos);
 
 		docop2(0xA00428);
 
-		int t2 = phd_sqrt_asm_CH(MAC1 + MAC2);
-		s7[-1].pos.y_rot = phd_atan_asm(s7->pos.z_pos - s7[-1].pos.z_pos, s7->pos.x_pos - s7[-1].pos.x_pos);
+		t2 = phd_sqrt_asm_CH(MAC1 + MAC2);
+		s7[-1].pos.y_rot = (short)phd_atan_asm(s7->pos.z_pos - s7[-1].pos.z_pos, s7->pos.x_pos - s7[-1].pos.x_pos);
 
 		//v1 = s7->pos.y_pos;
 		//a1 = s7[-1].y_pos;
-		s7[-1].pos.x_rot = -phd_atan_asm(t2, s7->pos.y_pos - s7[-1].pos.y_pos);
+		s7[-1].pos.x_rot = (short)-phd_atan_asm(t2, s7->pos.y_pos - s7[-1].pos.y_pos);
 
 		TRX = s7[-1].pos.x_pos;
 		TRY = s7[-1].pos.y_pos;

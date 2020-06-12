@@ -18,6 +18,7 @@ long DIVFP(long A, long B)
 long MULFP(long A, long B)
 {
 	unsigned long long result = (long long)((long long)(int)A * (long long)(int)B);
+
 	return ((result >> 32) << 16) | ((result & 0xFFFFFFFF) >> 16);
 }
 
@@ -233,7 +234,7 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 				if (dx >= 0)
 				{
 					//loc_789FC
-					if (dx >= r->y_size - 1)
+					if (dx >= r->y_size)
 					{
 						dx = r->y_size - 1;
 					}
@@ -324,7 +325,7 @@ loc_78A68:
 
 	}//loc_78BB0
 
-	if (y > (floor->ceiling << 8))
+	if (y >= (floor->ceiling << 8))
 	{
 		return floor;
 	}
@@ -409,6 +410,10 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 	int a1;
 	int a2;
 	int t7;
+	unsigned short s2 = 0;
+	unsigned short v0 = 0;
+	unsigned short s1 = 0;
+	struct ITEM_INFO* item = NULL;
 	//s1 = floor
 	//t4 = x
 	//t5 = z
@@ -553,9 +558,8 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 		fd = (unsigned short*)&floor_data[floor->index];
 
 loc_792E0:
-		unsigned short s2 = *fd++;
-		unsigned short v0 = (s2) & 0x1F;
-		unsigned short s1;
+		s2 = *fd++;
+		v0 = (s2) & 0x1F;
 
 		switch (v0)
 		{
@@ -599,7 +603,7 @@ loc_7931C:
 				//loc_79350
 				//a0 = items
 				v1 = s1 & 0x3FF;
-				struct ITEM_INFO* item = &items[s1 & 0x3FF];//$a0
+				item = &items[s1 & 0x3FF];//$a0
 				//v0 = item->flags & 0x8000
 				//v1 = item->object_number
 
@@ -692,6 +696,14 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	struct object_info* object;//$v0
 	int height;
 	unsigned short v1;//$v1
+	int t0 = 0;
+	int a3 = 0;
+	int a2 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int a1 = 0;
+	int v0 = 0;
+	int at = 0;
 
 	//s0 = floor
 	//s3 = x
@@ -853,14 +865,12 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 			v1 = *fd;
 			//a0 = value & 0x1F;
 			height_type = 4;
-			int t0 = v1 & 0xF;
-			int a3 = (v1 >> 4) & 0xF;
-			int a2 = (v1 >> 8) & 0xF;
-			int t1 = z & 0x3FF;
-			int t2 = x & 0x3FF;
+			t0 = v1 & 0xF;
+			a3 = (v1 >> 4) & 0xF;
+			a2 = (v1 >> 8) & 0xF;
+			t1 = z & 0x3FF;
+			t2 = x & 0x3FF;
 			//v0 = 7
-			int a1;
-			int v0;
 
 			v1 >>= 12;
 			if ((value & 0x1F) == 7 || (unsigned)((value & 0x1F) - 11) < 2)
@@ -908,7 +918,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 
 			v0 &= 0x1F;
 
-			int at = -16;
+			at = -16;
 			if ((v0 & 0x10))
 			{
 				v0 |= at;

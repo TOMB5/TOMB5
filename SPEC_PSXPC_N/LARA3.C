@@ -18,16 +18,16 @@
 static int scratchPad[256];
 
 
-void sub_FC0L1(int x, int y, int z)
+void sub_FC0L3(int x, int y, int z)
 {
-    int t0 = 0;
+	int t0 = 0;
     int t1 = 0;
     int t2 = 0;
 	int t3 = 0;
 	int t4 = 0;
 	int t5 = 0;
 
-	t0 = TRX;
+    t0 = TRX;
     t1 = TRY;
     t2 = TRZ;
 
@@ -131,16 +131,16 @@ void sub_FC0L1(int x, int y, int z)
     TRZ = t2;
 }
 
-void sub_1358L1(int x, int y, int z)
+void sub_1358L3(int x, int y, int z)
 {
 	int t0 = 0;
 	int t1 = 0;
 	int t2 = 0;
 	int t3 = 0;
-    int t4 = 0;
+	int t4 = 0;
 	int t5 = 0;
 
-	t4 = y >> 15;
+    t4 = y >> 15;
 
     if (y < 0)
     {
@@ -242,20 +242,21 @@ void sub_1358L1(int x, int y, int z)
     TRZ = t2;
 }
 
-void sub_C1CL1(int a0)
+void sub_C1CL3(int a0)
 {
+	char v0 = 0;
+	int* a2 = NULL;
     int* a00 = (int*)&tsv_buffer[(((a0 << 1) + a0) << 2)];
     char* a1 = (char*)&SkinVertNums[(((a0 << 1) + a0) << 2)];
 
     do
     {
-        char v0 = *a1++;
-
+        v0 = *a1++;
         //loc_C38
 
         if (v0 >= 0)
         {
-            int* a2 = &scratchPad[v0 << 1];
+            a2 = &scratchPad[v0 << 1];
             a00[0] = a2[0];
             a00[1] = a2[1];
             a00 += 2;
@@ -268,20 +269,22 @@ void sub_C1CL1(int a0)
     //locret_C64
 }
 
-void sub_C6CL1(int a0)
+void sub_C6CL3(int a0)
 {
+	char v0 = 0;
+	int* a1 = NULL;
     int* a00 = (int*)&tsv_buffer[(((a0 << 1) + a0) << 2)];
     char* a2 = (char*)&ScratchVertNums[(((a0 << 1) + a0) << 2)];
 
     //loc_C88
     do
     {
-        char v0 = *a2++;
+        v0 = *a2++;
 
         //
         if (v0 >= 0)
         {
-            int* a1 = &scratchPad[v0 << 1];
+            a1 = &scratchPad[v0 << 1];
             a1[0] = a00[0];
             a1[1] = a00[1];
             a00 += 2;
@@ -292,18 +295,18 @@ void sub_C6CL1(int a0)
         }
     } while (1);
     //locret_CB4
-}   
+}
 
-void sub_CBCL1(int a0)//(F)
+void sub_CBCL3(int a0)
 {
-	int t0 = 0;
-	int t1 = 0;
-	int t2 = 0;
-	int t3 = 0;
-	int t4 = 0;
-	int t5 = 0;
-	int t6 = 0;
-	int t7 = 0;
+    int t5 = 0;
+    int t7 = 0;
+    int t6 = 0;
+    int t0 = 0;
+    int t1 = 0;
+    int t3 = 0;
+    int t2 = 0;
+    int t4 = 0;
 
     a0 >>= 2;
     a0 &= 0x3FFC;
@@ -368,16 +371,16 @@ void sub_CBCL1(int a0)//(F)
     }
 }
 
-void sub_D7CL1(int y_rot)
+void sub_D7CL3(int y_rot)
 {
-	int t0 = 0;
-	int t1 = 0;
-	int t2 = 0;
-	int t3 = 0;
-	int t4 = 0;
-	int t5 = 0;
-	int t7 = 0;
-	int t6 = 0;
+    int t5 = 0;
+    int t6 = 0;
+    int t7 = 0;
+    int t0 = 0;
+    int t2 = 0;
+    int t3 = 0;
+    int t4 = 0;
+    int t1 = 0;
 
     y_rot >>= 2;
     y_rot &= 0x3FFC;
@@ -436,21 +439,21 @@ void sub_D7CL1(int y_rot)
     }
 }
 
-void sub_1244L1(int y_rot, int x_rot, int z_rot)
+void sub_1244L3(int y_rot, int x_rot, int z_rot)
 {
-	int t0 = 0;
-	int t7 = 0;
-	int t1 = 0;
-	int t2 = 0;
-	int t4 = 0;
-	int t3 = 0;
-	int t5 = 0;
-	int t6 = 0;
-	int a0 = 0;
+    int t0 = 0;
+    int t7 = 0;
+    int t1 = 0;
+    int t2 = 0;
+    int t4 = 0;
+    int t3 = 0;
+    int t5 = 0;
+    int t6 = 0;
+    int a0 = 0;
 
-    sub_D7CL1(y_rot);
-    sub_CBCL1(x_rot);
-    
+    sub_D7CL3(y_rot);
+    sub_CBCL3(x_rot);
+
     z_rot >>= 2;
     z_rot &= 0x3FFC;
 
@@ -489,7 +492,7 @@ void sub_1244L1(int y_rot, int x_rot, int z_rot)
         t3 = MAC3;
 
         docop2(0x48E012);
-        
+
         t2 &= t7;
         t0 &= 0xFFFF;
         t5 <<= 16;
@@ -520,7 +523,7 @@ void sub_1244L1(int y_rot, int x_rot, int z_rot)
 
 }
 
-void sub_BACL1(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)//(F)
+void sub_BACL3(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
 {
     *t2 = *t6 >> 7;
     *t2 &= *a3;
@@ -551,7 +554,7 @@ void sub_BACL1(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)//(
     *t8 |= *t2;
 }
 
-int* sub_658L1(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)//(F)
+int* sub_658L3(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
 {
     unsigned int t00;
     int t0;
@@ -568,11 +571,11 @@ int* sub_658L1(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)//(F)
     int v1;
     int* a3;
     int* a0;
-	int v0 = 0;
-	int* a2 = NULL;
-	unsigned int* a1 = NULL;
-	int a33 = 0;
-	struct PSXTEXTSTRUCT* a22 = NULL;
+    int v0 = 0;
+    unsigned int* a1 = NULL;
+    int* a2 = NULL;
+    struct PSXTEXTSTRUCT* a22 = NULL;
+    int a33 = 0;
 
     v0 = ((int*)meshp)[2];
     meshp += 6;
@@ -759,302 +762,302 @@ int* sub_658L1(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)//(F)
             a2 += 2;
 
             ORGB = LIM(IR1 >> 7, 0x1F, 0, 0) | (LIM(IR2 >> 7, 0x1F, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1F, 0, 0) << 10);
-            t0 = ORGB; 
+            t0 = ORGB;
             ((short*)a2)[-1] = t0;
         } while (v1 != 0);
 
-   }
+    }
     //loc_85C
-   a0 = &scratchPad[0];
-   a22 = psxtextinfo;
-   v0 = a1[0];
-   a33 = 0xF80000;
-   at = v0 >> 16;
-   DQA = at;
-   v0 &= 0xFFFF;
-   a1++;
+    a0 = &scratchPad[0];
+    a22 = psxtextinfo;
+    v0 = a1[0];
+    a33 = 0xF80000;
+    at = v0 >> 16;
+    DQA = at;
+    v0 &= 0xFFFF;
+    a1++;
 
-   if (v0 != 0)
-   {
-       t00 = a1[0];
+    if (v0 != 0)
+    {
+        t00 = a1[0];
 
-loc_884:
-       a1++;
-       v1 = 3;
+    loc_884:
+        a1++;
+        v1 = 3;
 
-loc_88C:
-       t1 = a1[0];
-       v0--;
+    loc_88C:
+        t1 = a1[0];
+        v0--;
 
-       t8 = (t1 >> 13) & 0x7F8;
-       t8 += (int)a0;
-       t7 = (t1 >> 5) & 0x7F8;
-       t7 += (int)a0;
-       t6 = (t1 << 3) & 0x7F8;
-       t6 += (int)a0;
+        t8 = (t1 >> 13) & 0x7F8;
+        t8 += (int)a0;
+        t7 = (t1 >> 5) & 0x7F8;
+        t7 += (int)a0;
+        t6 = (t1 << 3) & 0x7F8;
+        t6 += (int)a0;
 
-       SXY0 = ((int*)t6)[0];
-       SXY1 = ((int*)t7)[0];
-       SXY2 = ((int*)t8)[0];
+        SXY0 = ((int*)t6)[0];
+        SXY1 = ((int*)t7)[0];
+        SXY2 = ((int*)t8)[0];
 
-       t5 = t00 & 0xFF;
-       t00 >>= 8;
-       docop2(0x1400006);
+        t5 = t00 & 0xFF;
+        t00 >>= 8;
+        docop2(0x1400006);
 
-       t6 = ((int*)t6)[1];
-       t7 = ((int*)t7)[1];
-       t8 = ((int*)t8)[1];
+        t6 = ((int*)t6)[1];
+        t7 = ((int*)t7)[1];
+        t8 = ((int*)t8)[1];
 
-       SZ1 = t6;
-       SZ2 = t7;
-       SZ3 = t8;
+        SZ1 = t6;
+        SZ2 = t7;
+        SZ3 = t8;
 
-       t1 >>= 16;
-       t1 &= 0xF00;
-       at = MAC0;
-       docop2(0x158002D);
-       t5 |= t1;
-       t5 <<= 4;
+        t1 >>= 16;
+        t1 &= 0xF00;
+        at = MAC0;
+        docop2(0x158002D);
+        t5 |= t1;
+        t5 <<= 4;
 
-       if (at >= 0)
-       {
-           t5 += (int)a22;
-           t1 = SXY0;
-           t2 = SXY1;
-           t3 = SXY2;
+        if (at >= 0)
+        {
+            t5 += (int)a22;
+            t1 = SXY0;
+            t2 = SXY1;
+            t3 = SXY2;
 
-           if (!(t1 & 0xFE00) || !(t2 & 0xFE00) || !(t3 & 0xFE00))
-           {
-               //loc_92C
-               at = t1 & t2;
-               at &= t3;
+            if (!(t1 & 0xFE00) || !(t2 & 0xFE00) || !(t3 & 0xFE00))
+            {
+                //loc_92C
+                at = t1 & t2;
+                at &= t3;
 
-               if (at >= 0)
-               {
-                   if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0)
-                   {
-                       t1 = OTZ;
-                       if (t1 < 0xA01)
-                       {
-                           t1 <<= 2;
-                           t4 = ((int*)t5)[2];
-                           at = t4 << 8;
-                           sub_BACL1(&t2, &t6, &a33, &t3, &at, &t7, &t8);
-                           at = DQB;
-                           t2 = ((int*)t5)[0];
-                           t3 = ((int*)t5)[1];
-                           t2 -= at;
+                if (at >= 0)
+                {
+                    if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0)
+                    {
+                        t1 = OTZ;
+                        if (t1 < 0xA01)
+                        {
+                            t1 <<= 2;
+                            t4 = ((int*)t5)[2];
+                            at = t4 << 8;
+                            sub_BACL3(&t2, &t6, &a33, &t3, &at, &t7, &t8);
+                            at = DQB;
+                            t2 = ((int*)t5)[0];
+                            t3 = ((int*)t5)[1];
+                            t2 -= at;
 #if defined(USE_32_BIT_ADDR)
-                           ((int*)s5)[3] = SXY0;
-                           ((int*)s5)[6] = SXY1;
-                           ((int*)s5)[9] = SXY2;
-                           ((int*)s5)[2] = t6;
-                           ((int*)s5)[4] = t2;
-                           ((int*)s5)[5] = t7;
-                           ((int*)s5)[7] = t3;
-                           ((int*)s5)[8] = t8;
-                           ((int*)s5)[10] = t4;
-                           t1 *= 2;
-                           t1 += s6;
-                           setlen(s5, 9);
-                           addPrim(t1, s5);
+                            ((int*)s5)[3] = SXY0;
+                            ((int*)s5)[6] = SXY1;
+                            ((int*)s5)[9] = SXY2;
+                            ((int*)s5)[2] = t6;
+                            ((int*)s5)[4] = t2;
+                            ((int*)s5)[5] = t7;
+                            ((int*)s5)[7] = t3;
+                            ((int*)s5)[8] = t8;
+                            ((int*)s5)[10] = t4;
+                            t1 *= 2;
+                            t1 += s6;
+                            setlen(s5, 9);
+                            addPrim(t1, s5);
 #else
-                           ((int*)s5)[2] = SXY0;
-                           ((int*)s5)[5] = SXY1;
-                           ((int*)s5)[8] = SXY2;
-                           ((int*)s5)[1] = t6;
-                           ((int*)s5)[3] = t2;
-                           ((int*)s5)[4] = t7;
-                           ((int*)s5)[6] = t3;
-                           ((int*)s5)[7] = t8;
-                           ((int*)s5)[9] = t4;
-                           t1 += s6;
-                           t2 = ((int*)t1)[0];
-                           at = 0x9000000;
-                           t2 |= at;
-                           ((int*)t1)[0] = (int)s5;
-                           s5[0] = t2;
+                            ((int*)s5)[2] = SXY0;
+                            ((int*)s5)[5] = SXY1;
+                            ((int*)s5)[8] = SXY2;
+                            ((int*)s5)[1] = t6;
+                            ((int*)s5)[3] = t2;
+                            ((int*)s5)[4] = t7;
+                            ((int*)s5)[6] = t3;
+                            ((int*)s5)[7] = t8;
+                            ((int*)s5)[9] = t4;
+                            t1 += s6;
+                            t2 = ((int*)t1)[0];
+                            at = 0x9000000;
+                            t2 |= at;
+                            ((int*)t1)[0] = (int)s5;
+                            s5[0] = t2;
 #endif
-                           s5 += sizeof(POLY_GT3) / sizeof(unsigned long);
-                       }//loc_9D0
-                   }//loc_9D0
-               }//loc_9D0
-           }//loc_9D0
-       }//loc_9D0
+                            s5 += sizeof(POLY_GT3) / sizeof(unsigned long);
+                        }//loc_9D0
+                    }//loc_9D0
+                }//loc_9D0
+            }//loc_9D0
+        }//loc_9D0
 
-       a1++;
-       if (v0 != 0)
-       {
-           if (v1-- != 0)
-           {
-               goto loc_88C;
-           }
+        a1++;
+        if (v0 != 0)
+        {
+            if (v1-- != 0)
+            {
+                goto loc_88C;
+            }
 
-           t00 = a1[0];
-           goto loc_884;
+            t00 = a1[0];
+            goto loc_884;
 
-       }//loc_9E8
-   }
-   //loc_9E8
-   v0 = DQA;
+        }//loc_9E8
+    }
+    //loc_9E8
+    v0 = DQA;
 
-   t00 = a1[0];
+    t00 = a1[0];
 
-   if (v0 != 0)
-   {
-loc_9F4:
-       a1++;
-       v1 = 1;
+    if (v0 != 0)
+    {
+    loc_9F4:
+        a1++;
+        v1 = 1;
 
-loc_9FC:
-       t1 = a1[0];
-       v0--;
-       
-       t9 = t1 >> 21;
-       t8 = t1 >> 13;
-       t8 &= 0x7F8;
-       t8 += (int)a0;
-       t7 = t1 >> 5;
-       t7 &= 0x7F8;
-       t7 += (int)a0;
-       t6 = t1 << 3;
-       t6 &= 0x7F8;
-       t6 += (int)a0;
-       SXY0 = ((int*)t6)[0];
-       SXY1 = ((int*)t7)[0];
-       SXY2 = ((int*)t8)[0];
-       t9 &= 0x7F8;
-       t9 += (int)a0;
-       docop2(0x1400006);
-       t6 = ((int*)t6)[1];
-       t7 = ((int*)t7)[1];
-       t8 = ((int*)t8)[1];
-       t4 = ((int*)t9)[0];
-       t9 = ((int*)t9)[1];
-       SZ0 = t6;
-       SZ1 = t7;
-       SZ2 = t8;
-       SZ3 = t9;
-       at = MAC0;
-       docop2(0x168002E);
-       t5 = t00 & 0xFFF;
-       t00 >>= 16;
-       t5 <<= 4;
+    loc_9FC:
+        t1 = a1[0];
+        v0--;
 
-       if (at >= 0)
-       {
-           t1 = SXY0;
-           t2 = SXY1;
-           t3 = SXY2;
+        t9 = t1 >> 21;
+        t8 = t1 >> 13;
+        t8 &= 0x7F8;
+        t8 += (int)a0;
+        t7 = t1 >> 5;
+        t7 &= 0x7F8;
+        t7 += (int)a0;
+        t6 = t1 << 3;
+        t6 &= 0x7F8;
+        t6 += (int)a0;
+        SXY0 = ((int*)t6)[0];
+        SXY1 = ((int*)t7)[0];
+        SXY2 = ((int*)t8)[0];
+        t9 &= 0x7F8;
+        t9 += (int)a0;
+        docop2(0x1400006);
+        t6 = ((int*)t6)[1];
+        t7 = ((int*)t7)[1];
+        t8 = ((int*)t8)[1];
+        t4 = ((int*)t9)[0];
+        t9 = ((int*)t9)[1];
+        SZ0 = t6;
+        SZ1 = t7;
+        SZ2 = t8;
+        SZ3 = t9;
+        at = MAC0;
+        docop2(0x168002E);
+        t5 = t00 & 0xFFF;
+        t00 >>= 16;
+        t5 <<= 4;
 
-           if (!(t1 & 0xFE00) || !(t2 & 0xFE00) || !(t3 & 0xFE00) || !(t4 & 0xFE00))
-           {
-               //loc_AAC
-               at = t1 & t2;
-               at &= t3;
-               at &= t4;
+        if (at >= 0)
+        {
+            t1 = SXY0;
+            t2 = SXY1;
+            t3 = SXY2;
 
-               if (at >= 0)
-               {
-                   if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0 || (t4 >> 16) < 0xF0)
-                   {
-                       //loc_AEC
-                       t5 += (int)a22;
-                       t2 = t9 >> 7;
-                       t1 = OTZ;
-                       t2 &= a33;
+            if (!(t1 & 0xFE00) || !(t2 & 0xFE00) || !(t3 & 0xFE00) || !(t4 & 0xFE00))
+            {
+                //loc_AAC
+                at = t1 & t2;
+                at &= t3;
+                at &= t4;
 
-                       if (t1 < 0xA01)
-                       {
-                           t1 <<= 2;
+                if (at >= 0)
+                {
+                    if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0 || (t4 >> 16) < 0xF0)
+                    {
+                        //loc_AEC
+                        t5 += (int)a22;
+                        t2 = t9 >> 7;
+                        t1 = OTZ;
+                        t2 &= a33;
+
+                        if (t1 < 0xA01)
+                        {
+                            t1 <<= 2;
 #if defined(USE_32_BIT_ADDR)
-                           s5[3] = SXY0;
-                           s5[6] = SXY1;
-                           s5[9] = SXY2;
-                           s5[12] = t4;
+                            s5[3] = SXY0;
+                            s5[6] = SXY1;
+                            s5[9] = SXY2;
+                            s5[12] = t4;
 #else
-                           s5[2] = SXY0;
-                           s5[5] = SXY1;
-                           s5[8] = SXY2;
-                           s5[11] = t4;
+                            s5[2] = SXY0;
+                            s5[5] = SXY1;
+                            s5[8] = SXY2;
+                            s5[11] = t4;
 #endif
-                           t3 = t9 >> 10;
-                           t3 &= 0xF800;
-                           t9 >>= 13;
-                           t9 &= 0xF8;
-                           t9 |= t3;
-                           t9 |= t2;
-                           t4 = ((int*)t5)[2];
-                           at = t4;
-                           sub_BACL1(&t2, &t6, &a33, &t3, &at, &t7, &t8);
-                           at = DQB;
-                           t2 = ((int*)t5)[0];
-                           t3 = ((int*)t5)[1];
-                           t5 = ((int*)t5)[3];
-                           t2 -= at;
+                            t3 = t9 >> 10;
+                            t3 &= 0xF800;
+                            t9 >>= 13;
+                            t9 &= 0xF8;
+                            t9 |= t3;
+                            t9 |= t2;
+                            t4 = ((int*)t5)[2];
+                            at = t4;
+                            sub_BACL3(&t2, &t6, &a33, &t3, &at, &t7, &t8);
+                            at = DQB;
+                            t2 = ((int*)t5)[0];
+                            t3 = ((int*)t5)[1];
+                            t5 = ((int*)t5)[3];
+                            t2 -= at;
 
 #if defined(USE_32_BIT_ADDR)
-                           s5[2] = t6;
-                           s5[4] = t2;
-                           s5[5] = t7;
-                           s5[7] = t3;
-                           s5[8] = t8;
-                           s5[10] = t4;
-                           s5[11] = t9;
-                           s5[13] = t5;
-                           t1 *= 2;
-                           t1 += s6;
-                           setlen(s5, 12);
-                           addPrim(t1, s5);
+                            s5[2] = t6;
+                            s5[4] = t2;
+                            s5[5] = t7;
+                            s5[7] = t3;
+                            s5[8] = t8;
+                            s5[10] = t4;
+                            s5[11] = t9;
+                            s5[13] = t5;
+                            t1 *= 2;
+                            t1 += s6;
+                            setlen(s5, 12);
+                            addPrim(t1, s5);
 #else
-                           s5[1] = t6;
-                           s5[3] = t2;
-                           s5[4] = t7;
-                           s5[6] = t3;
-                           s5[7] = t8;
-                           s5[9] = t4;
-                           s5[10] = t9;
-                           s5[12] = t5;
-                           t1 += s6;
-                           t2 = ((int*)t1)[0];
-                           at = 0xC000000;
-                           t2 |= at;
-                           ((int*)t1)[0] = (int)s5;
-                           ((int*)s5)[0] = t2;
+                            s5[1] = t6;
+                            s5[3] = t2;
+                            s5[4] = t7;
+                            s5[6] = t3;
+                            s5[7] = t8;
+                            s5[9] = t4;
+                            s5[10] = t9;
+                            s5[12] = t5;
+                            t1 += s6;
+                            t2 = ((int*)t1)[0];
+                            at = 0xC000000;
+                            t2 |= at;
+                            ((int*)t1)[0] = (int)s5;
+                            ((int*)s5)[0] = t2;
 #endif
-                           s5 += sizeof(POLY_GT4) / sizeof(unsigned long);
-                       }//loc_B8C
-                   }
-               }//loc_B8C
-           }//loc_B8C
-       }
-       //loc_B8C
-       a1++;
-       if (v0 != 0)
-       {
-           if (v1-- != 0)
-           {
-               goto loc_9FC;
-           }
+                            s5 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                        }//loc_B8C
+                    }
+                }//loc_B8C
+            }//loc_B8C
+        }
+        //loc_B8C
+        a1++;
+        if (v0 != 0)
+        {
+            if (v1-- != 0)
+            {
+                goto loc_9FC;
+            }
 
-           t00 = a1[0];
-           goto loc_9F4;
-       }
-   }//loc_BA4
+            t00 = a1[0];
+            goto loc_9F4;
+        }
+    }//loc_BA4
 
-   return s5;
+    return s5;
 }
 
-void sub_1184L1()
+void sub_1184L3()
 {
-	int t0 = 0;
-	int t1 = 0;
-	int t2 = 0;
-	int t3 = 0;
     int* s3 = &scratchPad[0];
     struct GUNSHELL_STRUCT* s1 = &Gunshells[0];///@FIXME GUNSHELL_STRUCT size not matching PSX!
     struct object_info* a0 = NULL;
     int s2 = 0x18;
+    int t0 = 0;
+    int t1 = 0;
+    int t2 = 0;
+    int t3 = 0;
 
     //loc_1198
     do
@@ -1062,13 +1065,13 @@ void sub_1184L1()
         s2--;
         if (s1->counter != 0)
         {
-            sub_FC0L1(s1->pos.x_pos, s1->pos.y_pos, s1->pos.z_pos);
-            sub_1244L1(s1->pos.y_rot, s1->pos.x_rot, s1->pos.z_rot);
+            sub_FC0L3(s1->pos.x_pos, s1->pos.y_pos, s1->pos.z_pos);
+            sub_1244L3(s1->pos.y_rot, s1->pos.x_rot, s1->pos.z_rot);
             a0 = &objects[s1->object_number];
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658L1((short*)((int*)meshes[a0->mesh_index])[0], (int*)db.polyptr, (int)db.ot);
+            db.polyptr = (char*)sub_658L3((short*)((int*)meshes[a0->mesh_index])[0], (int*)db.polyptr, (int)db.ot);
 #else
-            db.polyptr = (char*)sub_658L1((short*)((int*)meshes[a0->mesh_index])[0], (int*)db.polyptr, (int)db.ot);
+            db.polyptr = (char*)sub_658L3((short*)((int*)meshes[a0->mesh_index])[0], (int*)db.polyptr, (int)db.ot);
 #endif
 
             t0 = scratchPad[128];
@@ -1102,19 +1105,18 @@ void sub_1184L1()
 }
 
 
-void sub_1330L1(struct ITEM_INFO* item)
+void sub_1330L3(struct ITEM_INFO* item)
 {
-	struct object_info* object = &objects[item->object_number];
-	//S_PrintNiceShadow(object->shadow_size, GLaraShadowframe, 0);
+    struct object_info* object = &objects[item->object_number];
+    //S_PrintNiceShadow(object->shadow_size, GLaraShadowframe, 0);
 }
 
-void sub_10DCL1(int a1, int a2)
+void sub_10DCL3(int a1, int a2)
 {
     struct HAIR_STRUCT* hair = &hairs[0][a1];//$a0
     int at = 0;
     int* a22 = NULL;
-	int* a00 = NULL;
-
+    int* a00 = NULL;
     //v0 = &hairs[0]
     //v1 = a1 << 5
 
@@ -1149,7 +1151,7 @@ loc_1114:
 
 }
 
-void sub_E38L1()
+void sub_E38L3()
 {
     int* a3 = NULL;
     int t0 = 0;
@@ -1160,12 +1162,13 @@ void sub_E38L1()
     int t5 = 0;
     int t6 = 0;
     int t7 = 0;
-	struct HAIR_STRUCT* h = NULL;
-	short* s4 = NULL;
-	int s2 = 0;
-	short* s1 = NULL;
+    struct HAIR_STRUCT* h = NULL;
+    short* s4 = NULL;
+    int s2 = 0;
+    short* s1 = NULL;
 
-	a3 = &scratchPad[0];
+    a3 = &scratchPad[0];
+
     t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
     t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
     t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
@@ -1194,14 +1197,14 @@ void sub_E38L1()
     //loc_EA4
     do
     {
-        sub_FC0L1(h->pos.x_pos, h->pos.y_pos, h->pos.z_pos);
-        sub_D7CL1(h->pos.y_rot);
-        sub_CBCL1(h->pos.x_rot);
+        sub_FC0L3(h->pos.x_pos, h->pos.y_pos, h->pos.z_pos);
+        sub_D7CL3(h->pos.y_rot);
+        sub_CBCL3(h->pos.x_rot);
         h += 2;
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658L1((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658L1((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
 #endif
 
         //t0 = &tsv_buffer[0]
@@ -1210,13 +1213,13 @@ void sub_E38L1()
 
         if (s2 != 5)
         {
-            sub_C1CL1(s2 + 0x1C);
-            sub_C1CL1(s2 + 0x1D);
+            sub_C1CL3(s2 + 0x1C);
+            sub_C1CL3(s2 + 0x1D);
         }
         else
         {
             //loc_F04
-            sub_C1CL1(0x21);
+            sub_C1CL3(0x21);
         }
 
         s2 += 2;
@@ -1253,13 +1256,13 @@ void sub_E38L1()
     {
         //t0 = &tsv_buffer[0];
         //t1 = &ScratchVertNums[0];
-        sub_C6CL1(s2 + 0x1C);
-        sub_10DCL1(s2, s2 + 0x1D);
-        sub_C6CL1(s2 + 0x1D);
+        sub_C6CL3(s2 + 0x1C);
+        sub_10DCL3(s2, s2 + 0x1D);
+        sub_C6CL3(s2 + 0x1D);
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658L1((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658L1((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
 #endif
 
         s2 += 2;
@@ -1267,37 +1270,38 @@ void sub_E38L1()
     } while (s2 < 6);
 }
 
-void sub_2CL1(struct ITEM_INFO* item)
+void sub_2CL3(struct ITEM_INFO* item)
 {
     int i;
     int underwater_node = 0;//$v1
     int a1 = 0;
     int v0;
+    int at;
+    short a2 = 0;
     int v1;
     CVECTOR a0;
     int* s0;
     int a00;
     int j;//$t6
-	int t0 = 0;
+    int t0 = 0;
     int t1 = 0;
     int t2 = 0;
     int t3 = 0;
-	int t4 = 0;
-	int t5 = 0;
-	int t6 = 0;
-	int t7 = 0;
-	int* v11 = NULL;
-	short* s1 = NULL;
-	int a000 = 0;
-	long* bone = NULL;
-	int at = 0;
-	short a2 = 0;
+    int t4 = 0;
+    int t5 = 0;
+    int t6 = 0;
+    int t7 = 0;
+    short* s1 = NULL;
+    int a000 = 0;
+    int* v11 = NULL;
+    long* bone = NULL;
+
     S_MemSet((char*)&scratchPad[0], 0, 1024);
 
     //v0 = item->hit_points
     if (item->hit_points > 0)
     {
-        sub_1330L1(item);
+        sub_1330L3(item);
     }
     //loc_6C
     mPushMatrix();
@@ -1417,9 +1421,9 @@ void sub_2CL1(struct ITEM_INFO* item)
         if ((lara_item->mesh_bits >> 16)& (1 << 0xF))
         {
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658L1(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot+1*2));
+            db.polyptr = (char*)sub_658L3(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot + 1 * 2));
 #else
-            db.polyptr = (char*)sub_658L1(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot+1));
+            db.polyptr = (char*)sub_658L3(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot + 1));
 #endif
         }//loc_1FC
 
@@ -1434,7 +1438,7 @@ void sub_2CL1(struct ITEM_INFO* item)
         {
             if (NodesToStashFromScratch[i][j] != -1)
             {
-                sub_C1CL1(NodesToStashFromScratch[i][j]);
+                sub_C1CL3(NodesToStashFromScratch[i][j]);
             }
             else
             {
@@ -1486,8 +1490,8 @@ void sub_2CL1(struct ITEM_INFO* item)
             // int t2 = SkinUseMatrix[0][0];//derive from s0
              //t0 = &tsv_buffer[0];
              //t1 = &ScratchVertNums[0];
-            sub_C6CL1(NodesToStashToScratch[i][0]);
-            sub_C6CL1(NodesToStashToScratch[i][1]);
+            sub_C6CL3(NodesToStashToScratch[i][0]);
+            sub_C6CL3(NodesToStashToScratch[i][1]);
 
             if (SkinUseMatrix[i][0] < 0xFF)
             {
@@ -1550,14 +1554,14 @@ void sub_2CL1(struct ITEM_INFO* item)
                 //loc_3FC
                 a000 = v0 >> 1;
                 a000 = -a000;
-                sub_CBCL1(a000);
+                sub_CBCL3(a000);
 
             }//loc_408
 
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658L1((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1 * 2));
+            db.polyptr = (char*)sub_658L3((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1 * 2));
 #else
-            db.polyptr = (char*)sub_658L1((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1));
+            db.polyptr = (char*)sub_658L3((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1));
 #endif
         }
         //loc_410
@@ -1614,9 +1618,9 @@ void sub_2CL1(struct ITEM_INFO* item)
 
         ///@FIXME for some reason at index 0 it wont draw left holster!
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658L1((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658L1((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #endif
         s0 += 8;
 
@@ -1650,9 +1654,9 @@ void sub_2CL1(struct ITEM_INFO* item)
 
         ///@FIXME for some reason at index 0 it wont draw right holster!
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658L1((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658L1((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #endif
     }
     //loc_538
@@ -1695,12 +1699,12 @@ void sub_2CL1(struct ITEM_INFO* item)
         TRY = t6;
         TRZ = t7;
 
-        sub_1358L1(bone[53], bone[54], bone[55]);
+        sub_1358L3(bone[53], bone[54], bone[55]);
         ///@FIXME for some reason at index 0 it wont draw back gun!
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658L1((short*)((int*)s0)[28], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s0)[28], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658L1((short*)((int*)s0)[28], (int*)db.polyptr, (int)db.ot);
+        db.polyptr = (char*)sub_658L3((short*)((int*)s0)[28], (int*)db.polyptr, (int)db.ot);
 #endif
 
     }
@@ -1721,12 +1725,12 @@ void sub_2CL1(struct ITEM_INFO* item)
     GBK = ((((int*)&a0.r)[0] >> 4) & 0xFF0);
     BBK = ((((int*)&a0.r)[0] >> 12) & 0xFF0);
 
-    sub_E38L1();
+    sub_E38L3();
 
-    sub_1184L1();
+    sub_1184L3();
 }
 
-void DrawLaraL1()
+void DrawLaraL3()
 {
-    sub_2CL1(lara_item);
+    sub_2CL3(lara_item);
 }

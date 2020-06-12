@@ -19,6 +19,7 @@
 #include "GLOBAL.H"
 #include "INCLUDE.H"
 #else
+#include "LOAD_LEV.H"
 #include "ROOMLOAD.H"
 #include "SETUP.H"
 #include <SFX.H>
@@ -27,6 +28,7 @@
 #include "SOUND.H"
 #include "SPECIFIC.H"
 #include "STYPES.H"
+#include "MATHS.H"
 
 #include "TOMB4FX.H"
 
@@ -40,6 +42,9 @@
 #include "CALCLARA.H"
 #endif
 
+#if PSXPC_VERSION || PSXPC_TEST
+#include "GTEREG.H"
+#endif
 
 long wf = 256;
 short next_fx_free;
@@ -654,7 +659,7 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int flags)//91780(<)
 	}
 
 	if (!sound_active ||
-	    !(flags & SFX_ALWAYS) && (flags & SFX_WATER) != (room[camera.pos.room_number].flags & RF_FILL_WATER))
+		!(flags & SFX_ALWAYS) && (flags & SFX_WATER) != (room[camera.pos.room_number].flags & RF_FILL_WATER))
 		return 0;
 
 	short info_num = sample_lut[sample_index];
@@ -691,13 +696,13 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int flags)//91780(<)
 
 		long aradius = ABS(radius);
 		if (ABS(x) > aradius ||
-		    ABS(y) > aradius ||
-		    ABS(z) > aradius)
+			ABS(y) > aradius ||
+			ABS(z) > aradius)
 			return 0;
 
 		distance = x * x + y * y + z * z;
 
-		if (distance > radius * radius)
+		if (distance > radius* radius)
 			return 0;
 
 		if (distance >= SOUND_MAXVOL_RADIUS_SQRD)
@@ -729,7 +734,7 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int flags)//91780(<)
 
 	if (distance != 0)
 		volume = volume * 4 * (4096 - (SIN((distance << W2V_SHIFT) / (unsigned int)radius) / 4))
-			>> W2V_SHIFT;// @TODO: this should work?
+		>> W2V_SHIFT;// @TODO: this should work?
 
 
 	if (volume <= 0)
@@ -885,125 +890,453 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int flags)//91780(<)
 #if PSXPC_VERSION || PSXPC_TEST
 long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<), 937C4(!)
 {
-	long r;
-	long dx;
-	long dy;
-	long dz;
-	long rx;
-	long ry;
-	long rz;
+	int t8;
+	int a1;
+	int t9;
+	int v1;
 	int v0;
-	int at = 0;
+	int s3;
+	int s1;
+	int s2;
+	int s6;
 	int s4;
 
-	struct SVECTOR direction;
-
-#if !INTERNAL
-	//lw	$at, 0x3FC($gp)
-#endif
-
-#if BETA_VERSION
+	//v0 = sound_active
+	//at = arg2 & 2
 	if (sound_active)
-#else
-	if (sound_active && at == 0)
-#endif
 	{
-		//locret_91CEC
-		return 0;
-	}//locret_93D38
+		s4 = arg2;
+		//s7 = pos
 
-	 //s4 = a2;
-	 //s7 = a1;
-	if (!(arg2 & 2))
-	{
-		if ((arg2 & 1) != (room[camera.pos.room_number].flags & 1))
+		if (!(arg2 & 2))
 		{
-			//loc_91CC4
+			if ((arg2 & 1) != (room[camera.pos.room_number].flags & 1))
+			{
+				return 0;
+			}
+		}
+		//loc_917F0
+		//v1 = &sample_lut[sample_index];
+		//fp = sample_lut[sample_index];
+		//v0 = -1
+
+		if (sample_lut[sample_index] == -1)
+		{
+			sample_lut[sample_index] = -2;
 			return 0;
 		}
-	}
-
-	//loc_917F0
-	//No sound is in the sound wad for this sample index. Get out!
-	if (sample_lut[sample_index] == -1)
-	{
-		sample_lut[sample_index] = -2;
-		//loc_91810
-		return 0;
-	}
-
-	//loc_91818
-	if (sample_lut[sample_index] == -2)
-	{
-		//loc_91CC4
-		return 0;
-	}
-
-	sizeof(struct SAMPLE_INFO);
-#if 0
-	s5 = sample_infos[sample_lut[sample_index]];
-
-	if (sample_infos[sample_lut[sample_index]].randomness != 0)
-	{
-		if (sample_infos[sample_lut[sample_index]].randomness < GetRandomDraw())
-		{
-			return 0;
-		}
-	}
-
-	//loc_91854
-	t0 = (sample_infos[sample_lut[sample_index]].radius * 1024 + 1024) * (sample_infos[sample_lut[sample_index]].radius * 1024 + 1024);
-	//s1 = 0
-	if (pos != NULL)
-	{
-#if 0
-		a1 dy = pos->y_pos - camera.pos.y_pos;
-		t8 dx = pos->x_pos - camera.pos.x_pos;
-		t9 dz = pos->z_pos - camera.pos.z_pos;
-
-		if (dx < -t0 || t0 < t0 || dy < -t0 || dy < t0 || dz < -t0 || dz < t0)
+		//loc_91818
+		if (sample_lut[sample_index] == -2)
 		{
 			return 0;
 		}
 
-		negu	$v1, $t0
+		unsigned int s5 = (unsigned int)&sample_infos[sample_lut[sample_index]];
+		//t1 = sample_infos[sample_lut[sample_index]].randomness
+		//t0 = sample_infos[sample_lut[sample_index]].radius
+		//t2 = sample_infos[sample_lut[sample_index]].flags
 
-#if PSX_VERSION
-			__asm__ volatile ("mtc2 dx, $9");
-		__asm__ volatile ("mtc2 dy, $10");
-		__asm__ volatile ("mtc2 dz, $11");
-
-		__asm__ volatile ("cop2 0xA00428");
-		__asm__ volatile ("mfc2 rx, $25");//moved to v0
-		__asm__ volatile ("mfc2 ry, $26");//moved to v1
-		__asm__ volatile ("mfc2 rz, $27");//moved to $s3 (0)
-#endif
-
-		rx += sy;
-		rz += rx;//add all
-
-		if (arg2 < rz)
+		if (sample_infos[sample_lut[sample_index]].randomness != 0)
 		{
-			return 0;
+			if (sample_infos[sample_lut[sample_index]].randomness < (GetRandomDraw() & 0xFF))
+			{
+				return 0;
+			}
 		}
+		//loc_91854
+		//t0 = ((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400)
+		//a2 = ((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400) * ((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400)
 
-		if (-1 < rz)
+		s1 = 0;
+		if (pos != NULL)
 		{
-			//loc_9191C
-			rz = phd_sqrt_asm(rz) - 1024;
+			//v1 = pos.x
+			//v0 = camera.pos.x
+			//a1 = pos.y - camera.pos.y
+			//a0 = pos.z
+			//t8 = pos.x - camera.pos.x
+			//v1 = camera.pos.y
+			//v0 = camera.pos.z
+			//t9 = pos.z - camera.pos.z
+			//v1 = -((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400)
+
+			if (pos->x_pos - camera.pos.x < -((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400))
+			{
+				return 0;
+			}
+
+			if (((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400) < pos->x_pos - camera.pos.x)
+			{
+				return 0;
+			}
+
+			if (pos->y_pos - camera.pos.y < -((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400))
+			{
+				return 0;
+			}
+
+			if (((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400) < pos->y_pos - camera.pos.y)
+			{
+				return 0;
+			}
+
+			if (pos->z_pos - camera.pos.z < -((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400))
+			{
+				return 0;
+			}
+
+			if (((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400) < pos->z_pos - camera.pos.z)
+			{
+				return 0;
+			}
+
+			t8 = IR1;
+			a1 = IR2;
+			t9 = IR3;
+
+			docop2(0xA00428);
+			v0 = MAC1;
+			v1 = MAC2;
+			s3 = MAC3;
+
+			v0 += v1;
+			s3 += v0;
+
+			if (((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400) * ((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400) < s3)
+			{
+				return 0;
+			}
+
+			if (0xFFFFF >= s3)
+			{
+				s3 = 0;
+			}
+			else
+			{
+				s3 = mSqrt(s3) - 0x400;
+			}
+
+			//loc_91928
+			if (!(sample_infos[sample_lut[sample_index]].flags & 0x1000))
+			{
+				s1 = phd_atan_asm(t9, t8) + (CamRot.vy << 4);
+		    }
 		}
 		else
 		{
-			rz = 0;//s3
+			//loc_91950
+			s3 = 0;
 		}
 
-		//loc_91928
+		//loc_91954
+		v1 = sample_infos[sample_lut[sample_index]].volume;
+		//at = arg2 >> 8
+		if ((arg2 & 8))
+		{
+			v1 = (((arg2 >> 8) & 0x1F) * sample_infos[sample_lut[sample_index]].volume) >> 5;
+		}
+		//loc_91974
+		s2 = v1 << 6;
+		if ((sample_infos[sample_lut[sample_index]].flags & 0x4000))
+		{
+			s2 -= ((GetRandomDraw() << 12) >> 15);
+		}
 
-#endif
-	}//loc_91950
-#endif
+		s6 = s2;
+		//loc_91994
+		if (s3 != 0)
+		{
+			v0 = (s3 << 14) / ((sample_infos[sample_lut[sample_index]].radius << 10) + 0x400);
+			s2 = ((0x1000 - SIN(v0)) * s2) >> 12;
+		}
+		//loc_919D0
+		if (s2 <= 0)
+		{
+			return 0;
+		}
 
-	UNIMPLEMENTED();
+		//v0 = s4 & 4
+		if (0x7FFF < s2)
+		{
+			s2 = 0x7FFF;
+		}
+
+		s4 >>= 16;
+		if (!(arg2 & 4))
+		{
+			s4 = 0x100;
+		}
+		//loc_919F4
+		s4 <<= 8;
+
+		//v0 = sample_infos[sample_lut[sample_index]].pitch << 9
+		s4 = sample_infos[sample_lut[sample_index]].pitch << 9;
+		if((sample_infos[sample_lut[sample_index]].flags & 0x2000))
+		{
+			v0 = GetRandomDraw();
+			s4 = (s4 - 0x1770) + ((((((((v0 << 1) + v0) << 4) - v0) << 3) - v0) << 4) >> 14);
+		}
+		//loc_91A3C
+		int s0 = sample_infos[sample_lut[sample_index]].number;
+		//t0 = sample_infos[sample_lut[sample_index]].flags >> 2
+		if (sample_infos[sample_lut[sample_index]].number < 0)
+		{
+			return 0;
+		}
+
+		if (((sample_infos[sample_lut[sample_index]].flags >> 2) & 0xF) != 1)
+		{
+			s0 += (GetRandomDraw() * ((sample_infos[sample_lut[sample_index]].flags >> 2) & 0xF)) >> 15;
+
+		}//loc_91A74
+
+		//v1 = sample_infos[sample_lut[sample_index]].flags & 3
+		L11 = s5 & 0xFFFF;
+		L12 = (s5 >> 16) & 0xFFFF;
+		L13 = s0 & 0xFFFF;
+		L21 = (s0 >> 16) & 0xFFFF;
+		L22 = (sample_infos[sample_lut[sample_index]].flags & 3) & 0xFFFF;
+		L23 = ((sample_infos[sample_lut[sample_index]].flags & 3) >> 16) & 0xFFFF;
+
+		s0 = 0;
+		//s5 = &LaSlot[0];
+
+		if ((sample_infos[sample_lut[sample_index]].flags & 3) == 0)
+		{
+			//loc_91BA0
+			v0 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+			int a0 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+
+			if (v0 == 3)
+			{
+				S_SoundPlaySampleLooped(a0, s2 & 0xFFFF, s4, s1, s3);
+			}
+			else
+			{
+				S_SoundPlaySample(a0, s2 & 0xFFFF, s4, s1, s3);
+			}
+		}
+		else if ((sample_infos[sample_lut[sample_index]].flags & 3) - 1 == 0)
+		{
+			//loc_91B2C
+			do
+			{
+				v0 = ((unsigned int*)s5)[4];
+
+				if (v0 == sample_lut[sample_index])
+				{
+					if (S_SoundSampleIsPlaying(s0))
+					{
+						return 0;
+					}
+
+					((unsigned int*)s5)[4] = -1;
+				}
+				//loc_91B54
+				s5 += 0x24;
+			} while (++s0 < 0x18);
+		}
+		else if ((sample_infos[sample_lut[sample_index]].flags & 3) - 2 == 0)
+		{
+			//loc_91B6C
+			do
+			{
+				v0 = ((unsigned int*)s5)[4];
+				if (v0 == sample_lut[sample_index])
+				{
+					S_SoundStopSample(s0);
+
+					((unsigned int*)s5)[4] = -1;
+				}
+				//loc_91B90
+
+				s5 += 0x24;
+			} while (++s0 < 0x18);
+		}
+		else
+		{
+			//loc_91AA8
+			do
+			{
+				v0 = ((unsigned int*)s5)[4];
+
+				if (v0 == sample_lut[sample_index])
+				{
+					v0 = ((unsigned int*)s5)[1];
+
+					if (v0 < s2)
+					{
+						//loc_91ACC
+						((unsigned int*)s5)[0] = s6;
+						((unsigned int*)s5)[1] = s2;
+						((unsigned int*)s5)[2] = s1;
+						((unsigned int*)s5)[3] = s4;
+						((unsigned int*)s5)[4] = sample_lut[sample_index];
+						((unsigned int*)s5)[5] = s3;
+
+						v0 = 0;
+						v1 = 0;
+						int a0 = 0;
+
+						if (pos != NULL)
+						{
+							v0 = pos->x_pos;
+							v1 = pos->y_pos;
+							a0 = pos->z_pos;
+						}
+						//loc_91B00
+						((unsigned int*)s5)[6] = v0;
+						((unsigned int*)s5)[7] = v1;
+						((unsigned int*)s5)[8] = a0;
+
+						return 1;
+					}
+					else
+					{
+						return 0;
+						//loc_91CC4
+					}
+				}
+				//loc_91B14
+				s5 += 0x24;
+			} while (++s0 < 0x18);
+		}
+
+		//loc_91BA0
+		v0 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+		int a0 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+		a1 = s2 & 0xFFFF;
+		int a2 = s4;
+		int a3 = s1;
+
+		if (v0 == 3)
+		{
+			v0 = S_SoundPlaySampleLooped(a0, a1, a2, a3, s3);
+		}
+		else
+		{
+			//loc_91BC8
+			v0 = S_SoundPlaySample(a0, a1, a2, a3, s3);
+		}
+
+		if (v0 >= 0)
+		{
+			s5 = (unsigned int)&LaSlot[v0];
+			//loc_91ACC
+			((unsigned int*)s5)[0] = s6;
+			((unsigned int*)s5)[1] = s2;
+			((unsigned int*)s5)[2] = s1;
+			((unsigned int*)s5)[3] = s4;
+			((unsigned int*)s5)[4] = sample_lut[sample_index];
+			((unsigned int*)s5)[5] = s3;
+
+			v0 = 0;
+			v1 = 0;
+			int a0 = 0;
+
+			if (pos != NULL)
+			{
+				v0 = pos->x_pos;
+				v1 = pos->y_pos;
+				a0 = pos->z_pos;
+			}
+			//loc_91B00
+			((unsigned int*)s5)[6] = v0;
+			((unsigned int*)s5)[7] = v1;
+			((unsigned int*)s5)[8] = a0;
+
+			return 1;
+		}
+
+		//loc_91BF0
+		if (v0 != -1)
+		{
+			v1 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+			((unsigned int*)v1)[0] = arg2 >> 8;
+			return 0;
+		}
+		else
+		{
+			//loc_91C08
+			v0 = 0;
+			a1 = 0x8000000;
+			a2 = -1;
+			unsigned int* a33 = (unsigned int*)&LaSlot[1];
+			int t0 = 1;
+
+			//loc_91C1C
+			do
+			{
+				v0 = a33[4];
+				v1 = a33[1];
+
+				if (v0 >= 0 && a1 >= v1)
+				{
+					a1 = v1;
+					a2 = t0;
+					s5 = (unsigned int)a33;
+				}
+
+				a33 += 9;
+
+			} while (++t0 < 0x18);
+
+			if (s2 < a1)
+			{
+				return 0;
+			}
+
+			S_SoundStopSample(a2);
+
+			((unsigned int*)s5)[4] = -1;
+			v0 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+			int a0 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+			a1 = s2 & 0xFFFF;
+			a2 = s4;
+			a3 = s1;
+
+			if (v0 == 3)
+			{
+				a0 = S_SoundPlaySampleLooped(a0, a1, s2, a3, s3);
+			}
+			else
+			{
+				a0 = S_SoundPlaySample(a0, a1, s2, a3, s3);
+			}
+
+			if (a0 >= 0)
+			{
+				s5 = (unsigned int)&LaSlot[a0];
+
+				//loc_91ACC
+				((unsigned int*)s5)[0] = s6;
+				((unsigned int*)s5)[1] = s2;
+				((unsigned int*)s5)[2] = s1;
+				((unsigned int*)s5)[3] = s4;
+				((unsigned int*)s5)[4] = sample_lut[sample_index];
+				((unsigned int*)s5)[5] = s3;
+
+				v0 = 0;
+				v1 = 0;
+				int a0 = 0;
+
+				if (pos != NULL)
+				{
+					v0 = pos->x_pos;
+					v1 = pos->y_pos;
+					a0 = pos->z_pos;
+				}
+				//loc_91B00
+				((unsigned int*)s5)[6] = v0;
+				((unsigned int*)s5)[7] = v1;
+				((unsigned int*)s5)[8] = a0;
+
+				return 1;
+			}
+		}
+	}
+	//locret_91CEC
+	return 0;
 }
 #endif
 

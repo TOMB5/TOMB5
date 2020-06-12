@@ -4,6 +4,8 @@
 #include "SPUSOUND.H"
 #include "SPECIFIC.H"
 
+#include <LIBSPU.H>
+
 long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch, int arg_10)
 {
 	long channel;
@@ -72,9 +74,10 @@ void SPU_StopAll()
 	UNIMPLEMENTED();
 }
 
-void SPU_FreeChannel(int channel_index)
+void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 {
-	UNIMPLEMENTED();
+	LabSampleType[channel_index] = 0;
+	LabFreeChannel[LnFreeChannels++] = channel_index;
 }
 
 void S_SoundStopSample(int handle)
@@ -102,7 +105,7 @@ void SOUND_Stop()
 	UNIMPLEMENTED();
 }
 
-int PlaySample(int a0, int volume_left, int volume_right, int a3, int arg_10, int t1, int t2)
+int PlaySample(int a0, int volume_left, int volume_right, int a3, int arg_10, int t1, int t2)//914C8(<), 9350C(<)
 {
 	//CalcVolumes_ASM();//prolly modifies t1 and t2
 	SPU_Play(t1, volume_left, volume_right, t2, arg_10);
@@ -115,6 +118,42 @@ int S_SoundPlaySampleLooped(int a0, int a1, int a2, int a3, int arg_10)
 	if (GtSFXEnabled)
 	{
 		return PlaySample(arg_10, a1, a2, a3, 2, a0, a2);
+	}
+	else
+	{
+		return -3;
+	}
+}
+
+int S_SoundSampleIsPlaying(int handle)//916F8(<), 9373C(<)
+{
+	char status;
+
+	if (GtSFXEnabled == 0)
+	{
+		return 0;
+	}
+
+	status = (char)(SpuGetKeyStatus(1 << handle) -1);
+
+	if (status < 2 || LabSampleType[handle] == 0)
+	{
+		return LabSampleType[handle];
+	}
+
+	SPU_FreeChannel(handle);
+
+	return 0;
+}
+
+int S_SoundPlaySample(int a0, int a1, int a2, int a3, int arg_10)//91480(<), ?
+{
+	if (GtSFXEnabled)
+	{
+		int t1 = a0;
+		int t2 = a1;
+		a0 = arg_10;
+		PlaySample(a0, a1, a2, a3, 1, t1, t2);
 	}
 	else
 	{

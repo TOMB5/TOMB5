@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include <LIBETC.H>
+#include "LIBETC.H"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -608,7 +608,7 @@ void DrawOTag(u_long* p)
 		Emulator_BlitVRAM();
 	}
 
-	AggregatePTAGsToSplits(p, false);
+	AggregatePTAGsToSplits(p, FALSE);
 
 	DrawAggregatedSplits();
 	Emulator_EndScene();
@@ -642,7 +642,8 @@ void DrawPrim(void* p)
 		Emulator_BlitVRAM();
 	}
 
-	AggregatePTAGsToSplits((u_long*)p, true);
+	AggregatePTAGsToSplits((u_long*)p, TRUE);
+	DrawAggregatedSplits();
 
 #if defined(PGXP)
 	/* Reset the ztable */

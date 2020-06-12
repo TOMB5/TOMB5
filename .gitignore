@@ -10,6 +10,8 @@
 *.nam
 *.til
 
+/Emulator/Shaders/gte_*.h
+/Emulator/Shaders/blit_*.h
 /BUILD/*
 /BUILD1/*
 /x64/*

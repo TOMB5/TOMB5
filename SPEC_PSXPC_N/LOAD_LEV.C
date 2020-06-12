@@ -87,7 +87,7 @@ unsigned short ScalarTable[] =
 };
 
 struct MATRIX3D iMatrixStack[32];
-struct SVECTOR CamRot;
+SVECTOR CamRot;
 struct MATRIX3D* iMatrix;
 unsigned short MatrixSP;
 struct MATRIX3D MatrixStack[32];
@@ -320,7 +320,7 @@ void LOAD_Start(int file_number)//602AC(<), 60DEC(<) (F) (*) (*) (D) (D)
 	int y = 0;
 	unsigned long* tmpptr = NULL;
 	int file = 0;
-	unsigned short dat = NULL;
+	unsigned short dat = 0;
 
 #if DEBUG_VERSION
 	ProfileDraw = 0;

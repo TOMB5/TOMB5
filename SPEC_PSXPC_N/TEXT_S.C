@@ -203,6 +203,8 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 	//s0 = a0
 	//s4 = a1
 	int s3 = colourFlag;
+	int v0 = 0;
+	struct CHARDEF* s1 = NULL;
 	//s5 = string
 	//s6 = flag
 	//at = GnFrameCounter
@@ -218,7 +220,7 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 	//loc_8DBA0
 	//v0 = (flag >> 12) & 1;
 	ScaleFlag = (flag >> 12) & 1;
-	int v0 = GetStringLength(string, 0, &var_30);
+	v0 = GetStringLength(string, 0, &var_30);
 
 	/*
 	sub_8FDD4
@@ -348,7 +350,7 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 				{
 					//v1 = &word_9230E
 					c -= 0x18;
-					CHARDEF* s1 = &word_9230E[c + 0x18];
+					s1 = &word_9230E[c + 0x18];
 					if (c > 3)
 					{
 						DrawChar(s2, y, 0, &word_9230E[c + 0x18]);
@@ -373,7 +375,7 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 				else
 				{
 					//loc_8DD20
-					CHARDEF* s1 = &loc_92020[c];
+					s1 = &loc_92020[c];
 					DrawChar(s2, y, s3, s1);
 
 					if ((flag & 0x1000))
@@ -607,6 +609,7 @@ void DrawChar(unsigned short x, unsigned short y, unsigned short colourFlag, str
 
 void _DelDrawSprite(int x, int y, int w, int h)
 {
+	int v0 = 0;
 	struct PSXSPRITESTRUCT* a2 = &GLOBAL_default_sprites_ptr[w];
 
 	setDrawTPage(db.polyptr, 1, 1, a2->tpage);
@@ -626,7 +629,7 @@ void _DelDrawSprite(int x, int y, int w, int h)
 	((short*)db.polyptr)[16] = (a2->u2 - a2->u1) + 1;
 	((short*)db.polyptr)[17] = (a2->v2 - a2->v1) + 1;
 
-	int v0 = db.ot[h * 2];
+	v0 = db.ot[h * 2];
 	db.ot[h * 2] = (unsigned long)db.polyptr;
 	((unsigned long*)db.polyptr)[0] = v0;
 #else
@@ -643,7 +646,7 @@ void _DelDrawSprite(int x, int y, int w, int h)
 	((short*)db.polyptr)[12] = (a2->u2 - a2->u1) + 1;
 	((short*)db.polyptr)[13] = (a2->v2 - a2->v1) + 1;
 
-	int v0 = db.ot[h];
+	v0 = db.ot[h];
 	setaddr(&db.ot[h], db.polyptr);
 	setaddr(db.polyptr, v0);
 #endif

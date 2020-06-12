@@ -1,5 +1,7 @@
+#if PC_VERSION
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnusedGlobalDeclarationInspection"
+#endif
 #ifndef GTYPES_H
 #define GTYPES_H
 
@@ -132,7 +134,7 @@ inline int phd_atan(long x, long y)
 #define STEP_L     (WALL_L/4)
 
 //#define SECTOR 1024
-#define SECTOR(x) (short)((x) * WALL_L)
+#define SECTOR(x) ((x) * WALL_L)
 #define CLICK 256
 
 #define UNIT_SHADOW 256
@@ -343,6 +345,9 @@ struct PHD_3DPOS
 	short x_rot; // off 12 [76]
 	short y_rot; // off 14 [78]
 	short z_rot; // off 16 [80]
+#if PSXPC_TEST
+	short padding;
+#endif
 };
 
 struct FLOOR_INFO
@@ -1545,4 +1550,6 @@ struct tr_room_portal  // 32 bytes
 #endif
 #endif
 
+#if PC_VERSION
 #pragma clang diagnostic pop
+#endif

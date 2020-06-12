@@ -10,15 +10,20 @@
 
 void mNormaliseXYZ_L(int* x, int* y, int* z)//86500 (F)
 {
+	int a3 = 0;
+	int v0 = 0;
+	int v1 = 0;
+	int at = 0;
+
 	IR1 = *x;
 	IR2 = *y;
 	IR3 = *z;
 
-	int a3 = 0x1F;
+	a3 = 0x1F;
 	docop2(0xA00428);
-	int v0 = MAC1;
-	int v1 = MAC2;
-	int at = MAC3;
+	v0 = MAC1;
+	v1 = MAC2;
+	at = MAC3;
 	v0 += v1;
 	v0 += at;
 
@@ -68,15 +73,19 @@ void mNormaliseXYZ_L(int* x, int* y, int* z)//86500 (F)
 
 int mSqrt_L(int a0)//8649C (F)
 {
+	int v0 = 0;
+	int v1 = 0;
+	int at = 0;
+
 	LZCR = gte_leadingzerocount(a0);
 	LZCS = a0;
 
-	int v0 = 0x1F;
+	v0 = 0x1F;
 
 	if (a0 != 0)
 	{
-		int v1 = LZCR;
-		int at = -2;
+		v1 = LZCR;
+		at = -2;
 		v1 &= at;
 		v0 -= v1;
 		v0 >>= 1;
@@ -278,7 +287,7 @@ void CalculateObjectLighting(struct ITEM_INFO* item/*a0*/, short* frmptr/*a1*/, 
 		mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
 		mTranslateXYZ((frmptr[0] + frmptr[1]) >> 1, (frmptr[2] + frmptr[4]) >> 1, (frmptr[3] + frmptr[5]) >> 1);
 		mPopMatrix();
-		//S_CalculateLight(item->pos.x_pos + TRX, item->pos.y_pos + TRY, item->pos.z_pos + TRZ, item->room_number, &item->il);
+		S_CalculateLight(item->pos.x_pos + TRX, item->pos.y_pos + TRY, item->pos.z_pos + TRZ, item->room_number, &item->il);
 	}
 	else
 	{
@@ -296,40 +305,74 @@ void S_CalculateLight(long x, long y, long z, short room_num, struct ITEM_LIGHT*
 	int t5;
 	int t6;
 	int v1;
+	int* s1 = NULL;
+	int* s2 = NULL;
+	int* a1 = NULL;
+	int a11 = 0;
+	int* a3 = NULL;
+	int a33 = 0;
+	int s4 = 0;
+	int s5 = 0;
+	int s6 = 0;
+	int s7 = 0;
+	int t7 = 0;
+	int t8 = 0;
+	int t9 = 0;
+	int a0 = 0;
+	int a2 = 0;
+	int at = 0;
+	int v0 = 0;
+	struct LIGHTINFO* gp = NULL;
+	unsigned short fp = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int* s3 = NULL;
+	struct DYNAMIC* gpp = NULL;
+	int* t00 = NULL;
+	int* s66 = NULL;
+	int s00 = 0;
+	int s11 = 0;
+	int s22 = 0;
+	int s33 = 0;
+	int s0 = 0;
+	struct MATRIX3D* s55 = NULL;
+	struct MATRIX3D* s666 = NULL;
+	int* s77 = 0;
 
 	S_MemSet((char*)&scratchPad[0], 0, 1024);
-	int* s1 = &scratchPad[21];
+	s1 = &scratchPad[21];
 	//at = 0x1000
 	s1[3] = 0;
 	s1[4] = 0;
 	((short*)s1)[10] = 0x1000;
-	int* s2 = &s1[8];
+	s2 = &s1[8];
 	s2[3] = 0;
 	s2[4] = 0;
 	((short*)s2)[10] = 0x1000;
-	int* s3 = &s2[8];
+	s3 = &s2[8];
 	s3[3] = 0;
 	s3[4] = 0;
 	((short*)s3)[10] = 0x1000;
-	int s4 = 0;
-	int s5 = 0;
-	int s6 = 0;
-	int s7 = 4096;
-	int t7 = x;
-	int t8 = y;
-	int t9 = z;
+	s4 = 0;
+	s5 = 0;
+	s6 = 0;
+	s7 = 4096;
+	t7 = x;
+	t8 = y;
+	t9 = z;
 
 	//t0 = &room[0];
 	//s0 = gp
 	r = &room[room_num];
 
-	struct LIGHTINFO* gp = r->light;
-	int v0 = ((int*)&r->ambient)[0];
-	unsigned short fp = r->num_lights;
+	gp = r->light;
+	v0 = ((int*)&r->ambient)[0];
+	fp = r->num_lights;
 
-	int t2 = (v0 >> 12) & 0xFF0;
-	int t1 = (v0 >> 4) & 0xFF0;
-	int t0 = (v0 << 4) & 0xFF0;
+	t2 = (v0 >> 12) & 0xFF0;
+	t1 = (v0 >> 4) & 0xFF0;
+	t0 = (v0 << 4) & 0xFF0;
 
 	SXY0 = t0;
 	SXY1 = t1;
@@ -338,18 +381,18 @@ void S_CalculateLight(long x, long y, long z, short room_num, struct ITEM_LIGHT*
 loc_85D34:
 	if (fp-- != 0)
 	{
-		int t3 = gp->Type;
-		int t2 = ((int*)&gp->Inner)[0];
-		int t0 = t2 & 0xFF00;
+		t3 = gp->Type;
+		t2 = ((int*)&gp->Inner)[0];
+		t0 = t2 & 0xFF00;
 
 		if (gp->Type == 0)
 		{
 			s4 |= 0x2000;
-			int a0 = ((int*)&gp->nx)[0];
-			int a1 = ((int*)&gp->nz)[0];
-			int a2 = ((int*)&gp->Type)[0];
+			a0 = ((int*)&gp->nx)[0];
+			a11 = ((int*)&gp->nz)[0];
+			a2 = ((int*)&gp->Type)[0];
 			s1[4] = a0;
-			s1[5] = a1;
+			s1[5] = a11;
 			s1[3] = a2;
 			gp++;
 			goto loc_85D34;
@@ -375,44 +418,44 @@ loc_85D34:
 
 			t1 = (t2 & 0xFF) << 7;
 			t2 >>= 16;
-			int a3 = t3 & 1;
-			int a0 = MAC1;
-			int a1 = MAC2;
-			int a2 = MAC3;
-			a0 += a1;
+			a33 = t3 & 1;
+			a0 = MAC1;
+			a11 = MAC2;
+			a2 = MAC3;
+			a0 += a11;
 			a0 += a2;
-			int v0 = mSqrt_L(a0);
+			v0 = mSqrt_L(a0);
 
 			a0 = t4;
 			if (v0 < t0)
 			{
-				a1 = t5;
+				a11 = t5;
 				a2 = t6;
 
 				if (a3 != 0)
 				{
 					t4 = v0;
-					mNormaliseXYZ_L(&a0, &a1, &a2);
+					mNormaliseXYZ_L(&a0, &a11, &a2);
 					t5 = gp->Intensity;
 
-					a3 = t5;
+					a33 = t5;
 					if (t4 >= t1)
 					{
 						t4 -= t1;
 						t5 = t0 - t1;
 						t5 -= t4;
-						a3 = (t5 * t2) >> 8;
+						a33 = (t5 * t2) >> 8;
 					}
 					//loc_85E0C
-					int at = 4096;
+					at = 4096;
 					if (t3 - 3 == 0)
 					{
-						a3 = at - a3;
+						a33 = at - a33;
 
-						if (a3 < s7)
+						if (a33 < s7)
 						{
 							gp++;
-							s7 = a3;
+							s7 = a33;
 						}
 
 						goto loc_85D34;
@@ -425,7 +468,7 @@ loc_85D34:
 				{
 					//loc_85E30
 					t4 = v0;
-					mNormaliseXYZ_L(&a0, &a1, &a2);
+					mNormaliseXYZ_L(&a0, &a11, &a2);
 					v0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
 					v1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
 
@@ -433,9 +476,9 @@ loc_85D34:
 					VY0 = (((int*)&gp->nx)[0] >> 16) & 0xFFFF;
 					VZ0 = ((int*)&gp->nz)[0] & 0xFFFF;
 
-					a1 <<= 16;
+					a11 <<= 16;
 					a0 &= 0xFFFF;
-					a0 |= a1;
+					a0 |= a11;
 
 					R11 = a0 & 0xFFFF;
 					R12 = (a0 >> 16) & 0xFFFF;
@@ -471,39 +514,39 @@ loc_85D34:
 							t1 = t3;
 						}
 						//loc_85EB8
-						a3 = t0 * t1;
+						a33 = t0 * t1;
 						a2 = VZ0;
-						a1 = a0 >> 16;
+						a11 = a0 >> 16;
 						a0 &= 0xFFFF;
-						a3 >>= 12;
+						a33 >>= 12;
 
 					loc_85ED0:
-						int at = s5 - a3;
-						if (s4 - a3 <= 0)
+						at = s5 - a33;
+						if (s4 - a33 <= 0)
 						{
 							s6 = s5;
 							s5 = s4;
-							s4 = a3;
+							s4 = a33;
 							at = (int)s3;
 							s3 = s2;
 							s2 = s1;
 							s1 = (int*)at;
 							//j loc_85F2C
 						}
-						else if (s5 - a3 <= 0)
+						else if (s5 - a33 <= 0)
 						{
 							//loc_85EFC
 							s6 = s5;
-							s5 = a3;
+							s5 = a33;
 							at = (int)s3;
 							s3 = s2;
 							s2 = (int*)at;
 							//j loc_85F2C
 						}
-						else if (s6 - a3 <= 0)
+						else if (s6 - a33 <= 0)
 						{
 							//loc_85F1C
-							s6 = a3;
+							s6 = a33;
 							at = (int)s3;
 						}
 						else
@@ -514,7 +557,7 @@ loc_85D34:
 					loc_85F2C:///@TODO expand (implant) into ifs then let it all fall through.
 						t0 = ((int*)&gp->Type)[0];
 						((short*)at)[8] = a0;
-						((short*)at)[9] = a1;
+						((short*)at)[9] = a11;
 						((short*)at)[10] = a2;
 						((int*)at)[3] = t0;
 					}//loc_85F40
@@ -526,7 +569,7 @@ loc_85D34:
 		}
 	}
 	//loc_85F48
-	int at = 4096;
+	at = 4096;
 	if (s4 != 0 || s7 - 4096 != 0)
 	{
 		IR0 = s7;
@@ -538,7 +581,7 @@ loc_85D34:
 		docop2(0x198003D);
 		t1 = SXY0;
 		t2 = SXY1;
-		int t3 = SXY2;
+		t3 = SXY2;
 		at = s4 < 4096 ? 1 : 0;
 		
 		s4 = IR1;
@@ -567,7 +610,7 @@ loc_85D34:
 
 	//loc_85FCC
 	fp = number_dynamics;
-	struct DYNAMIC* gpp = &dynamics[0];
+	gpp = &dynamics[0];
 
 loc_85FD4:
 	if (fp--)
@@ -584,7 +627,7 @@ loc_85FD4:
 		IR2 = t5;
 		IR3 = t6;
 
-		int a0 = t4;
+		a0 = t4;
 		if (t4 < 0)
 		{
 			a0 = -t4;
@@ -592,65 +635,65 @@ loc_85FD4:
 
 		//loc_8600C
 		docop2(0xA00428);
-		int a1 = t5;
+		a11 = t5;
 		if (t5 < 0)
 		{
-			a1 = -t5;
+			a11 = -t5;
 		}
 
 		//loc_8601C
-		int a2 = t6;
+		a2 = t6;
 		if (t6 < 0)
 		{
 			a2 = -t6;
 		}
 
 		//loc_86028
-		if ((unsigned)a0 < 0x2000 && (unsigned)a1 < 0x2000 && (unsigned)a2 < 0x2000)
+		if ((unsigned)a0 < 0x2000 && (unsigned)a11 < 0x2000 && (unsigned)a2 < 0x2000)
 		{
 			t0 = ((int*)&gpp->falloff)[0] >> 1;
 			t1 = gpp->FalloffScale;
 
 			a0 = MAC1;
-			a1 = MAC2;
+			a11 = MAC2;
 			a2 = MAC3;
 
-			a0 += a1;
+			a0 += a11;
 			a0 += a2;
 			
 			if (mSqrt_L(a0) < t0)
 			{
 				v0 = (v0 * t1) >> 8;
 				a0 = t4;
-				a1 = t5;
+				a11 = t5;
 				a2 = t6;
-				mNormaliseXYZ_L(&a0, &a1, &a2);
-				int a3 = 4096 - v0;
+				mNormaliseXYZ_L(&a0, &a11, &a2);
+				a33 = 4096 - v0;
 				//at = s5 - a3
-				if (s4 - a3 < 0)
+				if (s4 - a33 < 0)
 				{
 					s6 = s5;
 					s5 = s4;
-					s4 = a3;
+					s4 = a33;
 					at = (int)s3;
 					s3 = s2;
 					s2 = s1;
 					s1 = (int*)at;
 					//goto loc_860EC;
 				}//loc_860BC
-				else if (s5 - a3 < 0)
+				else if (s5 - a33 < 0)
 				{
 					s6 = s5;
-					s5 = a3;
+					s5 = a33;
 					at = (int)s3;
 					s3 = s2;
 					s2 = (int*)at;
 					//goto loc_860EC
 				}
-				else if (s6 - a3 < 0)
+				else if (s6 - a33 < 0)
 				{
 					//loc_860DC
-					s6 = a3;
+					s6 = a33;
 					at = (int)s3;
 				}
 				else
@@ -661,13 +704,13 @@ loc_85FD4:
 				//loc_860EC
 				t0 = ((int*)&gpp->on)[0];
 				((short*)at)[8] = a0;
-				((short*)at)[9] = a1;
+				((short*)at)[9] = a11;
 				((short*)at)[10] = a2;
 				((int*)at)[3] = t0;
 
 				if (s7 != 0)
 				{
-					s7 = a3;
+					s7 = a33;
 				}
 
 			}//loc_86108
@@ -678,7 +721,7 @@ loc_85FD4:
 	}//loc_86110
 
 	at = s4 - 4096;
-	int* t00 = &scratchPad[0];
+	t00 = &scratchPad[0];
 
 	if (at >= 0)
 	{
@@ -692,12 +735,12 @@ loc_85FD4:
 	t00[14] = s6;
 	t00[15] = (int)s3;
 
-	int* s66 = t00;
+	s66 = t00;
 	s5 = (int)light;
 
-	int s11 = SXY0;
-	int s22 = SXY1;
-	int s33 = SXY2;
+	s11 = SXY0;
+	s22 = SXY1;
+	s33 = SXY2;
 
 	v0 = 3;
 	v1 = light->Light[3].pad;
@@ -708,8 +751,8 @@ loc_86154:
 		s4 = s66[1];
 		IR0 = s66[0];
 		t0 = ((int*)s4)[3];
-		int t3 = ((int*)s5)[2];
-		int s0 = t0 & 0xFF;
+		t3 = ((int*)s5)[2];
+		s0 = t0 & 0xFF;
 		t2 = (unsigned)t0 >> 20;
 		t1 = ((unsigned)t0 >> 12) & 0xFF0;
 		t0 >>= 4;
@@ -719,8 +762,8 @@ loc_86154:
 		IR2 = t1;
 		IR3 = t2;
 
-		int t5 = t3 >> 12;
-		int t4 = t3 >> 4;
+		t5 = t3 >> 12;
+		t4 = t3 >> 4;
 		docop2(0x198003D);
 		v0--;
 		if (v1 == 0)
@@ -834,7 +877,7 @@ loc_86154:
 	GBK = s22;
 	BBK = s33;
 
-	int s00 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	s00 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
 	s11 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
 	s22 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
 	s33 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
@@ -855,9 +898,9 @@ loc_86154:
 	B = (t0 & 0xFF0000) >> 16;
 	CODE = (t0 & 0xFF000000) >> 24;
 	
-	struct MATRIX3D* s55 = &CamGTE;
-	struct MATRIX3D* s666 = &LightPos;
-	int* s77 = &scratchPad[0];
+	s55 = &CamGTE;
+	s666 = &LightPos;
+	s77 = &scratchPad[0];
 
 	t0 = ((int*)s55)[0];
 	t1 = ((int*)s55)[1];
@@ -910,7 +953,7 @@ loc_86154:
 	t4 = ((unsigned short*)s77)[22];
 	t9 = IR1;
 	t7 = IR2;
-	int a0 = IR3;
+	a0 = IR3;
 	docop2(0x496012);
 	t3 = ((unsigned short*)s77)[8];
 	t4 <<= 16;

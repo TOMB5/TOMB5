@@ -117,20 +117,24 @@ long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 
 long mSqrt(long value)//779DC
 {
+	int v0 = 0;
+	int v1 = 0;
+	int at = 0;
+
 	LZCR = gte_leadingzerocount(value);
 	LZCS = value;
 
-	int v0 = 0x1F;
+	v0 = 0x1F;
 
 	if (value != 0)
 	{
-		int v1 = LZCR;
-		int at = -2;
+		v1 = LZCR;
+		at = -2;
 		v1 &= at;
 		v0 -= v1;
 		v0 >>= 1;
 		at = v1 - 0x18;
-		
+
 		if (at >= 0)
 		{
 			value <<= at;
@@ -154,14 +158,14 @@ long mSqrt(long value)//779DC
 long mSqrt_2(long value)//83B30(<), 85B74(<) (F)
 {
 	long v0 = 0x1F;
-
+	long at = 0;
 	long v1 = gte_ldlzc(value);
 
 	if (value != 0)
 	{
 		v1 &= -2;
-		v0 = v0 - v1 >> 1;
-		long at = v1 - 0x18;
+		v0 = (v0 - v1) >> 1;
+		at = v1 - 0x18;
 
 		if (v1 - 0x18 < 0)
 		{
@@ -184,14 +188,14 @@ long mSqrt_2(long value)//83B30(<), 85B74(<) (F)
 long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 {
 	long v0 = 0x1F;
-
 	long v1 = gte_ldlzc(value);
+	long at = 0;
 
 	if (value != 0)
 	{
 		v1 &= 0xFFFFFFFE;
-		v0 = v0 - v1 >> 1;
-		long at = v1 - 0x18;
+		v0 = (v0 - v1) >> 1;
+		at = v1 - 0x18;
 
 		if (v1 - 0x18 < 0)
 		{
@@ -222,15 +226,15 @@ void ScaleCurrentMatrix(long bStoreInMatrix, long sx, long sy, long sz)
 	v0 = R31 | (R32 << 16);
 	v1 = R33;
 
-	R12 = ((((t0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
-	R11 = ((((t0 >> 16) * sy) >> 12) << 16);
-	R21 = ((((t1 << 16) >> 16) * sz) >> 12) & 0xFFFF;
-	R13 = (((t1 >> 16) * sx) >> 12) << 16;
-	R23 = ((((t2 << 16) >> 16) * sy) >> 12) & 0xFFFF;
-	R22 = (((t2 >> 16) * sz) >> 12) << 16;
-	R32 = ((((v0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
-	R31 = (((v0 >> 16)  * sy) >> 12) << 16;
-	R33 = ((((v1 << 16) >> 16) * sz) >> 12);
+	R12 = ((((t0 << 16) >> 16)* sx) >> 12) & 0xFFFF;
+	R11 = ((((t0 >> 16)* sy) >> 12) << 16);
+	R21 = ((((t1 << 16) >> 16)* sz) >> 12) & 0xFFFF;
+	R13 = (((t1 >> 16)* sx) >> 12) << 16;
+	R23 = ((((t2 << 16) >> 16)* sy) >> 12) & 0xFFFF;
+	R22 = (((t2 >> 16)* sz) >> 12) << 16;
+	R32 = ((((v0 << 16) >> 16)* sx) >> 12) & 0xFFFF;
+	R31 = (((v0 >> 16)* sy) >> 12) << 16;
+	R33 = ((((v1 << 16) >> 16)* sz) >> 12);
 
 	if (bStoreInMatrix)
 	{
@@ -357,7 +361,7 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 	IR3 = t5;
 
 	docop2(0x41E012);
-	
+
 	t3 = MAC1;
 	t4 = MAC2;
 	t5 = MAC3;
@@ -424,7 +428,7 @@ void mRotX(long rx)//7669C (F)
 	if (rx != 0)
 	{
 		//loc_766B4
-		t5 = (rcossin_tbl[rx >> 1] & 0xFFFF) | ((rcossin_tbl[rx >> 1 | 1] & 0xFFFF ) << 16);
+		t5 = (rcossin_tbl[rx >> 1] & 0xFFFF) | ((rcossin_tbl[rx >> 1 | 1] & 0xFFFF) << 16);
 
 		VX0 = (0xFFFF0000 & t5) & 0xFFFF;
 		VY0 = ((0xFFFF0000 & t5) >> 16) & 0xFFFF;
@@ -474,7 +478,7 @@ void mRotY(long ry)//76744 (F)
 	int t6;
 	int t7;
 
- 	ry = (ry >> 2) & 0x3FFC;
+	ry = (ry >> 2) & 0x3FFC;
 
 	if (ry != 0)
 	{
@@ -561,7 +565,7 @@ void mRotZ(long rz)//76804 (F)
 		//loc_7681C
 		t0 = (rcossin_tbl[rz >> 1] & 0xFFFF) | ((rcossin_tbl[rz >> 1 | 1] & 0xFFFF) << 16);
 		t1 = ((t0 >> 16) & 0xFFFF) | (t0 << 16);
-		
+
 		VX0 = (t1 & 0xFFFF);
 		VY0 = ((t1 >> 16) & 0xFFFF);
 		VZ0 = 0;
@@ -605,6 +609,14 @@ void mRotZ(long rz)//76804 (F)
 
 void iRotY(int ry)//76E60
 {
+	int t5 = 0;
+	int t6 = 0;
+	int t2 = 0;
+	int t0 = 0;
+	int t3 = 0;
+	int t1 = 0;
+	int t4 = 0;
+
 	ry = (ry >> 2) & 0x3FFC;
 
 	if (ry == 0)
@@ -613,17 +625,17 @@ void iRotY(int ry)//76E60
 	}
 
 	//loc_76E78
-	int t5 = (rcossin_tbl[ry >> 1] & 0xFFFF) | ((rcossin_tbl[ry >> 1 | 1] & 0xFFFF) << 16);
-	int t6 = t5 >> 16;
+	t5 = (rcossin_tbl[ry >> 1] & 0xFFFF) | ((rcossin_tbl[ry >> 1 | 1] & 0xFFFF) << 16);
+	t6 = t5 >> 16;
 	t5 &= 0xFFFF;
-	int t2 = -t5;
+	t2 = -t5;
 	VX0 = t6 & 0xFFFF;
 	VY0 = (t6 >> 16) & 0xFFFF;
 	VZ0 = t2;
 
-	int t0 = (L11 & 0xFFFF) | (L12 << 16);
+	t0 = (L11 & 0xFFFF) | (L12 << 16);
 	t2 = (L22 & 0xFFFF) | (L23 << 16);
-	int t3 = (L31 & 0xFFFF) | (L32 << 16);
+	t3 = (L31 & 0xFFFF) | (L32 << 16);
 
 	docop2(0x4A6012);
 
@@ -635,8 +647,8 @@ void iRotY(int ry)//76E60
 	t2 &= 0xFFFF;
 	t3 &= 0xFFFF0000;
 
-	int t4 = MAC1;
-	int t1 = MAC2;
+	t4 = MAC1;
+	t1 = MAC2;
 	t5 = MAC3;
 
 	docop2(0x4AE012);
@@ -661,6 +673,14 @@ void iRotY(int ry)//76E60
 
 void iRotX(int rx)
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+
 	rx = (rx >> 2) & 0x3FFC;
 
 	if (rx == 0)
@@ -668,15 +688,15 @@ void iRotX(int rx)
 		return;
 	}
 
-	int t5 = (rcossin_tbl[rx >> 1] & 0xFFFF) | ((rcossin_tbl[rx >> 1 | 1] & 0xFFFF) << 16);
-	int t6 = 0xFFFF0000 & t5;
+	t5 = (rcossin_tbl[rx >> 1] & 0xFFFF) | ((rcossin_tbl[rx >> 1 | 1] & 0xFFFF) << 16);
+	t6 = 0xFFFF0000 & t5;
 	VX0 = t6 & 0xFFFF;
 	VY0 = (t6 >> 16) & 0xFFFF;
 	VZ0 = t5;
 
-	int t0 = (L11 & 0xFFFF) | (L12 << 16);
-	int t1 = (L13 & 0xFFFF) | (L21 << 16);
-	int t3 = (L31 & 0xFFFF) | (L32 << 16);
+	t0 = (L11 & 0xFFFF) | (L12 << 16);
+	t1 = (L13 & 0xFFFF) | (L21 << 16);
+	t3 = (L31 & 0xFFFF) | (L32 << 16);
 
 	docop2(0x4A6012);
 	t6 = t5 >> 16;
@@ -691,8 +711,8 @@ void iRotX(int rx)
 	t1 &= 0xFFFF0000;
 	t3 &= 0xFFFF;
 
-	int t4 = MAC1;
-	int t2 = MAC2;
+	t4 = MAC1;
+	t2 = MAC2;
 	t5 = MAC3;
 
 	docop2(0x4AE012);
@@ -717,6 +737,15 @@ void iRotX(int rx)
 
 void iRotZ(int rz)//76F04
 {
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t4 = 0;
+	int t3 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t8 = 0;
+
 	rz = (rz >> 2) & 0x3FFC;
 
 	if (rz == 0)
@@ -724,10 +753,10 @@ void iRotZ(int rz)//76F04
 		return;
 	}
 
-	int t0 = (rcossin_tbl[rz >> 1] & 0xFFFF) | ((rcossin_tbl[rz >> 1 | 1] & 0xFFFF) << 16);
+	t0 = (rcossin_tbl[rz >> 1] & 0xFFFF) | ((rcossin_tbl[rz >> 1 | 1] & 0xFFFF) << 16);
 
-	int t1 = t0 >> 16;
-	int t2 = t0 << 16;
+	t1 = t0 >> 16;
+	t2 = t0 << 16;
 	t1 |= t2;
 
 	VX0 = t1 & 0xFFFF;
@@ -736,11 +765,11 @@ void iRotZ(int rz)//76F04
 
 	t1 = (L13 & 0xFFFF) | (L21 << 16);
 	t2 = (L22 & 0xFFFF) | (L23 << 16);
-	int t4 = L33;
+	t4 = L33;
 
 	docop2(0x4A6012);
 
-	int t3 = t0 & 0xFFFF0000;
+	t3 = t0 & 0xFFFF0000;
 	t0 &= 0xFFFF;
 	t0 = -t0;
 	t0 &= 0xFFFF;
@@ -753,7 +782,7 @@ void iRotZ(int rz)//76F04
 	t1 &= 0xFFFF;
 
 	t0 = MAC1;
-	int t5 = MAC2;
+	t5 = MAC2;
 	t3 = MAC3;
 
 	docop2(0x4AE012);
@@ -765,8 +794,8 @@ void iRotZ(int rz)//76F04
 	t3 &= 0xFFFF;
 
 	t5 = MAC1;
-	int t6 = MAC2;
-	int t8 = MAC3;
+	t6 = MAC2;
+	t8 = MAC3;
 
 	t5 <<= 16;
 	t0 |= t5;
@@ -929,13 +958,13 @@ void setrot(struct MATRIX3D* m, long t0, long t1, long t2, long t3, long t4)//76
 {
 	R11 = t0 & 0xFFFF;
 	R12 = t0 >> 16;
-	
+
 	R13 = t1 & 0xFFFF;
 	R21 = t1 >> 16;
-	
+
 	R22 = t2 & 0xFFFF;
 	R23 = t2 >> 16;
-	
+
 	R31 = t3 & 0xFFFF;
 	R32 = t3 >> 16;
 
@@ -966,7 +995,7 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) (F)
 
 void InterpolateMatrix()//77250(<)
 {
-	MATRIX3D m;//$a0
+	struct MATRIX3D m;//$a0
 
 	if (iRate == 2 || iFrac == 2 && iRate == 4)
 	{
@@ -1093,9 +1122,18 @@ void mClipBoundingBox(short* bounds)//76B14
 
 void InitInterpolation(long frac, long rate, struct MATRIX3D* m)//76CB4(<) 
 {
-	int t0 = RBK;
-	int t1 = GBK;
-	int t2 = BBK;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t6 = 0;
+	int t7 = 0;
+
+	t0 = RBK;
+	t1 = GBK;
+	t2 = BBK;
 
 	iFrac = frac;
 	iRate = rate;
@@ -1108,11 +1146,11 @@ void InitInterpolation(long frac, long rate, struct MATRIX3D* m)//76CB4(<)
 	t0 = (R11 & 0xFFFF) | (R12 << 16);
 	t1 = (R13 & 0xFFFF) | (R21 << 16);
 	t2 = (R22 & 0xFFFF) | (R23 << 16);
-	int t3 = (R31 & 0xFFFF) | (R32 << 16);
-	int t4 = (R33 & 0xFFFF);
-	int t5 = TRX;
-	int t6 = TRY;
-	int t7 = TRZ;
+	t3 = (R31 & 0xFFFF) | (R32 << 16);
+	t4 = (R33 & 0xFFFF);
+	t5 = TRX;
+	t6 = TRY;
+	t7 = TRZ;
 
 	L11 = R11;
 	L12 = R12;
@@ -1213,7 +1251,7 @@ void mmPushMatrix(int* fp)//81BBC(<) (F)
 	fp[20] = (int)a0;
 }
 
-void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* parent)
+void SetRoomBounds(struct tr_room_portal* portal, int room_number, struct room_info* parent)
 {
 	UNIMPLEMENTED();
 }
@@ -1251,7 +1289,7 @@ void GetRoomBoundsAsm(short room_number)//77E70(<), 79EB4(<) ///@TODO check if i
 	int* t55;
 	short* t00;
 
-	S_MemSet((char*)& scratchPad[0], 0, 1024);
+	S_MemSet((char*)&scratchPad[0], 0, 1024);
 
 	s2 = 0;
 	s3 = 1;
@@ -1289,7 +1327,7 @@ loc_77F18:
 		s6 = ((unsigned char*)&scratchPad)[s2];
 		s2++;
 		s2 &= 0x7F;
-		
+
 		r = &room[s6];
 
 		v0 = r->bound_active - 2;
@@ -1315,7 +1353,7 @@ loc_77F18:
 		{
 			t1 = t5;
 		}
-		
+
 		//loc_77F84
 		if (t6 >= t2)
 		{
@@ -1539,10 +1577,10 @@ loc_77F18:
 							{
 							loc_781A8:
 								a33 = &room[a1];
-								t0 = ((int*)& a33->left)[0];
-								t2 = ((int*)& r->test_left)[0];
-								t4 = ((int*)& a33->top)[0];
-								t6 = ((int*)& r->test_top)[0];
+								t0 = ((int*)&a33->left)[0];
+								t2 = ((int*)&r->test_left)[0];
+								t4 = ((int*)&a33->top)[0];
+								t6 = ((int*)&r->test_top)[0];
 
 								t1 = t0 >> 16;
 								t0 &= 0xFFFF;
@@ -1676,7 +1714,7 @@ loc_77F18:
 														{
 															t0 = 0;
 														}
-loc_7833C:
+													loc_7833C:
 														t6 = t44[1];
 														t7 = t55[1];
 														t8 = ((t6 < 0) ? 1 : 0) & ((t7 < 0) ? 1 : 0);
@@ -1705,8 +1743,8 @@ loc_7833C:
 											} while (v1--);
 										}
 										//loc_78384
-										t4 = ((int*)& r->test_left)[0];
-										t6 = ((int*)& r->test_top)[0];
+										t4 = ((int*)&r->test_left)[0];
+										t6 = ((int*)&r->test_top)[0];
 
 										t5 = t4 >> 16;
 										t4 &= 0xFFFF;
@@ -1746,7 +1784,7 @@ loc_7833C:
 												v1 |= 2;
 												if (at == 0)
 												{
-													((char*)& scratchPad)[s3] = a1;
+													((char*)&scratchPad)[s3] = a1;
 													s3++;
 													s3 &= 0x7F;
 													t1 <<= 16;
@@ -1760,8 +1798,8 @@ loc_7833C:
 												else
 												{
 													//loc_7841C
-													t4 = ((int*)& a33->test_left)[0];
-													t6 = ((int*)& a33->test_top)[0];
+													t4 = ((int*)&a33->test_left)[0];
+													t6 = ((int*)&a33->test_top)[0];
 													t5 = t4 >> 16;
 													t4 &= 0xFFFF;
 													t7 = t6 >> 16;
@@ -1808,7 +1846,7 @@ loc_7833C:
 			//loc_7847C
 			v0--;
 			s7 += 15;
-		}while (v0 > 0);
+		} while (v0 > 0);
 
 		goto loc_77F18;
 
@@ -1833,7 +1871,7 @@ loc_7833C:
 
 void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)//77928 (F)
 {
-	int t0, t1, t2;
+	int t0, t1, t2, v0;
 
 	t0 = dx;
 	t1 = dy;
@@ -1868,7 +1906,7 @@ loc_7795C:
 
 	docop2(0xA00428);
 
-	int v0 = phd_atan_asm(mSqrt(MAC1 + MAC2), t1);
+	v0 = phd_atan_asm(mSqrt(MAC1 + MAC2), t1);
 
 	if (t1 > 0 && (v0 << 16) > 0 || t1 < 0 && (v0 << 16) < 0)
 	{
@@ -1949,7 +1987,7 @@ void phd_GenerateW2V(struct PHD_3DPOS* view)//(F)
 
 	matrix_stack[3] = a3;
 	w2v_matrix[3] = a3;
-	
+
 	matrix_stack[7] = t4;
 	w2v_matrix[7] = t4;
 
@@ -2167,7 +2205,7 @@ void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2)//77
 		t8 <<= 3;
 		t5 = -t8;
 	}
-	
+
 	//loc_7718C
 	t6 = MAC1;
 	t7 = MAC2;
