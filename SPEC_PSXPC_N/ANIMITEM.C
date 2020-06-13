@@ -290,7 +290,7 @@ void mRotX_AI(int rx, int* fp)//0x817B0
 	t5 &= 0xFFFF;
 	t1 |= t5;
 	t6 <<= 16;
-	t2 |= t5;
+	t2 |= t6;
 
 	SetRotation_AI(fp, t0, t1, t2, t3, t4);
 }
