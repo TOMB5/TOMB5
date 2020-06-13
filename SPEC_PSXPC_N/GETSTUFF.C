@@ -647,7 +647,7 @@ void WE_GOT_AN_ERROR()
 	assert(0);
 }
 
-void GH_adjust_height(int a1, int s4, short* t7, int a2, int s3)
+void GH_adjust_height(int a1, int s4, int* t7, int a2, int s3)
 {
 	int v0;
 
@@ -690,7 +690,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	struct FLOOR_INFO* f;//$s0
 	unsigned short* fd;//$s1
 	unsigned short value;//$s2
-	short ret;//$t7 @ret
+	int ret;//$t7 @ret
 	unsigned short trigger_value;//$s0
 	struct ITEM_INFO* item;//$a0
 	struct object_info* object;//$v0
