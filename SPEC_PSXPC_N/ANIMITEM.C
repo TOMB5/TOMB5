@@ -1996,7 +1996,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 		//loc_81714
 		if (fp[19] > 0)
 		{
-			fp[18]--;
+			fp[18]++;
 			((short*)fp[16])[1] = fp[19];
 			fp[16] += 12;
 		}
