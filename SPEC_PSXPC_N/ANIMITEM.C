@@ -1929,7 +1929,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 			//loc_81714
 			if (fp[19] > 0)
 			{
-				fp[18]--;
+				fp[18]++;
 				((short*)fp[16])[1] = fp[19];
 				fp[16] += 12;
 			}
@@ -2013,10 +2013,10 @@ void stash_the_info(int meshp/*a0*/, int* fp)//81750
 
 	at[0] = meshp;
 
-	at[1] = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
-	at[2] = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
-	at[3] = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
-	at[4] = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
+	at[1] = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	at[2] = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	at[3] = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	at[4] = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 	at[5] = (R33 & 0xFFFF);
 	at[6] = TRX;
