@@ -2580,9 +2580,10 @@ void special4_control()//2E7C4(<), 2EAD0(<) (F)
 
 void special4_init()//2E794(<), 2EAA0(<)
 {
-#if PSXENGINE
-	cutrot = 0;
-	UNIMPLEMENTED();
+#if PSXPC_TEST
+	titseq_special4_init();
+#elif PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[MOD_TITSEQ][11])();
 #else
 	lara_item->mesh_bits = 0xFFFFFFFF;
 	Chris_Menu = 0;
