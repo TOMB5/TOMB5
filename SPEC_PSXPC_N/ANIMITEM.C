@@ -1796,23 +1796,23 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 		mRotSuperPackedYXZ_AI(fp);
 		iRotSuperPackedYXZ_AI(fp);
 
-		if (s2 != NULL && (s0 & 0x1C))
+		if (s2 != NULL && (s5[0] & 0x1C))
 		{
-			if ((s0 & 0x8))
+			if ((s5[0] & 0x8))
 			{
 				mRotY_AI(((short*)s2)[0], fp);
 				iRotY_AI(((short*)s2)[0], fp);
 				s2 += 1;
 			}
 			//loc_81D74
-			if ((s0 & 0x4))
+			if ((s5[0] & 0x4))
 			{
 				mRotX_AI(((short*)s2)[0], fp);
 				iRotX_AI(((short*)s2)[0], fp);
 				s2 += 1;
 			}
 
-			if ((s0 & 0x10))
+			if ((s5[0] & 0x10))
 			{
 				mRotZ_AI(((short*)s2)[0], fp);
 				iRotZ_AI(((short*)s2)[0], fp);
