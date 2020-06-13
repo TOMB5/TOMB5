@@ -1944,6 +1944,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 			{
 				mmPopMatrix_AI(fp);
 			}
+
 			if ((s5[0] & 0x2))
 			{
 				mmPushMatrix_AI(fp);
@@ -1952,19 +1953,19 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 			mTranslateXYZ_AI(s5[1], s5[2], s5[3], fp);
 			mRotSuperPackedYXZ_AI(fp);
 
-			if ((item->data != NULL) && (frames & 0x1C))
+			if ((item->data != NULL) && (s5[0] & 0x1C))
 			{
-				if ((frames & 0x8))
+				if ((s5[0] & 0x8))
 				{
 					mRotY_AI(*s2++, fp);
 				}
 				//loc_816B4
-				if ((frames & 0x4))
+				if ((s5[0] & 0x4))
 				{
 					mRotX_AI(*s2++, fp);
 				}
 				//loc_816CC
-				if ((frames & 0x10))
+				if ((s5[0] & 0x10))
 				{
 					mRotZ_AI(*s2++, fp);
 				}
@@ -1974,7 +1975,6 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 			if ((1 << 1) & item->mesh_bits)
 			{
-				int a0 = 0;
 				if (item->meshswap_meshbits & (1 << 1))
 				{
 					a0 = ((int*)s7)[1];
