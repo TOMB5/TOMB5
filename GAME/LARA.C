@@ -2538,7 +2538,7 @@ void lara_col_reach(struct ITEM_INFO* item, struct COLL_INFO* coll)//18D0C, 18E4
 
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = -BAD_HEIGHT;
+	coll->bad_pos = BAD_HEIGHT;
 	coll->bad_neg = 0;
 	coll->bad_ceiling = 192;
 
