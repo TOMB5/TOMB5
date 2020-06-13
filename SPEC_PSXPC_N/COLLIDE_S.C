@@ -563,7 +563,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		zfront = coll->radius;
 		s7 = coll->radius;
 		s0 = coll->radius;
-		xfront = (SIN(coll->facing) * -coll->radius) >> W2V_SHIFT;
+		xfront = (SIN((unsigned short)coll->facing) * -coll->radius) >> W2V_SHIFT;
 	}
 	else if (coll->quadrant - 1 == 0)
 	{
@@ -573,7 +573,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		xfront = coll->radius;
 		s0 = coll->radius;
 		s7 = coll->radius;
-		zfront = (COS(coll->facing) * coll->radius) >> W2V_SHIFT;
+		zfront = (COS((unsigned short)coll->facing) * coll->radius) >> W2V_SHIFT;
 	}
 	else if (coll->quadrant - 2 == 0)
 	{
@@ -583,7 +583,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		zfront = -coll->radius;
 		s7 = -coll->radius;
 		s0 = -coll->radius;
-		xfront = (SIN(coll->facing) * coll->radius) >> W2V_SHIFT;
+		xfront = (SIN((unsigned short)coll->facing) * coll->radius) >> W2V_SHIFT;
 	}
 	else if (coll->quadrant - 3 == 0)
 	{
@@ -593,7 +593,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		xfront = -coll->radius;
 		s0 = -coll->radius;
 		s7 = -coll->radius;
-		zfront = (COS(coll->facing) * coll->radius) >> W2V_SHIFT;
+		zfront = (COS((unsigned short)coll->facing) * coll->radius) >> W2V_SHIFT;
 	}
 	else
 	{
@@ -805,7 +805,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			{
 				//loc_7B7B0
 				coll->shift.x = coll->old.x - xpos;
-				FindGridShift(zpos + zfront, zpos);
+				coll->shift.z = FindGridShift(zpos + zfront, zpos);
 				coll->coll_type = 1;
 				return;
 			}
