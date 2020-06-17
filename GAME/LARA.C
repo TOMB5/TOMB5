@@ -25,6 +25,7 @@
 #include "MATHS.H"
 #include "GETSTUFF.H"
 #include "COLLIDE_S.H"
+#include "PSOUTPUT.H"
 #endif
 
 #if PC_VERSION
@@ -2529,8 +2530,207 @@ void lara_as_walk(struct ITEM_INFO* item, struct COLL_INFO* coll)//191B8(<), 192
 	}
 }
 
-void lara_col_reach(struct ITEM_INFO* item, struct COLL_INFO* coll)//18D0C, 18E40 (F)
+void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)//18D0C, 18E40 (F)
 {
+#if PSX_VERSION//Split because of bugs. Also needs verifying for the new PSX_VERSION code
+	short angle; // $s1
+	int edge_catch; // $s3
+	short* bounds; // $v0
+	long edge; // stack offset -32
+	int a2 = 0;
+
+	//s1 = lara
+	if (lara.RopePtr == -1)
+	{
+		item->gravity_status = 1;
+	}
+	//loc_18D5C
+
+	//a0 = item
+	//a1 = coll
+
+	//v1 = item->pos.y_rot
+	//v0 = 0x7F00
+	lara.move_angle = item->pos.y_rot;
+	coll->bad_pos = 0x7F00;
+	coll->bad_neg = 0;
+	coll->bad_ceiling = 192;
+
+	GetLaraCollisionInfo(item, coll);
+
+	//a2 = 0;
+	if ((input & IN_ACTION) && lara.gun_status == LG_NO_ARMS && coll->hit_static == FALSE)
+	{
+		//a0 = 1
+		if (lara.CanMonkeySwing && coll->coll_type == 8)
+		{
+#if PSX_VERSION
+			SetupPadVibration(1, 20224, 20224, 8, 20224, coll->coll_type);
+#endif
+			lara.head_y_rot = 0;
+			lara.head_x_rot = 0;
+			lara.torso_y_rot = 0;
+			lara.torso_x_rot = 0;
+			a2 = 1;
+			//v1 = 0x4B
+			//v0 = 0x96
+			item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
+			item->current_anim_state = STATE_LARA_MONKEYSWING_IDLE;
+
+			//v1 = anims
+			//a0 = -9
+			item->anim_number = ANIMATION_LARA_OSCILLATE_HANG_ON;
+			item->hit_status = 0;
+			//a1 = anims[ANIMATION_LARA_OSCILLATE_HANG_ON].frame_base
+			//v0 = 1
+			item->speed = 0;
+			item->fallspeed = 0;
+			item->frame_number = anims[ANIMATION_LARA_OSCILLATE_HANG_ON].frame_base;
+			lara.gun_status = 1;
+			//j loc_190FC
+		}
+		else
+		{
+			//loc_18E58
+			a2 = 0;
+			//v0 = 1
+			if (coll->mid_ceiling < -0x17F && coll->mid_floor >= 200 && coll->coll_type == 1)
+			{
+				edge_catch = LaraTestEdgeCatch(item, coll, &edge);
+
+				if (edge_catch != 0)
+				{
+					//a2 = 0;
+					if (edge_catch > 0 && !LaraTestHangOnClimbWall(item, coll))
+					{
+						short angle = item->pos.y_rot;
+
+						if (ABS(angle) > ANGLE(35))
+						{
+							if (angle < 10014 || angle > 22754)
+							{
+								if (angle >= 26397 || angle <= -26397)
+								{
+									angle = ANGLE(-180);
+								}
+								else if (angle >= -22754 && angle <= -10014)
+								{
+									angle = ANGLE(-90);
+								}
+							}
+							else
+							{
+								angle = ANGLE(90);
+							}
+						}
+						else
+						{
+							angle = 0;
+						}
+
+						if ((angle & 0x3FFF) == 0)
+						{
+							short* bounds;
+
+							if (TestHangSwingIn(item, angle))
+							{
+								lara.head_y_rot = 0;
+								lara.head_x_rot = 0;
+								lara.torso_y_rot = 0;
+								lara.torso_x_rot = 0;
+
+								item->anim_number = ANIMATION_LARA_OSCILLATE_HANG_ON;
+								item->frame_number = anims[ANIMATION_LARA_OSCILLATE_HANG_ON].frame_base;
+
+								item->current_anim_state = STATE_LARA_MONKEYSWING_IDLE;
+								item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
+							}
+							else
+							{
+								item->anim_number = ANIMATION_LARA_HANG_IDLE;
+								item->frame_number = anims[ANIMATION_LARA_HANG_IDLE].frame_base;
+
+								item->current_anim_state = STATE_LARA_HANG;
+								item->goal_anim_state = STATE_LARA_HANG;
+							}
+
+							bounds = GetBoundsAccurate(item);
+
+							if (edge_catch <= 0)
+							{
+								item->pos.y_pos = edge - bounds[2] - 22;
+							}
+							else
+							{
+								item->pos.y_pos += coll->front_floor - bounds[2];
+
+								switch ((unsigned char)(item->pos.y_rot + ANGLE(45)) / (unsigned char)ANGLE(90))
+								{
+								case 0u:
+									item->pos.z_pos = (item->pos.z_pos | 0x3FF) - 100;
+									item->pos.x_pos += coll->shift.x;
+									break;
+								case 2u:
+									item->pos.z_pos = (item->pos.z_pos & 0xFFFFFC00) + 100;
+									item->pos.x_pos += coll->shift.x;
+									break;
+								case 1u:
+									item->pos.x_pos = (item->pos.x_pos | 0x3FF) - 100;
+									item->pos.z_pos += coll->shift.z;
+									break;
+								case 3u:
+									item->pos.x_pos = (item->pos.x_pos & 0xFFFFFC00) + 100;
+									item->pos.z_pos += coll->shift.z;
+									break;
+								default:
+									break;
+								}
+							}
+
+							item->pos.y_rot = angle;
+
+							item->gravity_status = TRUE;
+							item->speed = 2;
+							item->fallspeed = 1;
+
+							lara.gun_status = LG_HANDS_BUSY;
+						}
+					}
+				}//loc_18F30
+			}//loc_190FC
+		}
+	}
+	//loc_190FC
+	if (a2 == 0)
+	{
+		LaraSlideEdgeJump(item, coll);
+		GetLaraCollisionInfo(item, coll);
+		ShiftItem(item, coll);
+
+		if (item->fallspeed > 0)
+		{
+			if (coll->mid_floor < 0)
+			{
+				if (LaraLandedBad(item, coll))
+				{
+					item->goal_anim_state = 8;
+				}
+				else
+				{
+					item->goal_anim_state = 2;
+					item->fallspeed = 0;
+					item->hit_status = 0;
+
+					if (coll->mid_floor != -32512)
+					{
+						item->pos.y_pos += coll->mid_floor;
+					}
+				}
+			}//loc_19198
+		}//loc_19198
+	}
+	//loc_19198
+#else
 	if (lara.RopePtr == -1)
 	{
 		item->gravity_status = TRUE;
@@ -2672,6 +2872,7 @@ void lara_col_reach(struct ITEM_INFO* item, struct COLL_INFO* coll)//18D0C, 18E4
 			}
 		}
 	}
+#endif
 }
 
 void lara_as_reach(struct ITEM_INFO* item, struct COLL_INFO* coll)//18CE0(<), 18E14(<) (F)
