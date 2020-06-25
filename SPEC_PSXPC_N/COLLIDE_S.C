@@ -637,11 +637,11 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//a1 = ypos - 160
 	//a2 = zfront
 
-	floor = GetFloor(xpos + xfront + xfront, (ypos - objheight) - 160, zpos + zfront + zfront, &room_num);
+	floor = GetFloor(xfront + xpos, (ypos - objheight) - 160, zfront + zpos, &room_num);
 
 	//a1 = xfront
 	//a3 = zfront
-	height = GetHeight(floor, xpos + xfront + xfront, (ypos - objheight) - 160, zpos + zfront + zfront);
+	height = GetHeight(floor, xfront + xpos, (ypos - objheight) - 160, zfront + zpos);
 	if (height != -32512)
 	{
 		height -= ypos;
@@ -725,7 +725,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//a0 = coll
 	var_5C = objheight;
 	var_60 = room_num;
-	//CollideStaticObjects(coll, xpos, ypos, zpos, room_number, objheight);
+	CollideStaticObjects(coll, xpos, ypos, zpos, room_number, objheight);
 
 	//t0 = xpos
 	//t1 = zpos
