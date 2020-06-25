@@ -2925,40 +2925,53 @@ void lara_col_forwardjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//18B88
 
 void lara_as_forwardjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//18A34, 18B68 (F)
 {
-	if (item->goal_anim_state == STATE_LARA_SWANDIVE_BEGIN || 
-		item->goal_anim_state == STATE_LARA_REACH)
-		item->goal_anim_state = STATE_LARA_JUMP_FORWARD;
-
-	if (item->goal_anim_state != STATE_LARA_DEATH &&
-		item->goal_anim_state != STATE_LARA_STOP &&
-		item->goal_anim_state != STATE_LARA_RUN_FORWARD)
+	if (item->goal_anim_state == STATE_LARA_SWANDIVE_BEGIN || item->goal_anim_state == STATE_LARA_REACH)
 	{
-		if (lara.gun_status == LG_NO_ARMS && input & IN_ACTION)
-			item->goal_anim_state = STATE_LARA_REACH;
-
-		if (input & IN_BACK || input & IN_ROLL)
-			item->goal_anim_state = STATE_LARA_JUMP_ROLL;
-
-		if (lara.gun_status == LG_NO_ARMS && input & IN_WALK)
-			item->goal_anim_state = STATE_LARA_SWANDIVE_BEGIN;
-
-		if (item->fallspeed > LARA_FREEFALL_SPEED)
-			item->goal_anim_state = STATE_LARA_FREEFALL;
+		//loc_18A4C
+		item->goal_anim_state = STATE_LARA_JUMP_FORWARD;
 	}
 
-	if (input & IN_LEFT)
+	//loc_18A5C
+	if (item->goal_anim_state != STATE_LARA_DEATH && item->goal_anim_state != STATE_LARA_STOP && item->goal_anim_state != STATE_LARA_RUN_FORWARD)
+	{
+		if ((input & IN_ACTION) && lara.gun_status == LG_NO_ARMS)
+		{
+			item->goal_anim_state = STATE_LARA_REACH;
+		}
+		//loc_18AA0
+		if ((input & (IN_BACK | IN_ROLL)))
+		{
+			item->goal_anim_state = STATE_LARA_JUMP_ROLL;
+		}
+		//loc_18ABC
+		if ((input & IN_WALK) && lara.gun_status == LG_NO_ARMS)
+		{
+			item->goal_anim_state = STATE_LARA_SWANDIVE_BEGIN;
+		}
+		//loc_18AE8
+		if (item->fallspeed >= 132)
+		{
+			item->goal_anim_state = STATE_LARA_FREEFALL;
+		}
+	}
+	//loc_18B00
+	if ((input & IN_LEFT))
 	{
 		lara.turn_rate -= 409;
 
 		if (lara.turn_rate < ANGLE(-3))
+		{
 			lara.turn_rate = ANGLE(-3);
+		}
 	}
-	else if (input & IN_RIGHT)
+	else if ((input & IN_RIGHT))
 	{
 		lara.turn_rate += 409;
 
-		if (lara.turn_rate > ANGLE(3))
+		if (lara.turn_rate < ANGLE(3.009))
+		{
 			lara.turn_rate = ANGLE(3);
+		}
 	}
 }
 
