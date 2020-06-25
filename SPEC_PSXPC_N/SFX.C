@@ -97,7 +97,63 @@ void S_SoundStopAllSamples()
 
 void SOUND_EndScene()
 {
-	UNIMPLEMENTED();
+	//v0 = sound_active
+	if (sound_active != 0)
+	{
+		//s0 = 0;
+		//s2 = sample_infos
+		//s1 = &LaSlot[0]
+
+		//loc_91DAC
+		for (int i = 0; i < MAX_SOUND_SLOTS; i++)
+		{
+			//v0 = LaSlot[0].nSampleInfo
+
+			if (LaSlot[i].nSampleInfo >= 0)
+			{
+				//v0 = sample_infos[LaSlot[0].nSampleInfo].flags
+				if ((sample_infos[LaSlot[i].nSampleInfo].flags & 0x3) == 3)
+				{
+					//a2 = LaSlot[0].nVolume
+					//a0 = s0
+					if (LaSlot[i].nVolume != 0)
+					{
+						S_SoundSetPanAndVolume(i, LaSlot[i].nPan, LaSlot[i].nVolume & 0xFFFF, LaSlot[i].distance);
+						S_SoundSetPitch(i, LaSlot[i].nPitch);
+						LaSlot[i].nVolume = 0;
+					}
+					else
+					{
+						//loc_91E08
+						S_SoundStopSample(i);
+						LaSlot[i].nSampleInfo = -1;
+					}
+				}
+				else
+				{
+					//loc_91E1C
+					if (!S_SoundSampleIsPlaying(i))
+					{
+						S_SoundStopSample(i);
+						LaSlot[i].nSampleInfo = -1;
+					}
+					else
+					{
+						//a0 = LaSlot[0].pos.x | LaSlot[0].pos.y |LaSlot[0].pos.z
+						//a1 = 
+						//a2 = 
+
+						if ((LaSlot[i].pos.x | LaSlot[i].pos.y | LaSlot[i].pos.z) != 0)
+						{
+							GetPanVolume(&LaSlot[i]);
+							S_SoundSetPanAndVolume(i, LaSlot[i].nPan, LaSlot[i].nVolume, LaSlot[i].distance);
+						}
+						//loc_91E64
+					}
+				}
+			}//loc_91E64
+		}
+	}//loc_91E74
 }
 
 void SOUND_Stop()
@@ -159,4 +215,20 @@ int S_SoundPlaySample(int a0, int a1, int a2, int a3, int arg_10)//91480(<), ?
 	{
 		return -3;
 	}
+}
+
+void S_SoundSetPitch(int handle, int nPitch)
+{
+	UNIMPLEMENTED();
+}
+
+int S_SoundSetPanAndVolume(int nhandle, int nPan, int nVolume, int distance)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+void GetPanVolume(struct SoundSlot* slot)
+{
+	UNIMPLEMENTED();
 }
