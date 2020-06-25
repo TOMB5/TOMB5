@@ -83,8 +83,8 @@ typedef struct MATRIX3D MatrixThing;
 #if 0 // for later...
 inline int phd_atan(long x, long y)
 {
- /* 0x00 */ char octant = 0;
- /* 0x00 */ int res;
+    char octant = 0;
+    int res;
 	if (x < 0)
 	{
 		octant = 4;
