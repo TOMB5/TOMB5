@@ -95,29 +95,42 @@ void ready_pistols(int weapon_type)// (F)
 	lara.right_arm.frame_base = lara.left_arm.frame_base = objects[WeaponObject(weapon_type)].frame_base;
 }
 
-void undraw_pistols(int weapon_type)
+void undraw_pistols(int weapon_type)//
 {
 	UNIMPLEMENTED();
 }
 
-void draw_pistols(int weapon_type)// (F)
+void draw_pistols(int weapon_type)//443B4, 44818 (F)
 {
-	struct PISTOL_DEF* p = &PistolTable[lara.gun_type];
-	short ani = lara.left_arm.frame_number + 1;
+	struct PISTOL_DEF* p = &PistolTable[lara.gun_type];//$a1
+	short ani = lara.left_arm.frame_number + 1;//$s1
 
-	if (ani < p->Draw1Anim || ani > p->RecoilAnim - 1)
+	//a3 = p->Draw1Anim
+
+	//v0 = p->RecoilAnim
+	if (ani < p->Draw1Anim || p->RecoilAnim - 1 < ani)
 	{
+		//loc_44420
 		ani = p->Draw1Anim;
 	}
-	else if (ani == p->Draw2Anim)
+	else
 	{
-		draw_pistol_meshes(weapon_type);
-		SoundEffect(SFX_LARA_HOLSTER_DRAW, &lara_item->pos, SFX_DEFAULT);
-	}
-	else if (ani == p->RecoilAnim - 1)
-	{
-		ready_pistols(weapon_type);
-		ani = 0;
+
+		//loc_44428
+		if (ani == p->Draw2Anim)
+		{
+			draw_pistol_meshes(weapon_type);
+			//a1 = lara_item
+			//a0 = 6
+			//a2 = 0;
+			SoundEffect(SFX_LARA_HOLSTER_DRAW, &lara_item->pos, 0);
+			//s0 = &lara.right_arm.frame_base
+		}//loc_44460
+		else if (ani == p->RecoilAnim - 1)
+		{
+			ready_pistols(weapon_type);
+			ani = 0;
+		}
 	}
 
 	set_arm_info(&lara.right_arm, ani);
