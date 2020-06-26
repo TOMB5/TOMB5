@@ -554,7 +554,7 @@ void LaraGun()//46F28, 4738C
 				}
 
 				draw_pistols(lara.gun_type);
-
+				return;
 				break;
 			case 4:
 			case 5:
@@ -566,10 +566,12 @@ void LaraGun()//46F28, 4738C
 				}
 				//loc_473C0
 				draw_shotgun(lara.gun_type);
+				return;
 				break;
 			case 7:
 				//loc_4747C
 				draw_flare();
+				return;
 				break;
 			}
 
