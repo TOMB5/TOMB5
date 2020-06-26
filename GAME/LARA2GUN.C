@@ -137,12 +137,12 @@ void draw_pistols(int weapon_type)//443B4, 44818 (F)
 	set_arm_info(&lara.left_arm, ani);
 }
 
-void set_arm_info(struct lara_arm* arm/*a3*/, int frame/*a1*/)//44308 (F)
+void set_arm_info(struct lara_arm* arm/*a3*/, int frame/*a1*/)//44308, 4476C (F)
 {
 	struct PISTOL_DEF* def = &PistolTable[lara.gun_type];//$a2
 	int anim_base = objects[def->ObjectNum].anim_index;//$a0
 
-	if (def->Draw1Anim != 0)
+	if (frame < def->Draw1Anim)
 	{
 		arm->anim_number = anim_base;
 		//j loc_44388
