@@ -587,7 +587,7 @@ void LaraGun()//46F28, 4738C
 			//v1 = lara.gun_status
 			//a1 = meshes + objects[LARA].mesh_index + 28
 
-			lara.mesh_ptrs[14] = meshes[objects[LARA].mesh_index] + 28;
+			lara.mesh_ptrs[14] = meshes[objects[LARA].mesh_index + 28];
 
 			switch (lara.gun_status)
 			{
@@ -617,12 +617,12 @@ void LaraGun()//46F28, 4738C
 			if ((input & IN_ACTION))
 			{
 				//v1 = objects[LARA_SCREAM].mesh_index
-				lara.mesh_ptrs[14] = meshes[objects[LARA_SCREAM].mesh_index] + 28;
+				lara.mesh_ptrs[14] = meshes[objects[LARA_SCREAM].mesh_index + 28];
 			}
 			else
 			{
 				//loc_474B8
-				lara.mesh_ptrs[14] = meshes[objects[LARA].mesh_index] + 28;
+				lara.mesh_ptrs[14] = meshes[objects[LARA].mesh_index + 28];
 			}
 			//a0 = [meshes + v1] + 28
 			if (camera.type != CINEMATIC_CAMERA && camera.type != LOOK_CAMERA && camera.type != HEAVY_CAMERA)
