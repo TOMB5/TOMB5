@@ -12,6 +12,9 @@
 #include "SAVEGAME.H"
 #include "SOUND.H"
 #include "TOMB4FX.H"
+#include "FLMTORCH.H"
+#include "CONTROL.H"
+#include "CAMERA.H"
 
 #ifdef PC_VERSION
 #include "GAME.H"
@@ -20,6 +23,7 @@
 #include "SETUP.H"
 #include "MISC.H"
 #include "FXTRIG.H"
+#include "PSXINPUT.H"
 #endif
 
 struct GAME_VECTOR bum_vdest;
@@ -251,11 +255,6 @@ void InitialiseNewWeapon()//4772C, 47B90 (F)
 	}
 }
 
-void LaraGun()//46F28, 4738C
-{
-	UNIMPLEMENTED();
-}
-
 static int CheckForHoldingState(int state)//46EE4, 47348 (F)
 {
 	short* holds = HoldStates;
@@ -269,4 +268,407 @@ static int CheckForHoldingState(int state)//46EE4, 47348 (F)
 	} while (*holds != state);
 
 	return TRUE;
+}
+
+void LaraGun()//46F28, 4738C
+{
+	//a1 = &lara
+	//v1 = lara.left_arm.flash_gun
+	//v0 = lara.left_arm.flash_gun
+
+	if (lara.left_arm.flash_gun > 0)
+	{
+		lara.left_arm.flash_gun--;
+	}
+
+	//loc_46F5C
+	if (lara.right_arm.flash_gun > 0)
+	{
+		lara.right_arm.flash_gun--;
+	}
+	//loc_46F70
+	if (lara.gun_type == 8)
+	{
+		DoFlameTorch();
+		return;
+		//j       def_475A0
+	}
+	else
+	{
+		//loc_46F90
+		//a2 = lara_item
+		if (lara_item->hit_points <= 0)
+		{
+			lara.gun_status = 0;
+			//j       loc_472B8
+		}
+		else
+		{
+			//loc_46FB4
+			//v0 = 4;
+			if (lara.gun_status == 0)
+			{
+				//v0 = 0x80000
+				if ((input & IN_DRAW))
+				{
+					lara.request_gun_type = lara.last_gun_type;
+				}
+				if ((input & IN_FLARE))
+				{
+					//loc_46FE8
+					if (!(gfLevelFlags & 0x1))
+					{
+						if (lara_item->current_anim_state == STATE_LARA_CROUCH_IDLE &&
+							lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE)
+						{
+							return;
+						}
+						//loc_4702C
+						if (lara.gun_type == WEAPON_FLARE && lara.left_arm.frame_number == 0)
+						{
+							lara.gun_status = 3;
+						}
+						else
+						{
+							//loc_47050
+							//v1 = lara.num_flares
+							//a0 = lara.num_flares
+							if (lara.num_flares != 0)
+							{
+								if (lara.num_flares == -1)
+								{
+									lara.request_gun_type = WEAPON_FLARE;
+								}
+								else
+								{
+									lara.num_flares--;
+								}
+							}
+						}
+					}//loc_47070
+				}//loc_47070
+
+				if ((input & IN_DRAW) || lara.request_gun_type != lara.gun_type)
+				{
+					//v0 = lara_item
+					//a0 = lara_item->current_anim_state
+					//a1 = &lara
+					if (lara_item->current_anim_state == 0x47 || lara_item->current_anim_state == 0x69 || lara_item->current_anim_state == 0x6A &&
+						lara.request_gun_type == 4 || lara.request_gun_type == 6 || lara.request_gun_type == 5)
+					{
+						//loc_470C8
+						//v0 = &lara
+						//a0 = lara.request_gun_type
+						//a1 = &lara
+						//loc_470EC
+						//a0 = &lara
+						if (lara.gun_type == WEAPON_FLARE)
+						{
+							lara.request_gun_type = lara.gun_type;
+						}
+					}
+					else
+					{
+						//loc_47108
+						//v1 = lara.request_gun_type
+						//s0 = &lara
+						//v0 = 4
+						if (lara.request_gun_type == WEAPON_FLARE || lara.water_status == 0 || (lara.water_status == 4 && -weapons[lara.gun_type].gun_height < lara.water_surface_dist))
+						{
+							//v1 = lara.gun_type
+							//a0 = &weapons[lara.gun_type];
+							//v1 = -weapons[lara.gun_type].gun_height
+							//v0 = lara.water_surface_dist
+							//v1 = &lara
+							//s0 = &lara
+							//loc_47170
+							if (lara.gun_type == WEAPON_FLARE)
+							{
+								CreateFlare(FLARE_ITEM, 0);
+								undraw_flare_meshes();
+								lara.flare_control_left = FALSE;
+								lara.current_active = FALSE;
+							}
+							//loc_471A4
+
+							lara.gun_type = lara.request_gun_type;
+							InitialiseNewWeapon();
+							lara.gun_status = 2;
+							lara.right_arm.frame_number = 0;
+							lara.left_arm.frame_number = 0;
+						}
+						//loc_471C4
+						//a1 = lara.request_gun_type
+						//a0 = lara.gun_type
+						lara.last_gun_type = lara.request_gun_type;
+						if (lara.gun_type == WEAPON_FLARE)
+						{
+							lara.request_gun_type = lara.gun_type;
+						}
+						else
+						{
+							lara.gun_type = lara.request_gun_type;
+						}
+					}
+				}
+				//loc_472BC
+			}
+			else
+			{
+				//loc_471E8
+				//v0 = 1
+				if (lara.gun_status == 4)
+				{
+					//v0 = 3
+					if ((input & IN_DRAW) || lara.request_gun_type == lara.gun_type && lara.water_status != 0 &&
+						lara.water_status != 7 || lara.water_surface_dist < -weapons[lara.request_gun_type].gun_height)
+					{
+						//loc_47268
+						lara.gun_status = 3;
+						//a0 = &weapons[lara.request_gun_type];
+						//v1 = -weapons[lara.request_gun_type].gun_height;
+						//v0 = lara.water_surface_dist
+						//v0 = 3
+						//j loc_472B8
+						//loc_472B8
+					}
+					//loc_472B8
+				}
+				else
+				{
+					//loc_47270
+					//v0 = &lara
+					if (lara.gun_status == 1)
+					{
+						if ((input & IN_FLARE) && lara_item->current_anim_state == STATE_LARA_CRAWL_IDLE)
+						{
+							if (lara_item->anim_number == ANIMATION_LARA_CRAWL_IDLE)
+							{
+								lara.request_gun_type = WEAPON_FLARE;
+							}
+						}
+						//loc_472B8
+					}
+					//loc_472BC
+				}
+			}
+		}
+		//loc_472B8
+		//v0 = &lara
+		switch (lara.gun_status)
+		{
+		case 0:
+			//loc_475D8
+			//s0 = &lara
+			//v1 = lara.gun_type
+			if (lara.gun_type == 7)
+			{
+				//v0 = lara_item
+				//a0 = lara_item->current_anim_state
+				//v1 = -2
+				if (CheckForHoldingState(lara_item->current_anim_state))
+				{
+					//v1 = lara.flags
+					if (!lara.flare_control_left)
+					{
+						lara.left_arm.frame_number = 95;
+						lara.flare_control_left = TRUE;
+						//j loc_47674
+					}
+					else
+					{
+						//loc_47630
+						//v0 = lara.left_arm.frame_number
+						//v1 = lara.left_arm.frame_number
+						if (lara.left_arm.frame_number != 0)
+						{
+							lara.left_arm.frame_number++;
+
+							if (lara.left_arm.frame_number == 110)
+							{
+								lara.left_arm.frame_number = 0;
+							}
+						}//loc_47670
+					}
+				}
+				else
+				{
+					//loc_47660
+					lara.flare_control_left = FALSE;
+				}
+
+				//loc_47670
+				//s0 = &lara
+				DoFlareInHand(lara.flare_age);
+				set_flare_arm(lara.left_arm.frame_number);
+			}
+			//def_475A0
+			break;
+		case 1:
+			//loc_47694
+			//s0 = &lara
+			//v1 = lara.gun_type
+			if (lara.gun_type == 7)
+			{
+				//v0 = meshes + objects[FLARE_ANIM].mesh_index[26]
+				//a0 = meshes
+				//a1 = lara.mesh_ptrs[13]
+
+				if (lara.mesh_ptrs[12] == meshes[objects[FLARE_ANIM].mesh_index] + 26)
+				{
+					//a1 = -2
+					;
+					//v1 = lara.flags
+					//a0 = lara.flare_age
+					lara.flare_control_left = FALSE;
+					lara.flare_control_left |= CheckForHoldingState(lara_item->current_anim_state) & 1;
+					DoFlareInHand(lara.flare_age);
+					set_flare_arm(lara.left_arm.frame_number);
+				}
+				//def_475A0
+			}
+			//def_475A0
+			break;
+		case 2:
+			//loc_472EC
+			//a0 = &lara
+			//v0 = 7
+			//v1 = lara.gun_type
+			//a1 = lara.gun_type
+			if (lara.gun_type != WEAPON_FLARE && lara.gun_type != WEAPON_NONE)
+			{
+				lara.last_gun_type = lara.gun_type;
+			}
+			//loc_47310
+			//a1=  &lara
+			switch (lara.gun_type)
+			{
+			case 1:
+			case 2:
+			case 3:
+				//loc_47350
+				//v1 = camera.type
+				if (camera.type != CINEMATIC_CAMERA && camera.type != LOOK_CAMERA && camera.type != HEAVY_CAMERA)
+				{
+					camera.type = COMBAT_CAMERA;
+				}
+
+				draw_pistols(lara.gun_type);
+
+				break;
+			case 4:
+			case 5:
+			case 6:
+				//loc_47394
+				if (camera.type != CINEMATIC_CAMERA && camera.type != LOOK_CAMERA && camera.type != HEAVY_CAMERA)
+				{
+					camera.type = COMBAT_CAMERA;
+				}
+				//loc_473C0
+				draw_shotgun(lara.gun_type);
+				break;
+			case 7:
+				//loc_4747C
+				draw_flare();
+				break;
+			}
+
+			//def_47348
+			lara.gun_status = 0;
+
+			break;
+		case 3:
+			//loc_473E0
+			//a2 = &lara
+			//v0 = meshes + objects[LARA].mesh_index
+			//a0 = meshes
+			//v1 = lara.gun_status
+			//a1 = meshes + objects[LARA].mesh_index + 28
+
+			lara.mesh_ptrs[14] = meshes[objects[LARA].mesh_index] + 28;
+
+			switch (lara.gun_status)
+			{
+			case 1:
+			case 2:
+			case 3:
+				//loc_4743C
+				//v0 = &lara
+				undraw_pistols(lara.gun_type);
+				break;
+			case 4:
+			case 5:
+			case 6:
+				//loc_47454
+				undraw_shotgun(lara.gun_type);
+				break;
+			case 7:
+				//loc_4746C
+				undraw_flare();
+				break;
+			}
+
+			break;
+		case 4:
+			//loc_4748C
+			//v0 = input
+			if ((input & IN_ACTION))
+			{
+				//v1 = objects[LARA_SCREAM].mesh_index
+				lara.mesh_ptrs[14] = meshes[objects[LARA_SCREAM].mesh_index] + 28;
+			}
+			else
+			{
+				//loc_474B8
+				lara.mesh_ptrs[14] = meshes[objects[LARA].mesh_index] + 28;
+			}
+			//a0 = [meshes + v1] + 28
+			if (camera.type != CINEMATIC_CAMERA && camera.type != LOOK_CAMERA && camera.type != HEAVY_CAMERA)
+			{
+				camera.type = COMBAT_CAMERA;
+			}
+			//loc_4750C
+			if ((input & IN_ACTION) && get_current_ammo_pointer(lara.gun_type)[0] == 0)
+			{
+				if (objects[PISTOLS_ITEM].loaded)
+				{
+					lara.request_gun_type = WEAPON_PISTOLS;
+				}
+				else
+				{
+					lara.request_gun_type = WEAPON_NONE;
+				}
+			}
+			else
+			{
+				//loc_47568
+				//v0 = &lara
+				//v1 = lara.gun_type
+				switch (lara.gun_type)
+				{
+				case 1:
+				case 3:
+					//loc_475A8
+					PistolHandler(lara.gun_type);
+					break;
+				case 2:
+				case 4:
+				case 5:
+				case 6:
+					//loc_475C0
+					RifleHandler(lara.gun_type);
+					break;
+				}
+			}
+
+			break;
+		case 5:
+			//loc_4747C
+			break;
+				}
+
+		//def_475A0
+
+			}
+		
 }
