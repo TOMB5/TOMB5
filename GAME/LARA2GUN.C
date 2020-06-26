@@ -137,31 +137,39 @@ void draw_pistols(int weapon_type)//443B4, 44818 (F)
 	set_arm_info(&lara.left_arm, ani);
 }
 
-void set_arm_info(struct lara_arm* arm, int frame)// (F)
+void set_arm_info(struct lara_arm* arm/*a3*/, int frame/*a1*/)//44308 (F)
 {
-	struct PISTOL_DEF* def = &PistolTable[lara.gun_type];
-	int anim_base = objects[def->ObjectNum].anim_index;
+	struct PISTOL_DEF* def = &PistolTable[lara.gun_type];//$a2
+	int anim_base = objects[def->ObjectNum].anim_index;//$a0
 
-	if (frame >= def->Draw1Anim)
+	if (def->Draw1Anim != 0)
 	{
+		arm->anim_number = anim_base;
+		//j loc_44388
+	}
+	else
+	{
+		//loc_44358
 		if (frame >= def->Draw2Anim)
 		{
 			if (frame >= def->RecoilAnim)
 			{
-				anim_base += 3;
+				//loc_44384
+				arm->anim_number = anim_base + 3;
 			}
 			else
 			{
-				anim_base += 2;
+				//loc_44384
+				arm->anim_number = anim_base + 2;
 			}
 		}
 		else
 		{
-			anim_base += 1;
+			//loc_44384
+			arm->anim_number = anim_base + 1;
 		}
 	}
 
-	arm->anim_number = anim_base;
 	arm->frame_number = frame;
-	arm->frame_base = anims[anim_base].frame_ptr;
+	arm->frame_base = anims[arm->anim_number].frame_ptr;
 }
