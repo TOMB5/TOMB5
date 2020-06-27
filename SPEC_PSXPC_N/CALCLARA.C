@@ -1471,6 +1471,56 @@ void InterpolateMatrix_CL(int* t8, int* a0)//85414
 	((int*)a0)[7] = t4;
 }
 
+void InterpolateMatrix_CL(int* t8)//85764 (F)
+{
+	//v1 = t8[47];
+	//t7 = t8[46];
+
+	int t0 = RBK;
+	int t2 = GBK;
+	int t4 = BBK;
+	int t1 = TRX;
+	int t3 = TRY;
+	int t5 = TRZ;
+
+	//at = t0 + t1
+	if (t8[47] == 2)
+	{
+		//loc_857A4
+		t0 = (t0 + t1) >> 1;
+		t2 = (t2 + t3) >> 1;
+		t4 = (t4 + t5) >> 1;
+	}
+	else if (t8[46] != 2 || t8[47] != 4)
+	{
+		//loc_857BC
+		if (t8[46] == 1)
+		{
+			t0 = t1 + ((t0 - t1) >> 2);
+			t2 = t3 + ((t2 - t3) >> 2);
+			t4 = t5 + ((t4 - t5) >> 2);
+		}
+		else
+		{
+			//loc_857E8
+			t0 = t0 - ((t0 - t1) >> 2);
+			t2 = t2 - ((t2 - t3) >> 2);
+			t4 = t2 - ((t4 - t5) >> 2);
+		}
+	}
+	else
+	{
+		t0 = (t0 + t1) >> 1;
+		t2 = (t2 + t3) >> 1;
+		t4 = (t4 + t5) >> 1;
+	}
+
+	//loc_85808
+	TRX = t0;
+	TRY = t2;
+	TRZ = t4;
+}
+
 void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate, long* bone, int flag)
 {
 	int sp[256];
@@ -1666,7 +1716,60 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		case 3:
 		{
 			//loc_847A4
-			assert(false);
+#if 0
+			loc_847A4:               # jumptable 00084694 cases 1, 3
+				jal     sub_85764
+				addiu   $a0, $t8, 0x100
+				lh      $a0, 0x52FA($gp)
+				lh      $a1, 0x52FC($gp)
+				jal     sub_84E28
+				lh      $a2, 0x52FE($gp)
+				lh      $v1, 0x52F6($gp)
+				nop
+				sll     $v0, $v1, 2
+				addu    $v0, $v1
+				sll     $v0, 3
+				addu    $v0, $t9
+				lh      $v1, 0x52F4($gp)
+				lh      $a0, 0x18($v0)
+				lh      $v0, 4($v0)
+				subu    $v1, $a0
+				sra     $v0, 8
+				mult    $v1, $v0
+				li      $a1, 8
+				lw      $v0, 0x52F0($gp)
+				mflo    $t0
+				sll     $v1, $t0, 1
+				addu    $v0, $v1
+				addiu   $v0, 0x12
+				jal     sub_84C40
+				sw      $v0, 0x24($t8)
+				jal     sub_84F34
+				addiu   $a0, $s0, 0x120
+				jal     sub_84B30
+				addiu   $a2, $s1, 0x84
+				jal     sub_84C40
+				move    $a1, $zero
+				jal     sub_84F34
+				addiu   $a0, $s0, 0x140
+				jal     sub_84B30
+				addiu   $a2, $s1, 0x94
+				jal     sub_84C40
+				move    $a1, $zero
+				jal     sub_84F34
+				addiu   $a0, $s0, 0x160
+				jal     sub_84F78
+				addiu   $a0, $t8, 0xC0
+				jal     sub_852CC
+				addiu   $a2, $s1, 0xA4
+				jal     sub_85764
+				addiu   $a0, $t8, 0x100
+				lh      $a0, 0x52E6($gp)
+				lh      $a1, 0x52E8($gp)
+				lh      $a2, 0x52EA($gp)
+				jal     sub_84E28
+				addiu   $ra, 0xE8
+#endif
 			break;
 		}
 		case 2:
