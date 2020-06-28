@@ -1786,6 +1786,50 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 			mRotSuperPackedYXZ_CL(t8, 0);
 			iRotSuperPackedYXZ_CL(t8, 0);
 			InterpolateMatrix_CL(t8, (int*)&s0[224]);
+
+			//?, 8699C
+			//t0 = (lara.right_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8)
+			anim = &anims[lara.right_arm.anim_number];
+			//a0 = anim->frame_base
+			//v0 = (anim->interpolation >> 8)
+			//a1 = 8
+			//v0 = &lara.right_arm.frame_base[(lara.right_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8) + 9];
+			t8[9] = (int)&lara.right_arm.frame_base[(lara.right_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8) + 9];
+			mRotSuperPackedYXZ_CL(t8, 8);
+			snaff_current_gte_matrix_V1((int*)&s0[144]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[66]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[160]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[74]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[176]);
+			DEL_restore_both_matrices(t8, &t8[48]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[52], t8);
+			InterpolateArmMatrix_CL(t8, (int*)&t8[64]);
+			mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+			iRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+			
+			anim = &anims[lara.left_arm.anim_number];
+			//a0 = anim->frame_base
+			//v0 = (anim->interpolation >> 8)
+			//v1 = (lara.left_arm.frame_number - anim->frame_base)
+			//t0 = (lara.left_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8)
+			//a1 = 11
+			//v0 = lara.left_arm.frame_base
+			t8[9] = (int)&lara.left_arm.frame_base[(lara.left_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8) + 9];
+			mRotSuperPackedYXZ_CL(t8, 11);
+			snaff_current_gte_matrix_V1((int*)&s0[192]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[90]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[208]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[98]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[224]);
+
+			//def_84694
+			mLoadMatrix_CL(&t8[72]);
+
+			return;
 			break;
 		}
 		}
