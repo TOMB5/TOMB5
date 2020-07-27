@@ -15,13 +15,13 @@
 //#define OGLES_VERSION 3
 
 //Open Graphics Library
-//#define OGL
+#define OGL
 
 //Direct3D9
 //#define D3D9
 
 //Direct3D11
-#define D3D11
+//#define D3D11
 
 #if defined(OGL) || defined(D3D9) || defined(D3D11)
 #define SDL2

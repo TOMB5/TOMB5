@@ -1730,6 +1730,7 @@ void Emulator_CreateGlobalShaders()
 #endif
 }
 
+#if defined(D3D11)
 void Emulator_DestroyGlobalShaders()
 {
 	g_gte_shader_4.VS->Release();
@@ -1745,6 +1746,7 @@ void Emulator_DestroyGlobalShaders()
 	g_blit_shader.PS->Release();
 	g_blit_shader.IL->Release();
 }
+#endif
 
 unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 
@@ -1927,17 +1929,12 @@ void Emulator_Ortho2D(float left, float right, float bottom, float top, float zn
 	float z = znear / (znear - zfar);
 #endif
 
-	DirectX::XMMATRIX mat;
-
 	float ortho[16] = {
 		a, 0, 0, 0,
 		0, b, 0, 0,
 		0, 0, c, 0,
 		x, y, z, 1
 	};
-
-	memcpy(&mat, &ortho[0], sizeof(DirectX::XMMATRIX));
-	mat = DirectX::XMMatrixTranspose(mat);
 
 #if defined(OGL) || defined(OGLES)
 	glUniformMatrix4fv(u_Projection, 1, GL_FALSE, ortho);
