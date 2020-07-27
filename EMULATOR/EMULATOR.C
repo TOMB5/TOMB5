@@ -55,6 +55,7 @@ TextureID whiteTexture;
 	ID3D11Buffer			*projectionMatrixBuffer;
 	ID3D11SamplerState		*samplerState;
 	ID3D11BlendState		*blendState;
+	ID3D11RasterizerState	*rasterState;
 #endif
 
 int windowWidth = 0;
@@ -215,6 +216,7 @@ void Emulator_ResetDevice()
 	d3dcontext->IASetVertexBuffers(0, 1, &dynamic_vertex_buffer, &stride, &offset);
 	d3dcontext->OMSetRenderTargets(1, &renderTargetView, NULL);
 	d3dcontext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Emulator_CreateRasterState(FALSE);
 #endif
 }
 
@@ -2524,7 +2526,7 @@ void Emulator_SwapWindow()
 		Emulator_ResetDevice();
 	}
 #elif defined(D3D11)
-	HRESULT hr = swapChain->Present(1, 0);
+	HRESULT hr = swapChain->Present(g_swapInterval, 0);
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 		Emulator_ResetDevice();
 	}
@@ -2852,7 +2854,7 @@ void Emulator_SetWireframe(bool enable)
 #elif defined(D3D9) || defined(XED3D)
 	d3ddev->SetRenderState(D3DRS_FILLMODE, enable ? D3DFILL_WIREFRAME : D3DFILL_SOLID);
 #elif defined(D3D11)
-	d3dcontext->IASetPrimitiveTopology(enable ? D3D_PRIMITIVE_TOPOLOGY_LINELIST : D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Emulator_CreateRasterState(enable ? TRUE : FALSE);
 #endif
 }
 
@@ -2927,6 +2929,31 @@ void Emulator_SetConstantBuffers()
 void Emulator_DestroyConstantBuffers()
 {
 	projectionMatrixBuffer->Release();
+}
+
+void Emulator_CreateRasterState(int wireframe)
+{
+	if (rasterState != NULL)
+	{
+		rasterState->Release();
+		rasterState = NULL;
+	}
+
+	D3D11_RASTERIZER_DESC rsd;
+	ZeroMemory(&rsd, sizeof(rsd));
+	rsd.FillMode = wireframe ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
+	rsd.CullMode = D3D11_CULL_NONE;
+	rsd.FrontCounterClockwise = FALSE;
+	rsd.DepthBias = FALSE;
+	rsd.DepthBiasClamp = 0;
+	rsd.SlopeScaledDepthBias = 0;
+	rsd.DepthClipEnable = FALSE;
+	rsd.ScissorEnable = FALSE;
+	rsd.MultisampleEnable = FALSE;
+	rsd.AntialiasedLineEnable = FALSE;
+	HRESULT hr = d3ddev->CreateRasterizerState(&rsd, &rasterState);
+	assert(!FAILED(hr));
+	d3dcontext->RSSetState(rasterState);
 }
 
 #endif

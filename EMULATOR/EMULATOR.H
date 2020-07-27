@@ -239,6 +239,7 @@ extern void Emulator_CreateConstantBuffers();
 extern void Emulator_UpdateProjectionConstantBuffer(float* ortho);
 extern void Emulator_SetConstantBuffers();
 extern void Emulator_DestroyConstantBuffers();
+extern void Emulator_CreateRasterState(int wireframe);
 #endif
 
 #if defined(D3D9) || defined(XED3D)
