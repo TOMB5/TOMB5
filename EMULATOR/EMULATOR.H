@@ -153,7 +153,8 @@ enum BlendMode
 	BM_AVERAGE,
 	BM_ADD,
 	BM_SUBTRACT,
-	BM_ADD_QUATER_SOURCE
+	BM_ADD_QUATER_SOURCE,
+	BM_COUNT
 };
 
 enum TexFormat
@@ -179,6 +180,16 @@ struct ShaderID {
 };
 
 typedef IDirect3DSurface9* RenderTargetID;
+#elif defined(D3D11)
+typedef ID3D11ShaderResourceView* TextureID;
+
+struct ShaderID {
+	ID3D11VertexShader* VS;
+	ID3D11PixelShader* PS;
+	ID3D11InputLayout* IL;
+};
+
+typedef ID3D11RenderTargetView* RenderTargetID;
 #else
 #error
 #endif
@@ -218,6 +229,17 @@ extern void Emulator_SetRenderTarget(const RenderTargetID& render_target);
 extern void Emulator_SetWireframe(bool enable);
 extern void Emulator_UpdateVertexBuffer(const Vertex* vertices, int count);
 extern void Emulator_DrawTriangles(int start_vertex, int triangles);
+
+extern void Emulator_CreateGlobalShaders();
+extern void Emulator_DestroyGlobalShaders();
+extern void Emulator_GenerateCommonTextures();
+
+#if defined(D3D11)
+extern void Emulator_CreateConstantBuffers();
+extern void Emulator_UpdateProjectionConstantBuffer(float* ortho);
+extern void Emulator_SetConstantBuffers();
+extern void Emulator_DestroyConstantBuffers();
+#endif
 
 #if defined(D3D9) || defined(XED3D)
 extern IDirect3DDevice9* d3ddev;

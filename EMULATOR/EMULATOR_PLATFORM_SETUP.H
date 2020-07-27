@@ -1,3 +1,4 @@
+
 #ifndef EMULATOR_PLATFORM_SETUP_H
 #define EMULATOR_PLATFORM_SETUP_H
 
@@ -14,17 +15,19 @@
 //#define OGLES_VERSION 3
 
 //Open Graphics Library
-#define OGL
+//#define OGL
 
 //Direct3D9
 //#define D3D9
 
-#if defined(D3D9)
+//Direct3D11
+#define D3D11
+
+#if defined(OGL) || defined(D3D9) || defined(D3D11)
 #define SDL2
 #endif
 
 #if defined(OGL)
-#define SDL2
 #define GLEW
 #endif
 
@@ -93,6 +96,10 @@
 #elif defined(D3D9)
 #include <Windows.h>
 #include <d3d9.h>
+#elif defined(D3D11)
+#include <Windows.h>
+#include <d3d11.h>
+#include <SDL_syswm.h>
 #elif defined(XED3D)
 #include <xtl.h>
 #if _XDK_VER != 21256
