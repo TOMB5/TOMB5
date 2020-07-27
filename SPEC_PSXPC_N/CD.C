@@ -270,7 +270,7 @@ void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F) (*) (D)
 
 	if (XATrack == -1)
 	{
-		param[0] = 200;
+		param[0] = CdlModeSpeed | CdlModeRT | CdlModeSF;
 		CdControlB(CdlSetmode, &param[0], NULL);
 		VSync(3);
 		CdControlB(CdlPause, NULL, NULL);
@@ -354,7 +354,7 @@ void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F) (*) (D)
 void InitNewCDSystem()//5DDE8(<), 5E264(<) (F) (*) (D) (ND)
 {
 	int i;
-#if 0///@TODO?
+#if DISC_VERSION
 	long local_wadfile_header[512];
 #endif
 	CdlFILE fp;
