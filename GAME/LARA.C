@@ -2968,7 +2968,7 @@ void lara_as_forwardjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//18A34,
 	{
 		lara.turn_rate += 409;
 
-		if (lara.turn_rate < ANGLE(3.009))
+		if (lara.turn_rate >= ANGLE(3))
 		{
 			lara.turn_rate = ANGLE(3);
 		}
