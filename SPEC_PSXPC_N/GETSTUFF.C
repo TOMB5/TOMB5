@@ -838,7 +838,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 		case LAVA_TYPE://COMPLETE
 		{
 			//loc_78F00
-			trigger_index = (short*)--fd;
+			trigger_index = (short*)&fd[-1];
 			break;
 		}
 		case CLIMB_TYPE:
