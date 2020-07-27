@@ -27,10 +27,10 @@ platform:
   #- x64
   
 install:
-  - set SDL2_URL="https://www.libsdl.org/release/SDL2-devel-2.0.9-VC.zip"
+  - set SDL2_URL="https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip"
   - appveyor DownloadFile %SDL2_URL% -FileName SDL2.zip
   - 7z x SDL2.zip -oC:\projects\TOMB5\EXTERNAL\
-  - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.9
+  - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.12
   - set GLEW_URL="https://netix.dl.sourceforge.net/project/glew/glew/2.1.0/glew-2.1.0-win32.zip"
   - appveyor DownloadFile %GLEW_URL% -FileName GLEW.zip
   - 7z x GLEW.zip -oC:\projects\TOMB5\EXTERNAL\
@@ -50,7 +50,7 @@ artifacts:
   
 after_build:
   - cmd: cd SPEC_PSXPC_N
-  - cmd: copy "C:\projects\TOMB5\EXTERNAL\SDL2-2.0.9\lib\x86\SDL2.dll" "%configuration%\"
+  - cmd: copy "C:\projects\TOMB5\EXTERNAL\SDL2-2.0.12\lib\x86\SDL2.dll" "%configuration%\"
   - 7z a TOMB5.zip "%configuration%\"
   
 #build: off
