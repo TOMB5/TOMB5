@@ -102,6 +102,7 @@
 #include <SDL_syswm.h>
 #elif defined(XED3D)
 #include <xtl.h>
+#include <xgraphics.h>
 #if _XDK_VER != 21256
 #error "Invalid XDK version"
 #endif

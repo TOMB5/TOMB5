@@ -583,8 +583,10 @@ void Emulator_Initialise(char* windowName, int width, int height)
 		Emulator_ShutDown();
 	}
 
-#if defined(SDL2) || 1
+#if defined(SDL2)
 	g_swapTime = SDL_GetTicks() - FIXED_TIME_STEP;
+#elif defined(XED3D)
+	g_swapTime = GetTickCount() - FIXED_TIME_STEP;
 #endif
 
 	//counter_thread = std::thread(Emulator_CounterLoop);
@@ -599,6 +601,8 @@ void Emulator_CounterLoop()
 	{
 #if defined(SDL2)
 		int now = SDL_GetTicks();
+#elif defined(XED3D)
+		int now = GetTickCount();
 #else
 		int now = 0;
 #endif
@@ -2101,10 +2105,28 @@ void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
 	D3DLOCKED_RECT rect;
 	hr = d3ddev->GetRenderTarget(0, &srcSurface);
 	assert(!FAILED(hr));
-#if !defined(XED3D)
+#if defined(D3D9)
 	hr = d3ddev->CreateOffscreenPlainSurface(windowWidth, windowHeight, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &dstSurface, NULL);
 	assert(!FAILED(hr));
 	hr = d3ddev->GetRenderTargetData(srcSurface, dstSurface);
+	assert(!FAILED(hr));
+#elif defined(XED3D)
+	D3DLOCKED_RECT srcRect;
+	dstSurface = new IDirect3DSurface9();
+	D3DSURFACE_PARAMETERS  pSurfaceParams;
+	memset(&pSurfaceParams, 0, sizeof(D3DSURFACE_PARAMETERS));
+	pSurfaceParams.Base = 0;
+	pSurfaceParams.HierarchicalZBase = 0;
+	DWORD dwSurfaceSize = XGSetSurfaceHeader( windowWidth, windowHeight, D3DFMT_A8R8G8B8, D3DMULTISAMPLE_NONE, &pSurfaceParams, dstSurface, NULL);
+	XGOffsetSurfaceAddress(dstSurface, 0, 0);
+	hr = dstSurface->LockRect(&rect, NULL, D3DLOCK_NOOVERWRITE);
+	assert(!FAILED(hr));
+	hr = srcSurface->LockRect(&srcRect, NULL, D3DLOCK_NOOVERWRITE);
+	assert(!FAILED(hr));
+	memcpy(rect.pBits, srcRect.pBits, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
+	hr = dstSurface->UnlockRect();
+	assert(!FAILED(hr));
+	hr = srcSurface->UnlockRect();
 	assert(!FAILED(hr));
 #endif
 	hr = dstSurface->LockRect(&rect, NULL, D3DLOCK_READONLY);
@@ -2228,7 +2250,15 @@ void Emulator_UpdateVRAM()
 	D3DLOCKED_RECT rect;
 	HRESULT hr = vramTexture->LockRect(0, &rect, NULL, 0);
 	assert(!FAILED(hr));
+#if defined(D3D9)
 	memcpy(rect.pBits, vram, VRAM_WIDTH * VRAM_HEIGHT * sizeof(short));
+#elif defined(XED3D)
+	XGTEXTURE_DESC srcDesc;
+	memset(&srcDesc, 0, sizeof(XGTEXTURE_DESC));
+	XGGetTextureDesc((D3DBaseTexture*)vramTexture, 0, &srcDesc);
+	//Have to tile the texture for X360 GPU.
+	XGTileSurface(rect.pBits, rect.Pitch / srcDesc.BytesPerBlock, srcDesc.HeightInBlocks, NULL, vram, rect.Pitch, NULL, srcDesc.BytesPerBlock);
+#endif
 	vramTexture->UnlockRect(0);
 #elif defined(D3D11)
 	D3D11_MAPPED_SUBRESOURCE sr;
@@ -2414,12 +2444,10 @@ void Emulator_DoDebugKeys(int nKey, bool down)
 		{
 			case SDL_SCANCODE_1:
 				g_wireframeMode ^= 1;
-				eprintf("wireframe mode: %d\n", g_wireframeMode);
 				break;
 
 			case SDL_SCANCODE_2:
 				g_texturelessMode ^= 1;
-				eprintf("textureless mode: %d\n", g_texturelessMode);
 				break;
 
 			case SDL_SCANCODE_3:
@@ -2434,11 +2462,9 @@ void Emulator_DoDebugKeys(int nKey, bool down)
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 			case SDL_SCANCODE_4:
-				eprintf("saving screenshot\n");
 				Emulator_TakeScreenshot();
 				break;
 			case SDL_SCANCODE_5:
-				eprintf("saving VRAM.TGA\n");
 				Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 				break;
 #endif
@@ -2550,7 +2576,19 @@ void Emulator_WaitForTimestep(int count)
 
 	g_swapTime = SDL_GetTicks();
 #elif defined(XED3D)
-	///@TODO
+	if (g_swapInterval > 0) 
+	{
+		int delta = g_swapTime + FIXED_TIME_STEP*count - GetTickCount();
+
+		if (delta > 0) {
+			DWORD dwStart = GetTickCount();
+
+		while(( GetTickCount() - dwStart ) < delta ){ }
+
+		}
+	}
+
+	g_swapTime = GetTickCount();
 #endif
 }
 
