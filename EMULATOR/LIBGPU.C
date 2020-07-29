@@ -500,9 +500,6 @@ void DrawSplit(const VertexBufferSplit& split)
 	Emulator_DrawTriangles(split.vIndex, split.vCount / 3);
 }
 
-//
-// Draws all polygons after AggregatePTAG
-//
 void DrawAggregatedSplits()
 {
 	if (g_emulatorPaused)
@@ -579,11 +576,17 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 	} while (g_emulatorPaused);
 
 #if defined(PGXP)
-	/* Reset the ztable */
+	// Reset the ztable.
 	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
 
-	/* Reset the ztable index of */
+	// Reset the ztable index of.
 	pgxp_vertex_index = 0;
+
+	// Reset last quad match
+	last_pgxp_quad_match = 0;
+
+	// Reset last tri match
+	last_pgxp_tri_match = 0;
 #endif
 }
 
@@ -628,19 +631,19 @@ void DrawPrim(void* p)
 	{
 		ClearVBO();
 		ResetPolyState();
+
+		if (activeDrawEnv.isbg)
+		{
+			ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
+		}
+		else {
+			Emulator_BlitVRAM();
+		}
 	}
 
 #if defined(DEBUG_POLY_COUNT)
 	polygon_count = 0;
 #endif
-
-	if (activeDrawEnv.isbg)
-	{
-		ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
-	}
-	else {
-		Emulator_BlitVRAM();
-	}
 
 	AggregatePTAGsToSplits((u_long*)p, TRUE);
 	DrawAggregatedSplits();
