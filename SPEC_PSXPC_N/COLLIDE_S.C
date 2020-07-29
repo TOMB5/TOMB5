@@ -563,7 +563,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		zfront = coll->radius;
 		s7 = coll->radius;
 		s0 = coll->radius;
-		xfront = (SIN(coll->facing) * -coll->radius) >> W2V_SHIFT;
+		xfront = (SIN((unsigned short)coll->facing) * -coll->radius) >> W2V_SHIFT;
 	}
 	else if (coll->quadrant - 1 == 0)
 	{
@@ -573,7 +573,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		xfront = coll->radius;
 		s0 = coll->radius;
 		s7 = coll->radius;
-		zfront = (COS(coll->facing) * coll->radius) >> W2V_SHIFT;
+		zfront = (COS((unsigned short)coll->facing) * coll->radius) >> W2V_SHIFT;
 	}
 	else if (coll->quadrant - 2 == 0)
 	{
@@ -583,7 +583,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		zfront = -coll->radius;
 		s7 = -coll->radius;
 		s0 = -coll->radius;
-		xfront = (SIN(coll->facing) * coll->radius) >> W2V_SHIFT;
+		xfront = (SIN((unsigned short)coll->facing) * coll->radius) >> W2V_SHIFT;
 	}
 	else if (coll->quadrant - 3 == 0)
 	{
@@ -593,7 +593,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		xfront = -coll->radius;
 		s0 = -coll->radius;
 		s7 = -coll->radius;
-		zfront = (COS(coll->facing) * coll->radius) >> W2V_SHIFT;
+		zfront = (COS((unsigned short)coll->facing) * coll->radius) >> W2V_SHIFT;
 	}
 	else
 	{
@@ -637,11 +637,11 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//a1 = ypos - 160
 	//a2 = zfront
 
-	floor = GetFloor(xpos + xfront + xfront, (ypos - objheight) - 160, zpos + zfront + zfront, &room_num);
+	floor = GetFloor(xfront + xpos, (ypos - objheight) - 160, zfront + zpos, &room_num);
 
 	//a1 = xfront
 	//a3 = zfront
-	height = GetHeight(floor, xpos + xfront + xfront, (ypos - objheight) - 160, zpos + zfront + zfront);
+	height = GetHeight(floor, xfront + xpos, (ypos - objheight) - 160, zfront + zpos);
 	if (height != -32512)
 	{
 		height -= ypos;
@@ -725,7 +725,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//a0 = coll
 	var_5C = objheight;
 	var_60 = room_num;
-	//CollideStaticObjects(coll, xpos, ypos, zpos, room_number, objheight);
+	CollideStaticObjects(coll, xpos, ypos, zpos, room_number, objheight);
 
 	//t0 = xpos
 	//t1 = zpos
@@ -805,7 +805,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			{
 				//loc_7B7B0
 				coll->shift.x = coll->old.x - xpos;
-				FindGridShift(zpos + zfront, zpos);
+				coll->shift.z = FindGridShift(zpos + zfront, zpos);
 				coll->coll_type = 1;
 				return;
 			}

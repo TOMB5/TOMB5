@@ -996,3 +996,10 @@ void titseq_special1_control()
 		byte_28A = 1;
 	}
 }
+
+void titseq_special4_init()
+{
+	lara_item->mesh_bits = -1;
+	Chris_Menu = 0;
+	cutrot = 1;
+}

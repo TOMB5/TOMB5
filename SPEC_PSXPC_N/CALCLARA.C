@@ -1205,7 +1205,7 @@ void DEL_stash_both_matrices(int* t8, int* a0)
 	snaff_current_gte_matrix_V1(a0);
 }
 
-void InterpolateMatrix(int* t8, int* a0)//85414
+void InterpolateMatrix_CL(int* t8, int* a0)//85414
 {
 	int at = 0;
 	int t0 = 0;
@@ -1471,6 +1471,58 @@ void InterpolateMatrix(int* t8, int* a0)//85414
 	((int*)a0)[7] = t4;
 }
 
+void InterpolateArmMatrix_CL(int* t8, int* a0)//85764, 877A8 (F)
+{
+	//v1 = t8[47];
+	//t7 = t8[46];
+
+	int t0 = RBK;
+	int t2 = GBK;
+	int t4 = BBK;
+	int t1 = TRX;
+	int t3 = TRY;
+	int t5 = TRZ;
+
+	//at = t0 + t1
+	if (t8[47] == 2)
+	{
+		//loc_857A4
+		t0 = (t0 + t1) >> 1;
+		t2 = (t2 + t3) >> 1;
+		t4 = (t4 + t5) >> 1;
+	}
+	else if (t8[46] != 2 || t8[47] != 4)
+	{
+		//loc_857BC
+		if (t8[46] == 1)
+		{
+			t0 += ((t0 - t1) >> 2);
+			t2 += ((t2 - t3) >> 2);
+			t4 += ((t4 - t5) >> 2);
+		}
+		else
+		{
+			//loc_857E8
+			t0 -= ((t0 - t1) >> 2);
+			t2 -= ((t2 - t3) >> 2);
+			t4 -= ((t4 - t5) >> 2);
+		}
+	}
+	else
+	{
+		t0 = (t0 + t1) >> 1;
+		t2 = (t2 + t3) >> 1;
+		t4 = (t4 + t5) >> 1;
+	}
+
+	//loc_85808
+	TRX = t0;
+	TRY = t2;
+	TRZ = t4;
+
+	setup_rotation_matrix(a0);
+}
+
 void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate, long* bone, int flag)
 {
 	int sp[256];
@@ -1538,7 +1590,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 
 	s0 = (short*)t8[13];
 
-	InterpolateMatrix(t8, (int*)s0);
+	InterpolateMatrix_CL(t8, (int*)s0);
 	DEL_stash_both_matrices(t8, &t8[48]);
 
 	s1 = (short*)&bone[0];
@@ -1550,7 +1602,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		Hardcore_iTranslateXYZ_CL((long*)&s1[2], t8);
 		mRotSuperPackedYXZ_CL(t8, 0);
 		iRotSuperPackedYXZ_CL(t8, 0);
-		InterpolateMatrix(t8, (int*)&s0[16]);
+		InterpolateMatrix_CL(t8, (int*)&s0[16]);
 		t9--;
 
 		s1 += 8;
@@ -1598,7 +1650,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
 	iRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
 
-	InterpolateMatrix(t8, (int*)&s0[112]);
+	InterpolateMatrix_CL(t8, (int*)&s0[112]);
 	DEL_stash_both_matrices(t8, (int*)&t8[48]);
 	Hardcore_iTranslateXYZ_CL((long*)&s1[106], t8);
 
@@ -1614,7 +1666,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
 	iRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
 
-	InterpolateMatrix(t8, (int*)&s0[128]);
+	InterpolateMatrix_CL(t8, (int*)&s0[128]);
 	DEL_restore_both_matrices(t8, &t8[48]);
 	Hardcore_iTranslateXYZ_CL((long*)&s1[58], t8);
 
@@ -1631,15 +1683,15 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		loc_8469C:
 			mRotSuperPackedYXZ_CL(t8, 0);
 			iRotSuperPackedYXZ_CL(t8, 0);
-			InterpolateMatrix(t8, (int*)&s0[144]);
+			InterpolateMatrix_CL(t8, (int*)&s0[144]);
 			Hardcore_iTranslateXYZ_CL((long*)&s1[66], t8);
 			mRotSuperPackedYXZ_CL(t8, 0);
 			iRotSuperPackedYXZ_CL(t8, 0);
-			InterpolateMatrix(t8, (int*)&s0[160]);
+			InterpolateMatrix_CL(t8, (int*)&s0[160]);
 			Hardcore_iTranslateXYZ_CL((long*)&s1[74], t8);
 			mRotSuperPackedYXZ_CL(t8, 0);
 			iRotSuperPackedYXZ_CL(t8, 0);
-			InterpolateMatrix(t8, (int*)&s0[176]);
+			InterpolateMatrix_CL(t8, (int*)&s0[176]);
 			DEL_restore_both_matrices(t8, &t8[48]);
 			Hardcore_iTranslateXYZ_CL((long*)&s1[82], t8);
 
@@ -1657,7 +1709,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 				iRotSuperPackedYXZ_CL(t8, 0);
 			}
 
-			InterpolateMatrix(t8, (int*)&s0[192]);
+			InterpolateMatrix_CL(t8, (int*)&s0[192]);
 			Hardcore_iTranslateXYZ_CL((long*)&s1[90], t8);
 			mRotSuperPackedYXZ_CL(t8, 0);
 			break;
@@ -1666,10 +1718,52 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		case 3:
 		{
 			//loc_847A4
+			InterpolateArmMatrix_CL(t8, &t8[64]);
+			mRotYXZ_CL(lara.right_arm.y_rot, lara.right_arm.x_rot, lara.right_arm.z_rot);
+			anim = &anims[lara.right_arm.anim_number];
+			//t0 = (lara.right_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8)
+			//a0 = anim->frame_base
+			//v0 = anim->interpolation >> 8
+			//a1 = 8
+			//v0 = &lara.right_arm.frame_base[(lara.right_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8) + 9];
+			t8[9] = (int)&lara.right_arm.frame_base[((lara.right_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8) + 9)];
+			mRotSuperPackedYXZ_CL(t8, 8);
+			snaff_current_gte_matrix_V1((int*)&s0[144]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[66]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[160]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[74]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[176]);
+			DEL_restore_both_matrices(t8, (int*)&t8[48]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[82], t8);
+			InterpolateArmMatrix_CL(t8, &t8[64]);
+			mRotYXZ_CL(lara.left_arm.y_rot, lara.left_arm.x_rot, lara.left_arm.z_rot);
+
+			//v1 = lara.left_arm.anim_number
+			anim = &anims[lara.left_arm.anim_number];//$v0
+			//v1 = ((lara.left_arm.frame_number -  anim->frame_base) * (anim->interpolation >> 8));
+			//a0 = anim->frame_base;
+			//v0 = anim->interpolation >> 8;
+			//a1 = 11
+			//v0 = lara.left_arm.frame_base
+			t8[9] = (int)&lara.left_arm.frame_base[(((lara.left_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8))) + 9];
+			mRotSuperPackedYXZ_CL(t8, 11);
+			snaff_current_gte_matrix_V1((int*)&s0[192]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[90]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[208]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[98]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[224]);
+
+			mLoadMatrix_CL(&t8[72]);
+			return;
 			break;
 		}
 		case 2:
 		{
+			assert(false);
 			//loc_84870
 			break;
 		}
@@ -1678,7 +1772,85 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		case 6:
 		{
 			//loc_849E4
+			//v1 = lara.right_arm.anim_number
+			//t9 = anims
+			anim = &anims[lara.right_arm.anim_number];
+			//v0 = anim->interpolation >> 8
+			//v1 = lara.right_arm.frame_number
+			//v1 = lara.right_arm.frame_number * (anim->interpolation >> 8);
+			//a1 = 8
+			//v0 = lara.right_arm.frame_base + lara.right_arm.frame_number * (anim->interpolation >> 8) + 9
+			t8[10] = (int)lara.right_arm.frame_base + lara.right_arm.frame_number * (anim->interpolation >> 8) + 9;
+			t8[9] = (int)lara.right_arm.frame_base + lara.right_arm.frame_number * (anim->interpolation >> 8) + 9;
+			mRotSuperPackedYXZ_CL(t8, 8);
+			iRotSuperPackedYXZ_CL(t8, 8);
+			InterpolateMatrix_CL(t8, (int*)&s0[144]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[66], t8);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+			InterpolateMatrix_CL(t8, (int*)&s0[160]);
+			Hardcore_iTranslateXYZ_CL((long*)s1[74], t8);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+			InterpolateMatrix_CL(t8, (int*)&s0[176]);
+			DEL_restore_both_matrices(t8, &t8[48]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[82], t8);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+			InterpolateMatrix_CL(t8, (int*)&s0[192]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[90], t8);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+			InterpolateMatrix_CL(t8, (int*)&s0[208]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[98], t8);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+			InterpolateMatrix_CL(t8, (int*)&s0[224]);
 
+			//?, 8699C
+			///@FIXME in wrong place?
+			//t0 = (lara.right_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8)
+			anim = &anims[lara.right_arm.anim_number];
+			//a0 = anim->frame_base
+			//v0 = (anim->interpolation >> 8)
+			//a1 = 8
+			//v0 = &lara.right_arm.frame_base[(lara.right_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8) + 9];
+			t8[9] = (int)&lara.right_arm.frame_base[(lara.right_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8) + 9];
+			mRotSuperPackedYXZ_CL(t8, 8);
+			snaff_current_gte_matrix_V1((int*)&s0[144]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[66]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[160]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[74]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[176]);
+			DEL_restore_both_matrices(t8, &t8[48]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[52], t8);
+			InterpolateArmMatrix_CL(t8, (int*)&t8[64]);
+			mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+			iRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+			
+			anim = &anims[lara.left_arm.anim_number];
+			//a0 = anim->frame_base
+			//v0 = (anim->interpolation >> 8)
+			//v1 = (lara.left_arm.frame_number - anim->frame_base)
+			//t0 = (lara.left_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8)
+			//a1 = 11
+			//v0 = lara.left_arm.frame_base
+			t8[9] = (int)&lara.left_arm.frame_base[(lara.left_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8) + 9];
+			mRotSuperPackedYXZ_CL(t8, 11);
+			snaff_current_gte_matrix_V1((int*)&s0[192]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[90]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[208]);
+			Hardcore_mTranslateXYZ_CL((long*)&s1[98]);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			snaff_current_gte_matrix_V1((int*)&s0[224]);
+
+			//def_84694
+			mLoadMatrix_CL(&t8[72]);
+
+			return;
 			break;
 		}
 		}
@@ -1689,11 +1861,11 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	}
 
 	iRotSuperPackedYXZ_CL(t8, 0);
-	InterpolateMatrix(t8, (int*)&s0[208]);
+	InterpolateMatrix_CL(t8, (int*)&s0[208]);
 	Hardcore_iTranslateXYZ_CL((long*)&s1[98], t8);
 	mRotSuperPackedYXZ_CL(t8, 0);
 	iRotSuperPackedYXZ_CL(t8, 0);
-	InterpolateMatrix(t8, (int*)&s0[224]);
+	InterpolateMatrix_CL(t8, (int*)&s0[224]);
 
 	//def_84694
 	mLoadMatrix_CL(&t8[72]);

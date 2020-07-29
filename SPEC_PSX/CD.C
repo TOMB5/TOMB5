@@ -264,7 +264,7 @@ void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F) (*) (D)
 
 	if (XATrack == -1)
 	{
-		param[0] = 200;
+		param[0] = CdlModeSpeed | CdlModeRT | CdlModeSF;
 		CdControlB(CdlSetmode, &param[0], NULL);
 		VSync(3);
 		CdControlB(CdlPause, NULL, NULL);

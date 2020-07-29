@@ -123,10 +123,10 @@ void mmPushMatrix_AI(int* fp)
 {
 	int* a0 = (int*)fp[20];
 	a0 += 8;
-	a0[0] = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
-	a0[1] = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
-	a0[2] = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
-	a0[3] = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
+	a0[0] = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	a0[1] = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	a0[2] = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	a0[3] = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 	a0[4] = R33;
 	a0[5] = TRX;
 	a0[6] = TRY;
@@ -290,7 +290,7 @@ void mRotX_AI(int rx, int* fp)//0x817B0
 	t5 &= 0xFFFF;
 	t1 |= t5;
 	t6 <<= 16;
-	t2 |= t5;
+	t2 |= t6;
 
 	SetRotation_AI(fp, t0, t1, t2, t3, t4);
 }
@@ -877,7 +877,7 @@ int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 	int t4 = 0;
 	int t2 = 0;
 	int t7 = 0;
-	int at = 0;
+	unsigned int at = 0;
 	int t9 = 0;
 	int t8 = 0;
 	int v1 = 0;
@@ -1796,23 +1796,23 @@ void erk_interpolated(struct ITEM_INFO* item /*s3*/, struct object_info* object 
 		mRotSuperPackedYXZ_AI(fp);
 		iRotSuperPackedYXZ_AI(fp);
 
-		if (s2 != NULL && (s0 & 0x1C))
+		if (s2 != NULL && (s5[0] & 0x1C))
 		{
-			if ((s0 & 0x8))
+			if ((s5[0] & 0x8))
 			{
 				mRotY_AI(((short*)s2)[0], fp);
 				iRotY_AI(((short*)s2)[0], fp);
 				s2 += 1;
 			}
 			//loc_81D74
-			if ((s0 & 0x4))
+			if ((s5[0] & 0x4))
 			{
 				mRotX_AI(((short*)s2)[0], fp);
 				iRotX_AI(((short*)s2)[0], fp);
 				s2 += 1;
 			}
 
-			if ((s0 & 0x10))
+			if ((s5[0] & 0x10))
 			{
 				mRotZ_AI(((short*)s2)[0], fp);
 				iRotZ_AI(((short*)s2)[0], fp);
@@ -1912,15 +1912,12 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 		if ((item->mesh_bits & 1))
 		{
-			a0 = 0;
+			a0 = ((int*)s7)[0];
 			if ((item->meshswap_meshbits & 1))
 			{
 				a0 = ((int*)s7)[1];
 			}
-			else
-			{
-				a0 = ((int*)s7)[0];
-			}
+
 			//loc_81628
 			stash_the_info(a0, fp);
 		}
@@ -1932,7 +1929,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 			//loc_81714
 			if (fp[19] > 0)
 			{
-				fp[18]--;
+				fp[18]++;
 				((short*)fp[16])[1] = fp[19];
 				fp[16] += 12;
 			}
@@ -1947,6 +1944,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 			{
 				mmPopMatrix_AI(fp);
 			}
+
 			if ((s5[0] & 0x2))
 			{
 				mmPushMatrix_AI(fp);
@@ -1955,19 +1953,19 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 			mTranslateXYZ_AI(s5[1], s5[2], s5[3], fp);
 			mRotSuperPackedYXZ_AI(fp);
 
-			if ((item->data != NULL) && (frames & 0x1C))
+			if ((item->data != NULL) && (s5[0] & 0x1C))
 			{
-				if ((frames & 0x8))
+				if ((s5[0] & 0x8))
 				{
 					mRotY_AI(*s2++, fp);
 				}
 				//loc_816B4
-				if ((frames & 0x4))
+				if ((s5[0] & 0x4))
 				{
 					mRotX_AI(*s2++, fp);
 				}
 				//loc_816CC
-				if ((frames & 0x10))
+				if ((s5[0] & 0x10))
 				{
 					mRotZ_AI(*s2++, fp);
 				}
@@ -1977,7 +1975,6 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 			if ((1 << 1) & item->mesh_bits)
 			{
-				int a0 = 0;
 				if (item->meshswap_meshbits & (1 << 1))
 				{
 					a0 = ((int*)s7)[1];
@@ -1999,7 +1996,7 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 		//loc_81714
 		if (fp[19] > 0)
 		{
-			fp[18]--;
+			fp[18]++;
 			((short*)fp[16])[1] = fp[19];
 			fp[16] += 12;
 		}
@@ -2016,10 +2013,10 @@ void stash_the_info(int meshp/*a0*/, int* fp)//81750
 
 	at[0] = meshp;
 
-	at[1] = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
-	at[2] = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
-	at[3] = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
-	at[4] = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
+	at[1] = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	at[2] = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	at[3] = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	at[4] = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 	at[5] = (R33 & 0xFFFF);
 	at[6] = TRX;
