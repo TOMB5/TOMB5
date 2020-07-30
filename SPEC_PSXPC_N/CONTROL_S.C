@@ -14,7 +14,7 @@ void DrawBinoculars()
 	S_Warn("[DrawBinoculars] - Unimplemented!\n");
 }
 
-void TranslateItem(struct ITEM_INFO* item, unsigned short x, unsigned short y, unsigned short z)
+void TranslateItem(struct ITEM_INFO* item, short x, short y, short z)
 {
 	short sin;//$v1
 	short cos;//$t0
