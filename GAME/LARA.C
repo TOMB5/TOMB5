@@ -2664,7 +2664,7 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 							{
 								item->pos.y_pos += coll->front_floor - bounds[2];
 
-								switch ((unsigned char)(item->pos.y_rot + ANGLE(45)) / (unsigned char)ANGLE(90))
+								switch ((item->pos.y_rot + ANGLE(45)) >> 14)
 								{
 								case 0u:
 									item->pos.z_pos = (item->pos.z_pos | 0x3FF) - 100;
