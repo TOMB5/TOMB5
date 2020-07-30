@@ -2692,7 +2692,7 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 							item->gravity_status = TRUE;
 							item->speed = 2;
 							item->fallspeed = 1;
-
+							a2 = 1;
 							lara.gun_status = LG_HANDS_BUSY;
 						}
 					}
