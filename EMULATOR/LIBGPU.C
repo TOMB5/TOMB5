@@ -303,11 +303,26 @@ u_long* ClearOTag(u_long* ot, int n)
 		return NULL;
 
 	//last is special terminator
-	ot[n - 1] = (unsigned long)&terminator;
+#if defined(USE_32_BIT_ADDR)
+	setaddr(&ot[n - 2], &terminator);
+	setlen(&ot[n - 2], 0);
+#else
+	setaddr(&ot[n - 1], &terminator);
+	setlen(&ot[n - 1], 0);
+#endif
 
-	for (int i = n - 2; i > -1; i--)
+
+#if defined(USE_32_BIT_ADDR)
+	for (int i = n - 4; i >= 0; i -= 2)
+#else
+	for (int i = n - 2; i >= 0; i--)
+#endif
 	{
-		ot[i] = (unsigned long)&ot[i + 1];
+#if defined(USE_32_BIT_ADDR)
+		setaddr(&ot[i], (unsigned long)&ot[i + 2]);
+#else
+		setaddr(&ot[i], (unsigned long)&ot[i + 1]);
+#endif
 	}
 
 	return NULL;
