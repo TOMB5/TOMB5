@@ -256,16 +256,31 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MargePrim(void* p0, void* p1)
 {
+#if defined(USE_32_BIT_ADDR)
+	int v0 = ((int*)p0)[1];
+	int v1 = ((int*)p1)[1];
+#else
 	int v0 = ((unsigned char*)p0)[3];
 	int v1 = ((unsigned char*)p1)[3];
+#endif
 
 	v0 += v1;
 	v1 = v0 + 1;
 
+#if defined(USE_32_BIT_ADDR)
+	if (v1 < 0x12)
+#else
 	if (v1 < 0x11)
+#endif
 	{
+#if defined(USE_32_BIT_ADDR)
+		((int*)p0)[1] = v1;
+		((int*)p1)[1] = 0;
+#else
 		((char*)p0)[3] = v1;
 		((int*)p1)[0] = 0;
+#endif
+
 		return 0;
 	}
 
@@ -321,7 +336,7 @@ u_long* ClearOTag(u_long* ot, int n)
 #if defined(USE_32_BIT_ADDR)
 		setaddr(&ot[i], (unsigned long)&ot[i + 2]);
 #else
-		setaddr(&ot[i], (unsigned long)&ot[i + 1]);
+		setaddr(&ot[i], (unsigned long)&ot[i + 1]);Ma
 #endif
 	}
 
