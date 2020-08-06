@@ -10,6 +10,8 @@ extern void TITSEQ_StoryBoardMenuControl(unsigned char extrasMenuIndex);
 extern void TITSEQ_ReadStoryboardImage(char* gfx, unsigned char wadIndex, int imageIndex);
 extern void titseq_special1_end();
 extern void titseq_special1_control();
+extern void titseq_special3_end();
+extern void titseq_special3_control();
 extern void titseq_special4_init();
 
 #endif
