@@ -528,7 +528,6 @@ void andy11_init()//32C20(<), 330B8(<) (F)
 void Cutanimate(int objnum)//32B50(<), 32FE8(<) (F)
 {
 	struct ITEM_INFO* item = find_a_fucking_item(objnum);
-
 	item->anim_number = objects[objnum].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
 	AddActiveItem(item - items);
@@ -2606,7 +2605,13 @@ void special3_end()//2E764(<), 2EA70(<) (F)
 
 void special3_control()//2E734(<), 2EA40(<)
 {
-	UNIMPLEMENTED();
+#if PSXPC_TEST
+	titseq_special3_control();
+#elif PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[MOD_TITSEQ][9])();
+#else
+	//PC_VERSION todo
+#endif
 }
 
 void special3_init()//2E704(<), 2EA10(<) (F)
@@ -3132,7 +3137,7 @@ void init_cutseq_actors(char* data, int resident)//2D944(<), 2DBD4 (F)
 			else
 			{
 				//loc_2D9F4
-				actor_pnodes[n] = (struct PACKNODE*)cutseq_malloc(pda_nodes + 1 * 84);
+				actor_pnodes[n] = (struct PACKNODE*)cutseq_malloc(((pda_nodes + 1) * 84));
 				//v0 = actor_pnodes
 				a3 = pda_nodes + 1;
 			}
@@ -3213,7 +3218,7 @@ void init_cutseq_actors(char* data, int resident)//2D944(<), 2DBD4 (F)
 	InitialiseHair();
 }
 
-int Load_and_Init_Cutseq(int num)
+int Load_and_Init_Cutseq(int num)//2D7D0, 2DAB8
 {
 #if PC_VERSION
 	SetCutPlayed(num);
@@ -3270,6 +3275,8 @@ int Load_and_Init_Cutseq(int num)
 	FILE_Read(packed, 1, headerbuf[1], file);
 	PCclose(file);
 #endif
+
+	GLOBAL_cutme = (struct NEW_CUTSCENE*)packed;
 
 	if (cutseq_num < 5)
 	{
@@ -4298,5 +4305,7 @@ void resetwindowsmash(int item_num)// (F)
 
 void ResetCutItem(int item_num)// (F)
 {
+#if !AUG_VERSION
 	find_a_fucking_item(item_num)->mesh_bits = -1;
+#endif
 }
