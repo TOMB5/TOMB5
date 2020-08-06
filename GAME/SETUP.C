@@ -4876,7 +4876,7 @@ long sub_BA148(short* ptr)//?, BA148(<) (F)
 		{
 			v1 = ptr[15] + 1;
 			ptr += 4;
-			addr += (((((v1 + 1) << 2) + v1 + 1) << 2) + v1 + 1) << 2;///@FIXME * sizeof x
+			addr += (((((v1 << 2) + v1) << 2) + v1) << 2);///@FIXME * sizeof x
 		}
 	}//locret_68C0
 
