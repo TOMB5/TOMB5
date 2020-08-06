@@ -23,7 +23,7 @@ Markers are as follows:
 ## Current Positions
 
 - MIPS r3000a Programmer/Interpreter - Translate TR5 PSX MIPS disassembled output back to C.
-- PSX HLE Emulator Programmer - Help improve the PSX emulator for PSXPC_N code path.
+- PSX Emulator Programmer - Help improve the PSX emulator for PSXPC_N code path.
 - x86 Programmer/Interpreter - Translate TR5 PC x86 asm back to C. 
 - SH4 Programmer/Interpreter - Translate TR5 Dreamcast SH4 asm back to C. 
 - PPC Programmer/Interpreter - Translate TR5 Mac PPC asm back to C. 
@@ -42,6 +42,7 @@ Markers are as follows:
 - SPEC_PSX - Platform specific code for PSX version.
 - SPEC_PSXPC - Platform specific code for PSX version that runs on PC for debugging purposes (all psx sdk calls stripped). ***DEPRECATED!***
 - SPEC_PSXPC_N - Platform specific code for PSX version that runs on PC emulated for debugging purposes.
+- EMULATOR - Emulator code for the PSXPC_N code path.
 - TOOLS - Game tools folder, contains various tools to work with the game files.
 - DISC - Contains PSX specific disc project generation files.
 - RESOURCE - Contains useful resources for decompiling the code.
@@ -57,13 +58,13 @@ Markers are as follows:
     - GLEW 2.1.0+
 
 2. PSXPC_N   
-    - Windows (VS 2015-2019) (**recommended**)
+    - Windows (VS 2015-2019) (**Recommended**)
     	- Create a folder called "EXTERNAL" in the root clone directory of TOMB5. This is where all libraries will be placed.
-        - Download [SDL2-devel-2.0.9-VC.zip](https://www.libsdl.org/release/SDL2-devel-2.0.9-VC.zip) extract the contents to [project root]/EXTERNAL/ rename folder "SDL2-2.0.9" to  "SDL2".
+        - Download [SDL2-devel-2.0.12-VC.zip](https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip) extract the contents to [project root]/EXTERNAL/ rename folder "SDL2-2.0.9" to  "SDL2".
         - Download [glew-2.1.0-win32.zip](https://sourceforge.net/projects/glew/files/glew/2.1.0/glew-2.1.0-win32.zip/download) extract the contents to [project root]/EXTERNAL/ 
         - Generate CMake project files for Visual Studio 2015, 2017 or 2019, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Windows (CB MinGW32)       
-        - Download [SDL2-devel-2.0.9-mingw.tar.gz](https://www.libsdl.org/release/SDL2-devel-2.0.9-mingw.tar.gz) extract the contents to [project root]/EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
+        - Download [SDL2-devel-2.0.12-mingw.tar.gz](https://www.libsdl.org/release/SDL2-devel-2.0.12-mingw.tar.gz) extract the contents to [project root]/EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
         - Download [glew-2.1.0-mingw.zip](http://www.grhmedia.com/glew/glew-2.1.0-mingw.zip) extract the contents to [project root]/EXTERNAL/ 
         - Generate CMake project files for CodeBlocks MinGW Makefiles, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Linux 
@@ -111,5 +112,23 @@ Open a new terminal window in the root directory where TOMB5 is cloned.
     - Open project settings, in VC++ directories change the following:
       - Include dirs: add `C:\dx7sdk\Include` and then `$(WindowsSDK_IncludePath)` (make sure that one is **above** the DX one, otherwise you'll get compile errors)
       - Lib dirs: add `C:\dx7sdk\lib\x86`
+      
+## Game files setup
 
+1. PSXPC_N
+	By default CMake is configured to define the following pre-processor macros for compilation:
+	- DEBUG_VERSION=0
+	- PSX_VERSION=1
+	- DISC_VERSION=0
+	- BETA_VERSION=0
+	- NTSC_VERSION=1
+	- PSXPC_TEST=1
+	- RELOC=0
+	- USE_32_BIT_ADDR=1
+	
+	1.1 If you wish to use an ISO (.BIN/.CUE) file with the emulator it must be named to TOMB5.BIN/TOMB5.CUE with DISC_VERSION set to 1 (`DISC_VERSION=1`).
+	
+	1.2 If you wish to use the raw level assets (extracted out of the ISO) you must compile and use GAMEWAD_Unpack from the `/TOOLS/` folder to unpack GAMEWAD.OBJ and place the 		level files in a folder named /DATA/ at the root of where the MAIN binary is located.
+
+## Having issues?
 Feel free to contact us on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5-decompile
