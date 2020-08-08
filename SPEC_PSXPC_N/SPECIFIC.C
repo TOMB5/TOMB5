@@ -443,10 +443,8 @@ int DoPauseMenu()//60F34(<), 61A68(<) (F)
 		if ((RawEdge & IN_CROSS))
 		{
 			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+			PauseMenuNum = 3;
 		}
-
-		PauseMenuNum = 3;
-
 		break;
 	case 20:
 		//loc_612F4
