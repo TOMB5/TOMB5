@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM, DecodeAnim, DecodeTrack
+	XDEF DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM, DecodeAnim, DecodeTrack, GetTrackWord
 	XREF SoundFXVolume, rcossin_tbl, GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight, IsRoomOutsideNo
 
 CalcVolumes_ASM:
@@ -601,3 +601,36 @@ DecodeTrack:
 	loc_90D50:
 	jr      t2
 	nop
+	
+GetTrackWord:
+	mult    a0, a2
+	mflo    a0
+	sra     v0, a0, 3
+	addu    a1, v0
+	andi    a0, 7
+	lbu     v0, 1(a1)
+	lbu     at, 0(a1)
+	lbu     v1, 2(a1)
+	sll     v0, 8
+	or      at, v0
+	sll     v1, 16
+	lbu     v0, 3(a1)
+	or      at, v1
+	sll     v0, 24
+	or      at, v0
+	srlv    at, a0
+	li      v0, 1
+	sllv    v1, v0, a2
+	addiu   v1, -1
+	and     at, v1
+	addiu   a2, -1
+	sllv    v0, a2
+	and     v0, at, v0
+	beqz    v0, loc_90DC0
+	nor     v0, zero, v1
+	or      at, v0
+
+	loc_90DC0:
+	sll     v0, at, 16
+	jr      ra
+	sra     v0, 16
