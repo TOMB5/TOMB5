@@ -23,6 +23,9 @@
 //Direct3D11
 //#define D3D11
 
+//Direct3D12
+//#define D3D12
+
 #if defined(OGL) || defined(D3D9) || defined(D3D11)
 #define SDL2
 #endif
@@ -34,6 +37,7 @@
 #elif defined(__EMSCRIPTEN__)
 #define OGLES
 #define OGLES_VERSION (2)
+#define SDL2
 #elif defined(__ANDROID__)
 #define OGLES
 #define OGLES_VERSION (3)
@@ -99,6 +103,10 @@
 #elif defined(D3D11)
 #include <Windows.h>
 #include <d3d11.h>
+#include <SDL_syswm.h>
+#elif defined(D3D12)
+#include <Windows.h>
+#include <d3d12.h>
 #include <SDL_syswm.h>
 #elif defined(XED3D)
 #include <xtl.h>
