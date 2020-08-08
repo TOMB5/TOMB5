@@ -11,7 +11,7 @@
 #include "LIBETC.H"
 #include "LIBPAD.H"
 #if !defined(__ANDROID__)
-//#include <thread>
+#include <thread>
 #endif
 #include <assert.h>
 
@@ -63,7 +63,7 @@ int windowHeight = 0;
 char* pVirtualMemory = NULL;
 SysCounter counters[3] = { 0 };
 #if !defined(__ANDROID__)
-//std::thread counter_thread;
+std::thread counter_thread;
 #endif
 #if defined(__ANDROID__)
 #define malloc SDL_malloc
@@ -81,8 +81,11 @@ int vram_need_update = TRUE;
 
 void Emulator_ResetDevice()
 {
-#if defined(OGLES) || defined(OGL)
+#if defined(OGL)
 	SDL_GL_SetSwapInterval(g_swapInterval);
+#elif defined(EGL) || defined(OGLES)///@TODO &&
+	extern EGLDisplay eglDisplay;
+	eglSwapInterval(eglDisplay, g_swapInterval);
 #elif defined(D3D9) || defined(XED3D)
 	if (dynamic_vertex_buffer) {
 		dynamic_vertex_buffer->Release();
@@ -383,10 +386,7 @@ const EGLint config16bpp[] =
 		EGL_GREEN_SIZE,8,
 		EGL_BLUE_SIZE,8,
 		EGL_ALPHA_SIZE,0,
-		EGL_DEPTH_SIZE,24,
 		EGL_STENCIL_SIZE,0,
-		EGL_SAMPLE_BUFFERS,1,
-		EGL_SAMPLES,4,
 		EGL_NONE
 };
 
@@ -431,7 +431,7 @@ static int Emulator_InitialiseGLESContext(char* windowName)
 	eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)dummyWindow, NULL);
 #elif defined(__ANDROID__)
 	eglSurface = systemInfo.info.android.surface;
-#else
+#elif defined(__WINDOWS__)
 	eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)systemInfo.info.win.window, NULL);
 #endif
 	if (eglSurface == EGL_NO_SURFACE)
@@ -556,7 +556,7 @@ void Emulator_Initialise(char* windowName, int width, int height)
 	eprintf("Initialising Emulator.\n");
 	eprintf("VERSION: %d.%d\n", EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION);
 	eprintf("Compile Date: %s Time: %s\n", EMULATOR_COMPILE_DATE, EMULATOR_COMPILE_TIME);
-
+	
 	if (Emulator_InitialiseSDL(windowName, width, height) == FALSE)
 	{
 		eprinterr("Failed to Intialise SDL\n");
@@ -594,37 +594,34 @@ void Emulator_Initialise(char* windowName, int width, int height)
 
 void Emulator_CounterLoop()
 {
-	static int numUpdates = 0;
-	int last_time = 0;
+	unsigned int current_time;
+	unsigned int last_time = 0;
+	unsigned int start = SDL_GetTicks();
 
 	while (TRUE)
 	{
 #if defined(SDL2)
-		int now = SDL_GetTicks();
+		current_time = SDL_GetTicks();
 #elif defined(XED3D)
-		int now = GetTickCount();
+		current_time = GetTickCount();
 #else
-		int now = 0;
+		current_time = 0;
 #endif
-		if (now > last_time + 1000)
-		{
-			numUpdates = 0;
-			last_time = now;
-		}
-
-		if (numUpdates++ <= 60)
+		//if (current_time > last_time + 1000)
 		{
 			for (int i = 0; i < 3; i++)
 			{
 				//if (!counters[i].IsStopped)
 				{
 					counters[i].cycle += COUNTER_UPDATE_INTERVAL;
+					counters[i].cycle = SDL_GetTicks() - start;
 					if (counters[i].target > 0)
 					{
 						counters[i].cycle %= counters[i].target;
 					}
 				}
 			}
+			last_time = current_time;
 		}
 	}
 }
@@ -1368,16 +1365,25 @@ GLint u_Projection;
 #define GTE_DECODE_RG\
 	"		fragColor = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
 
-#define GTE_DITHERING\
-	"		fragColor *= v_color;\n"\
+#define GTE_FETCH_DITHER_FUNC\
 	"		mat4 dither = mat4(\n"\
 	"			-4.0,  +0.0,  -3.0,  +1.0,\n"\
 	"			+2.0,  -2.0,  +3.0,  -1.0,\n"\
 	"			-3.0,  +1.0,  -4.0,  +0.0,\n"\
 	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"\
-	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"\
-	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
+	"		vec3 DITHER(const ivec2 dc) { \n"\
+	"		for (int i = 0; i < 4; i++) {"\
+	"			for (int j = 0; j < 4; j++) {"\
+	"			if(i == dc.x && j == dc.y) {"\
+	"				return vec3(dither[i][j] * v_texcoord.w); }\n"\
+	"				}"\
+	"			}"\
+	"		}"
 
+#define GTE_DITHERING\
+	"		fragColor *= v_color;\n"\
+	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"\
+	"		fragColor.xyz += DITHER(dc);\n"
 
 #if (VRAM_FORMAT == GL_LUMINANCE_ALPHA)
 	#define GTE_FETCH_VRAM_FUNC\
@@ -1420,13 +1426,19 @@ const char* gte_shader_4 =
 	GTE_PERSPECTIVE_CORRECTION
 	"	}\n"
 	"#else\n"
+	GTE_FETCH_DITHER_FUNC
 	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
 	"		vec2 uv = (v_texcoord.xy * vec2(0.25, 1.0) + v_page_clut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
 	"		vec2 comp = VRAM(uv);\n"
 	"		int index = int(fract(v_texcoord.x / 4.0 + 0.0001) * 4.0);\n"
 	"\n"
-	"		float v = comp[index / 2] * (255.0 / 16.0);\n"
+	"		float v = 0.0;\n"
+	"		if(index / 2 == 0) { \n"
+	"			v = comp[0] * (255.0 / 16.0);\n"
+	"		} else {	\n"
+	"			v = comp[1] * (255.0 / 16.0);\n"
+	"		}\n"
 	"		float f = floor(v);\n"
 	"\n"
 	"		vec2 c = vec2( (v - f) * 16.0, f );\n"
@@ -1465,12 +1477,18 @@ const char* gte_shader_8 =
 	"	}\n"
 	"#else\n"
 	GTE_FETCH_VRAM_FUNC
+	GTE_FETCH_DITHER_FUNC
 	"	void main() {\n"
 	"		vec2 uv = (v_texcoord.xy * vec2(0.5, 1.0) + v_page_clut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
 	"		vec2 comp = VRAM(uv);\n"
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
-	"		clut_pos.x += comp[int(mod(v_texcoord.x, 2.0))] * 255.0 / 1024.0;\n"
+	"		int index = int(mod(v_texcoord.x, 2.0));\n"
+	"		if(index == 0) { \n"
+	"			clut_pos.x += comp[0] * 255.0 / 1024.0;\n"
+	"		} else {	\n"
+	"			clut_pos.x += comp[1] * 255.0 / 1024.0;\n"
+	"		}\n"
 	"		vec2 color_rg = VRAM(clut_pos);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
@@ -1503,6 +1521,7 @@ const char* gte_shader_16 =
 	"	}\n"
 	"#else\n"
 	GTE_FETCH_VRAM_FUNC
+	GTE_FETCH_DITHER_FUNC
 	"	void main() {\n"
 	"		vec2 color_rg = VRAM(v_texcoord.xy);\n"
 	GTE_PACK_RG
@@ -1720,6 +1739,28 @@ ShaderID Shader_Compile_Internal(const DWORD* vs_data, const DWORD* ps_data, con
 
 	return shader;
 }
+#elif defined(D3D12)
+///@D3D12
+#include "shaders/gte_shader_4_vs.h"
+#include "shaders/gte_shader_4_ps.h"
+#include "shaders/gte_shader_8_vs.h"
+#include "shaders/gte_shader_8_ps.h"
+#include "shaders/gte_shader_16_vs.h"
+#include "shaders/gte_shader_16_ps.h"
+#include "shaders/blit_shader_vs.h"
+#include "shaders/blit_shader_ps.h"
+
+#define Shader_Compile(name) Shader_Compile_Internal((DWORD*)name##_vs, (DWORD*)name##_ps, sizeof(name##_vs), sizeof(name##_ps))
+
+ShaderID Shader_Compile_Internal(const DWORD* vs_data, const DWORD* ps_data, const unsigned int vs_size, const unsigned int ps_size)
+{
+	ShaderID shader;
+	HRESULT hr;
+
+#undef OFFSETOF
+
+	return shader;
+}
 #else
     #error
 #endif
@@ -1818,7 +1859,7 @@ int Emulator_Initialise()
 #if defined(D3D11)
 	Emulator_CreateConstantBuffers();
 #endif
-
+	
 #if defined(OGL) || defined(OGLES)
 	glDisable(GL_DEPTH_TEST);
 	glBlendColor(0.5f, 0.5f, 0.5f, 0.25f);
@@ -1911,12 +1952,14 @@ int Emulator_Initialise()
 		eprinterr("Failed to create shader resource view!\n");
 		return FALSE;
 	}
+#elif defined(D3D12)
+	///@D3D12
 #else
 	#error
 #endif
 
 	Emulator_ResetDevice();
-
+	
     return TRUE;
 }
 
@@ -1925,13 +1968,13 @@ void Emulator_Ortho2D(float left, float right, float bottom, float top, float zn
 	float a = 2.0f / (right - left);
 	float b = 2.0f / (top - bottom);
 	float c = 2.0f / (znear - zfar);
-
+	
 	float x = (left + right) / (left - right);
 	float y = (bottom + top) / (bottom - top);
 
 #if defined(OGL) || defined(OGLES) // -1..1
 	float z = (znear + zfar) / (znear - zfar);
-#elif defined(D3D9) || defined (XED3D) || defined(D3D11)// 0..1
+#elif defined(D3D9) || defined (XED3D) || defined(D3D11) || defined(D3D12)// 0..1
 	float z = znear / (znear - zfar);
 #endif
 
@@ -1949,6 +1992,8 @@ void Emulator_Ortho2D(float left, float right, float bottom, float top, float zn
 #elif defined(D3D11)
 	Emulator_UpdateProjectionConstantBuffer(&ortho[0]);
 	Emulator_SetConstantBuffers();
+#elif defined(D3D12)
+	///@D3D12
 #else
 	#error
 #endif
@@ -1965,6 +2010,8 @@ void Emulator_SetShader(const ShaderID &shader)
 	d3dcontext->VSSetShader(shader.VS, NULL, 0);
 	d3dcontext->PSSetShader(shader.PS, NULL, 0);
 	d3dcontext->IASetInputLayout(shader.IL);
+#elif defined(D3D12)
+	///@D3D12
 #else
 	#error
 #endif
@@ -2002,6 +2049,8 @@ void Emulator_SetTexture(TextureID texture, TexFormat texFormat)
 #elif defined(D3D11)
 	d3dcontext->PSSetShaderResources(0, 1, &texture);
 	d3dcontext->PSSetSamplers(0, 1, &samplerState);
+#elif defined(D3D12)
+	///@D3D12
 #else
 	#error
 #endif
@@ -2032,6 +2081,8 @@ extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned
 #elif defined(D3D11)
 	FLOAT clearColor[4]{ r / 255.0f, g / 255.0f, b / 255.0f, 1.0f };
 	d3dcontext->ClearRenderTargetView(renderTargetView, clearColor);
+#elif defined(D3D12)
+	///@D3D12
 #else
 	#error
 #endif
@@ -2258,6 +2309,20 @@ void Emulator_UpdateVRAM()
 	XGGetTextureDesc((D3DBaseTexture*)vramTexture, 0, &srcDesc);
 	//Have to tile the texture for X360 GPU.
 	XGTileSurface(rect.pBits, rect.Pitch / srcDesc.BytesPerBlock, srcDesc.HeightInBlocks, NULL, vram, rect.Pitch, NULL, srcDesc.BytesPerBlock);
+#if 0
+	unsigned short* pPixel = (unsigned short*)rect.pBits;
+	for(int y = 0; y < VRAM_WIDTH; y++)
+	{
+		for(int x = 0; x < VRAM_HEIGHT; x++)
+		{
+			unsigned short pixel = pPixel[x + rect.Pitch * y];
+			unsigned char temp = pixel & 0xFF;
+			pixel >>= 8;
+			pixel |= temp << 8;
+			pPixel[x + rect.Pitch * y] = pixel;
+		}
+	}
+#endif
 #endif
 	vramTexture->UnlockRect(0);
 #elif defined(D3D11)
@@ -2378,6 +2443,10 @@ int Emulator_BeginScene()
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	d3dcontext->IASetVertexBuffers(0, 1, &dynamic_vertex_buffer, &stride, &offset);
+#elif defined(D3D12)
+	///@D3D12
+#else
+	#error
 #endif
 
 	Emulator_UpdateVRAM();
@@ -2835,6 +2904,10 @@ void Emulator_SetBlendMode(BlendMode blendMode)
 		break;
 	}
 	}
+#elif defined(D3D12)
+	///@D3D12
+#else
+	#error
 #endif
 
 	g_PreviousBlendMode = blendMode;
@@ -2849,12 +2922,15 @@ void Emulator_SetPGXPVertexCount(int vertexCount)
 
 void Emulator_SetViewPort(int x, int y, int width, int height)
 {
+	float offset_x = (float)activeDispEnv.screen.x;
+	float offset_y = (float)activeDispEnv.screen.y;
+
 #if defined(OGL) || defined(OGLES)
-	glViewport(x, y, width, height);
+	glViewport(x + offset_x, y + -offset_y, width, height);
 #elif defined(D3D9) || defined(XED3D)
 	D3DVIEWPORT9 viewport;
-	viewport.X      = x;
-	viewport.Y      = y;
+	viewport.X      = x + offset_x;
+	viewport.Y      = y + offset_y;
 	viewport.Width  = width;
 	viewport.Height = height;
 	viewport.MinZ   = 0.0f;
@@ -2862,13 +2938,17 @@ void Emulator_SetViewPort(int x, int y, int width, int height)
 	d3ddev->SetViewport(&viewport);
 #elif defined(D3D11)
 	D3D11_VIEWPORT viewport;
-	viewport.TopLeftX	= (float)x;
-	viewport.TopLeftY	= (float)y;
+	viewport.TopLeftX	= (float)x + offset_x;
+	viewport.TopLeftY	= (float)y + offset_y;
 	viewport.Width		= (float)width;
 	viewport.Height		= (float)height;
 	viewport.MinDepth	= 0.0f;
 	viewport.MaxDepth	= 1.0f;
 	d3dcontext->RSSetViewports(1, &viewport);
+#elif defined(D3D12)
+	///@D3D12
+#else
+	#error
 #endif
 }
 
@@ -2880,6 +2960,8 @@ void Emulator_SetRenderTarget(const RenderTargetID &frameBufferObject)
 	d3ddev->SetRenderTarget(0, frameBufferObject);
 #elif defined(D3D11)
 	d3dcontext->OMSetRenderTargets(1, &frameBufferObject, NULL);
+#elif defined(D3D12)
+	///@D3D12
 #else
     #error
 #endif
@@ -2920,6 +3002,8 @@ void Emulator_UpdateVertexBuffer(const Vertex *vertices, int num_vertices)
 	d3dcontext->Map(dynamic_vertex_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sr);
 	memcpy(sr.pData, vertices, num_vertices * sizeof(Vertex));
 	d3dcontext->Unmap(dynamic_vertex_buffer, 0);
+#elif defined(D3D12)
+	///@D3D12
 #else
 	#error
 #endif
@@ -2935,6 +3019,8 @@ void Emulator_DrawTriangles(int start_vertex, int triangles)
 	d3ddev->DrawPrimitive(D3DPT_TRIANGLELIST, start_vertex, triangles);
 #elif defined(D3D11)
 	d3dcontext->Draw(triangles * 3, start_vertex);
+#elif defined(D3D12)
+	///@D3D12
 #else
 	#error
 #endif
