@@ -1764,48 +1764,42 @@ void NeatAndTidyTriggerCutscene(int value/*s0*/, int timer/*s1*/)
 				}
 			}
 			//loc_211E0
-			//v0 = 0xA
+			else if (value == 10)
+			{
+				if (have_i_got_object(0xAE))
+				{
+					SetCutPlayed(10);
+					value = 9;
+				}
+			}
+
+			if (value == 0x18)
+			{
+				//v1 = lara_item
+				//a0 = lara_item->room_number
+				if (room[lara_item->room_number].item_number != -1)
+				{
+					//t2 = 0x45
+					//t1 = objects
+					//t0 = -1
+					//a3 = items
+					//a2 = anims
+					//a0 = room[lara_item->room_number].item_number
+
+					//loc_21264
+					//a0 = items[room[lara_item->room_number].item_number];
+				}
+				//loc_215B8
+			}
+			//loc_212D8
+			//v0 = 0x14
+
 		}//loc_214B0
 
 	}
 	//loc_215B8
 
 #if 0
-loc_211E0:
-bne     $s0, $v0, loc_21208
-li      $v0, 0x18
-jal     sub_4086C
-li      $a0, 0xAE
-beqz    $v0, loc_21208
-li      $v0, 0x18
-jal     sub_20DA0
-li      $a0, 0xA
-li      $s0, 9
-li      $v0, 0x18
-
-loc_21208:
-bne     $s0, $v0, loc_212D8
-li      $v0, 0x14
-lw      $v1, dword_800A2048
-nop
-lh      $a0, 0x18($v1)
-lw      $v1, dword_800A24DC
-sll     $v0, $a0, 2
-addu    $v0, $a0
-sll     $v0, 4
-addu    $v0, $v1
-lh      $a0, 0x48($v0)
-li      $v1, 0xFFFFFFFF
-beq     $a0, $v1, loc_215B8
-li      $t2, 0x45
-lui     $v0, 0x1F
-addiu   $t1, $v0, 0x2480
-li      $t0, 0xFFFFFFFF
-lw      $a3, 0x1B38($gp)
-lw      $a2, dword_800A25E0
-sll     $v0, $a0, 3
-
-loc_21264:
 addu    $v0, $a0
 sll     $v0, 4
 addu    $a0, $a3, $v0
@@ -2034,7 +2028,8 @@ lw      $s0, 0x20+var_10($sp)
 jr      $ra
 addiu   $sp, 0x20
 #endif
-	UNIMPLEMENTED();
+	
+
 }
 
 int CheckCutPlayed(int num)//20E34(<), 21040(<) (F)
@@ -2289,7 +2284,7 @@ int CheckGuardOnTrigger()//209AC(<), 20BB8(<) (F)
 				//loc_20A70
 				if (ABS(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
 					ABS(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
-					ABS(item->pos.y_pos - lara_item->pos.y_pos) < SECTOR(0.25))
+					ABS(item->pos.y_pos - lara_item->pos.y_pos) < (int)SECTOR(0.25))
 				{
 					return 1;
 				}
