@@ -336,7 +336,9 @@ int DoPauseMenu()//60F34(<), 61A68(<) (F)
 			}
 			//loc_61144
 			savegame.AutoTarget ^= 1;
-
+		}
+		else
+		{
 			//loc_61160
 			if (SettingsReq.CursorPos < 2)
 			{
