@@ -1,4 +1,4 @@
 mkdir EMSCRIPTEN
 cd EMSCRIPTEN
-emconfigure cmake ../ -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=1 -G "MinGW Makefiles"
+emcmake cmake ../
 mingw32-make
