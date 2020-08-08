@@ -26,5 +26,6 @@ extern void gInit();
 extern short S_Death();
 extern void DisplayStatsUCunt();
 extern void S_Warn(const char* warning_message);
+extern int sub_62190();
 
 #endif

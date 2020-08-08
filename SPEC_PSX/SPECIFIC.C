@@ -185,6 +185,55 @@ void DisplayConfig(int x, int y)//6080C(<), 61340(<) (F)
 	}
 }
 
+int sub_62190()//?, 62190(<) (F)
+{
+	int s0 = 0;
+
+	gInit();
+	PauseMenuNum = 0;
+	PauseReq.CursorPos = 0;
+
+	//loc_621BC
+	do
+	{
+		GPU_BeginScene();
+		SetDebounce = 1;
+		S_UpdateInput();
+		UpdatePulseColour();
+
+		if (!PadConnected)
+		{
+			PrintString(SCREEN_WIDTH / 2, 64, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_BLINK));
+		}
+		else
+		{
+			//loc_62228
+			s0 = -1;
+			if (DoPauseMenu() == 0)
+			{
+				//v0 = reset_flag
+				if (reset_flag == 0)
+				{
+					s0 = RawEdge & 8;
+				}//loc_6225C
+			}//loc_6225C
+		}//loc_6225C
+
+		SOUND_EndScene();
+		DrawMonoScreen(0x203040);
+		GPU_EndScene();
+		camera.number_frames = S_DumpScreen();
+
+	} while (s0 == 0);
+
+	XAFadeRate = 8;
+	XAReqVolume = XAMasterVolume;
+	S_CDRestart();
+	//sub_60308 ///@TODO missing in internal beta?
+	return 0;///@FIXME return above?
+}
+
+
 int DoPauseMenu()//60F34(<), 61A68(<) (F)
 {
 	char* s;
@@ -395,10 +444,8 @@ int DoPauseMenu()//60F34(<), 61A68(<) (F)
 		if ((RawEdge & IN_CROSS))
 		{
 			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+			PauseMenuNum = 3;
 		}
-
-		PauseMenuNum = 3;
-
 		break;
 	case 20:
 		//loc_612F4
