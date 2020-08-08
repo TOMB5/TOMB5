@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM, DecodeAnim
+	XDEF DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM, DecodeAnim, DecodeTrack
 	XREF SoundFXVolume, rcossin_tbl, GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight, IsRoomOutsideNo
 
 CalcVolumes_ASM:
@@ -485,4 +485,119 @@ DecodeAnim:
 	loc_90BD0:
 	jr      t6
 	nop
-	
+
+DecodeTrack:
+	lbu     v0, 0xC(a1)
+	move    a3, a1
+	move    t2, ra
+	bnez    v0, loc_90CD0
+	move    t1, a0
+	lw      a0, 4(a3)
+	lbu     a2, 0xD(a3)
+	jal     GetTrackWord
+	move    a1, t1
+	move    t0, v0
+	andi    v0, t0, 0x20
+	bnez    v0, loc_90CA0
+	andi    v0, t0, 0xF
+	li      v0, 2
+	sb      v0, 0xC(a3)
+	andi    v0, t0, 0x10
+	beqz    v0, loc_90C70
+	move    a1, t1
+	lw      a0, 4(a3)
+	lbu     a2, 0xD(a3)
+	jal     GetTrackWord
+	addiu   a0, 1
+	move    a1, t1
+	andi    v1, t0, 7
+	sll     v1, 5
+	andi    v0, 0x1F
+	or      v1, v0
+	lbu     a2, 0xD(a3)
+	lw      a0, 4(a3)
+	sh      v1, 8(a3)
+	jal     GetTrackWord
+	addiu   a0, 2
+	sh      v0, 0xA(a3)
+	lw      v0, 4(a3)
+	lw      v1, 0(a3)
+	addiu   v0, 3
+	j       loc_90CC8
+	addiu   v1, -3
+
+	loc_90C70:
+	lw      a0, 4(a3)
+	lbu     a2, 0xD(a3)
+	jal     GetTrackWord
+	addiu   a0, 1
+	sh      v0, 0xA(a3)
+	andi    v0, t0, 7
+	sh      v0, 8(a3)
+	lw      v0, 4(a3)
+	lw      v1, 0(a3)
+	addiu   v0, 2
+	j       loc_90CC8
+	addiu   v1, -2
+
+	loc_90CA0:
+	bnez    v0, loc_90CAC
+	nop
+	li      v0, 0x10
+
+	loc_90CAC:
+	sh      v0, 8(a3)
+	li      v0, 1
+	sb      v0, 0xC(a3)
+	lw      v0, 4(a3)
+	lw      v1, 0(a3)
+	addiu   v0, 1
+	addiu   v1, -1
+
+	loc_90CC8:
+	sw      v0, 4(a3)
+	sw      v1, 0(a3)
+
+	loc_90CD0:
+	lbu     v1, 0xC(a3)
+	li      v0, 2
+	bne     v1, v0, loc_90D08
+	nop
+	lhu     v0, 8(a3)
+	nop
+	addiu   v0, -1
+	sh      v0, 8(a3)
+	bnez    v0, loc_90CFC
+	nop
+	sb      zero, 0xC(a3)
+
+	loc_90CFC:
+	lh      v0, 0xA(a3)
+	j       loc_90D50
+	nop
+
+	loc_90D08:
+	lw      a0, 4(a3)
+	lbu     a2, 0xD(a3)
+	jal     GetTrackWord
+	move    a1, t1
+	lhu     v1, 8(a3)
+	lw      a0, 4(a3)
+	lw      a1, 0(a3)
+	addiu   v1, -1
+	addiu   a0, 1
+	addiu   a1, -1
+	sh      v1, 8(a3)
+	andi    v1, 0xFFFF
+	sw      a0, 4(a3)
+	bnez    v1, loc_90D48
+	sw      a1, 0(a3)
+	sb      zero, 0xC(a3)
+
+	loc_90D48:
+	sll     v0, 16
+	sra     v0, 16
+
+	loc_90D50:
+	jr      t2
+	nop
