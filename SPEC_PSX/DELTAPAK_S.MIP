@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM
+	XDEF DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM, DecodeAnim
 	XREF SoundFXVolume, rcossin_tbl, GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight, IsRoomOutsideNo
 
 CalcVolumes_ASM:
@@ -392,4 +392,97 @@ CalcActorLighting:
 	j       S_CalculateLight
 	sw      v0, 0x10(sp)
 	
+DecodeAnim:
+	move    t7, a3
+	move    t6, ra
+	move    t3, a0
+	bnez    a2, loc_90B14
+	move    t5, a1
+	blez    t5, loc_90BD0
+	move    t4, zero
+	move    t0, t3
+
+	loc_90AA8:
+	lhu     v0, 6(t0)
+	lhu     v1, 8(t0)
+	lhu     a0, 0xA(t0)
+	lw      a1, 0x3C(t0)
+	lw      a2, 0x40(t0)
+	lw      a3, 0x44(t0)
+	addiu   t4, 1
+	sw      zero, 0x10(t0)
+	sw      zero, 0x14(t0)
+	sb      zero, 0x18(t0)
+	sw      zero, 0x20(t0)
+	sw      zero, 0x24(t0)
+	sb      zero, 0x28(t0)
+	sw      zero, 0x30(t0)
+	sw      zero, 0x34(t0)
+	sb      zero, 0x38(t0)
+	sh      v0, 0(t0)
+	sh      v1, 2(t0)
+	sh      a0, 4(t0)
+	sw      a1, 0xC(t0)
+	sw      a2, 0x1C(t0)
+	sw      a3, 0x2C(t0)
+	slt     v0, t4, t5
+	bnez    v0, loc_90AA8
+	addiu   t0, 0x54
+	j       loc_90BD0
+	nop
+
+	loc_90B14:
+	lw      a0, 0x48(t3)
+	jal     DecodeTrack
+	addiu   a1, t3, 0xC
+	addiu   a1, t3, 0x1C
+	lhu     v1, 0(t3)
+	lw      a0, 0x4C(t3)
+	addu    v1, v0
+	jal     DecodeTrack
+	sh      v1, 0(t3)
+	addiu   a1, t3, 0x2C
+	lhu     v1, 2(t3)
+	lw      a0, 0x50(t3)
+	addu    v1, v0
+	jal     DecodeTrack
+	sh      v1, 2(t3)
+	lhu     v1, 4(t3)
+	li      t4, 1
+	addu    v1, v0
+	slt     v0, t4, t5
+	beqz    v0, loc_90BD0
+	sh      v1, 4(t3)
+	addiu   t3, 0x54
+
+	loc_90B6C:
+	lw      a0, 0x48(t3)
+	jal     DecodeTrack
+	addiu   a1, t3, 0xC
+	addiu   a1, t3, 0x1C
+	lhu     v1, 0(t3)
+	lw      a0, 0x4C(t3)
+	addu    v1, v0
+	and     v1, t7
+	jal     DecodeTrack
+	sh      v1, 0(t3)
+	addiu   a1, t3, 0x2C
+	lhu     v1, 2(t3)
+	lw      a0, 0x50(t3)
+	addu    v1, v0
+	and     v1, t7
+	jal     DecodeTrack
+	sh      v1, 2(t3)
+	lhu     v1, 4(t3)
+	addiu   t4, 1
+	addu    v1, v0
+	and     v1, t7
+	sh      v1, 4(t3)
+	slt     v0, t4, t5
+	bnez    v0, loc_90B6C
+	addiu   t3, 0x54
+
+	loc_90BD0:
+	jr      t6
+	nop
 	
