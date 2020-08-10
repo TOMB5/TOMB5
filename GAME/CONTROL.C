@@ -2513,7 +2513,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 	{
 		if (!heavy)
 		{
-			quad = (lara_item->pos.y_rot + 0x2000) >> 14;
+			quad = ((lara_item->pos.y_rot + 0x2000) & 0xFFFF) >> 14;
 			if ((*data >> (quad + 8)) & 1)
 			{
 				lara.climb_status = 1;
