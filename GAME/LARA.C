@@ -2611,112 +2611,99 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 			{
 				edge_catch = LaraTestEdgeCatch(item, coll, &edge);
 
-				if (edge_catch != 0)
+				if (edge_catch != 0 && edge_catch >= 0 || LaraTestHangOnClimbWall(item, coll))
 				{
-					if (edge_catch >= 0 || LaraTestHangOnClimbWall(item, coll))
+					short angle = item->pos.y_rot;
+					constexpr int test = ANGLE(35);
+					if (((angle + ANGLE(35)) & 0xFFFF) >= 0x31C5)
 					{
-						short angle = item->pos.y_rot;
+						angle = 0;
+					}
+					else if ((angle - 0x271E) < 0x31C5)
+					{
+						angle = 0x4000;
+					}
+					else if (angle >= 0x671D || angle < -0x671C)
+					{
+						angle = -0x8000;
+					}
+					else if (((angle + 0x58E2) & 0xFFFF) < 0x31C5)
+					{
+						angle = -0x4000;
+					}
 
-						if (ABS(angle) > ANGLE(35))
+					if ((angle & 0x3FFF) == 0)
+					{
+						short* bounds;
+
+						if (TestHangSwingIn(item, angle))
 						{
-							if (angle < 10014 || angle > 22754)
-							{
-								if (angle >= 26397 || angle <= -26397)
-								{
-									angle = ANGLE(-180);
-								}
-								else if (angle >= -22754 && angle <= -10014)
-								{
-									angle = ANGLE(-90);
-								}
-							}
-							else
-							{
-								angle = ANGLE(90);
-							}
+							lara.head_y_rot = 0;
+							lara.head_x_rot = 0;
+							lara.torso_y_rot = 0;
+							lara.torso_x_rot = 0;
+
+							item->anim_number = ANIMATION_LARA_OSCILLATE_HANG_ON;
+							item->frame_number = anims[ANIMATION_LARA_OSCILLATE_HANG_ON].frame_base;
+
+							item->current_anim_state = STATE_LARA_MONKEYSWING_IDLE;
+							item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
 						}
 						else
 						{
-							angle = 0;
+							item->anim_number = ANIMATION_LARA_HANG_IDLE;
+							item->frame_number = anims[ANIMATION_LARA_HANG_IDLE].frame_base;
+
+							item->current_anim_state = STATE_LARA_HANG;
+							item->goal_anim_state = STATE_LARA_HANG;
 						}
 
-						if ((angle & 0x3FFF) == 0)
+						bounds = GetBoundsAccurate(item);
+
+						if (edge_catch <= 0)
 						{
-							short* bounds;
-
-							if (TestHangSwingIn(item, angle))
-							{
-								lara.head_y_rot = 0;
-								lara.head_x_rot = 0;
-								lara.torso_y_rot = 0;
-								lara.torso_x_rot = 0;
-
-								item->anim_number = ANIMATION_LARA_OSCILLATE_HANG_ON;
-								item->frame_number = anims[ANIMATION_LARA_OSCILLATE_HANG_ON].frame_base;
-
-								item->current_anim_state = STATE_LARA_MONKEYSWING_IDLE;
-								item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
-							}
-							else
-							{
-								item->anim_number = ANIMATION_LARA_HANG_IDLE;
-								item->frame_number = anims[ANIMATION_LARA_HANG_IDLE].frame_base;
-
-								item->current_anim_state = STATE_LARA_HANG;
-								item->goal_anim_state = STATE_LARA_HANG;
-							}
-
-							bounds = GetBoundsAccurate(item);
-
-							if (edge_catch <= 0)
-							{
-								item->pos.y_pos = edge - bounds[2] - 22;
-							}
-							else
-							{
-								item->pos.y_pos += coll->front_floor - bounds[2];
-
-								switch ((item->pos.y_rot + ANGLE(45)) >> 14)
-								{
-								case 0u:
-									item->pos.z_pos = (item->pos.z_pos | 0x3FF) - 100;
-									item->pos.x_pos += coll->shift.x;
-									break;
-								case 2u:
-									item->pos.z_pos = (item->pos.z_pos & 0xFFFFFC00) + 100;
-									item->pos.x_pos += coll->shift.x;
-									break;
-								case 1u:
-									item->pos.x_pos = (item->pos.x_pos | 0x3FF) - 100;
-									item->pos.z_pos += coll->shift.z;
-									break;
-								case 3u:
-									item->pos.x_pos = (item->pos.x_pos & 0xFFFFFC00) + 100;
-									item->pos.z_pos += coll->shift.z;
-									break;
-								default:
-									break;
-								}
-							}
-
-							item->pos.y_rot = angle;
-
-							item->gravity_status = TRUE;
-							item->speed = 2;
-							item->fallspeed = 1;
-							a2 = 1;
-							lara.gun_status = LG_HANDS_BUSY;
+							item->pos.y_pos = edge - bounds[2] - 22;
 						}
+						else
+						{
+							item->pos.y_pos += coll->front_floor - bounds[2];
+
+							switch ((item->pos.y_rot + ANGLE(45)) >> 14)
+							{
+							case 0u:
+								item->pos.z_pos = (item->pos.z_pos | 0x3FF) - 100;
+								item->pos.x_pos += coll->shift.x;
+								break;
+							case 2u:
+								item->pos.z_pos = (item->pos.z_pos & 0xFFFFFC00) + 100;
+								item->pos.x_pos += coll->shift.x;
+								break;
+							case 1u:
+								item->pos.x_pos = (item->pos.x_pos | 0x3FF) - 100;
+								item->pos.z_pos += coll->shift.z;
+								break;
+							case 3u:
+								item->pos.x_pos = (item->pos.x_pos & 0xFFFFFC00) + 100;
+								item->pos.z_pos += coll->shift.z;
+								break;
+							default:
+								break;
+							}
+						}
+
+						item->pos.y_rot = angle;
+
+						item->gravity_status = TRUE;
+						item->speed = 2;
+						item->fallspeed = 1;
+						a2 = 1;
+						lara.gun_status = LG_HANDS_BUSY;
 					}
 				}
-				else
-				{
-					//loc_18F30
-
-				}
-			}//loc_190FC
-		}
+			}
+		}//loc_190FC
 	}
+
 	//loc_190FC
 	if (a2 == 0)
 	{
