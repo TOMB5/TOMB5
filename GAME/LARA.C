@@ -2614,7 +2614,7 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 				if (edge_catch != 0 && edge_catch >= 0 || LaraTestHangOnClimbWall(item, coll))
 				{
 					short angle = item->pos.y_rot;
-					constexpr int test = ANGLE(35);
+
 					if (((angle + ANGLE(35)) & 0xFFFF) >= 0x31C5)
 					{
 						angle = 0;
@@ -2635,6 +2635,10 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 					if ((angle & 0x3FFF) == 0)
 					{
 						short* bounds;
+
+#if PSX_VERSION
+						SetupPadVibration(1, 20224, 20224, 8, 20224, 8);
+#endif
 
 						if (TestHangSwingIn(item, angle))
 						{
