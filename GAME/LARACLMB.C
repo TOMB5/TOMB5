@@ -538,7 +538,7 @@ int LaraTestClimb(int x, int y, int z, int xfront, int zfront, int item_height, 
 
 					//loc_458F8
 					//s0 = x + xfront
-					if ((item_height - height) < 0x384)
+					if ((item_height + height) < 0x384)
 					{
 						hang = 0;
 					}
