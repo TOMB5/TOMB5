@@ -89,31 +89,31 @@ long StopRCnt(long spec)//TODO
 	return 0;
 }
 #undef OpenEvent
-long OpenEvent(unsigned long unk00, long unk01, long unk02, long(*func)())
+long OpenEvent(unsigned long event, long unk01, long unk02, long(*func)())
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long CloseEvent(long unk00)
+long CloseEvent(long event)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long WaitEvent(long unk00)
+long WaitEvent(long event)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long TestEvent(long unk00)
+long TestEvent(long event)
 {
 	UNIMPLEMENTED();
-	return 0;
+	return 1;
 }
 
-long EnableEvent(long unk00)
+long EnableEvent(long event)
 {
 	UNIMPLEMENTED();
 	return 0;
