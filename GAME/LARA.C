@@ -1727,7 +1727,7 @@ void lara_as_backjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A854(<),
 		{
 			item->goal_anim_state = STATE_LARA_STOP;
 		}
-		else if((input & IN_FORWARD || input & IN_ROLL) && item->goal_anim_state != STATE_LARA_STOP)
+		else if(input & (IN_FORWARD | IN_ROLL) && item->goal_anim_state != STATE_LARA_STOP)
 		{
 			item->goal_anim_state = STATE_LARA_JUMP_ROLL;
 		}
