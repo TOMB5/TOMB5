@@ -562,11 +562,33 @@ int LaraTestClimb(int x, int y, int z, int xfront, int zfront, int item_height, 
 						if (ceiling >= 0x1BB)
 						{
 							//loc_45A60
+							if (*shift > 0)
+							{
+								if (hang)
+								{
+									return -1;
+								}
+								else
+								{
+									return 0;
+								}
+							}
+							else
+							{
+								*shift = ceiling - 0x200;
+							}
 						}
 						else if (ceiling > 0)
 						{
 							//loc_45A78
-
+							if (hang)
+							{
+								return -1;
+							}
+							else
+							{
+								return 0;
+							}
 						}
 						else if (ceiling < -0x45 || hang == 0 || *shift > 0)
 						{
