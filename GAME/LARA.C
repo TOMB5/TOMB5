@@ -2616,8 +2616,9 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 					if (edge_catch >= 0 || LaraTestHangOnClimbWall(item, coll))
 					{
 						short angle = item->pos.y_rot;
+						int test = ((angle + ANGLE(35)) & 0xFFFF);
 
-						if (((angle + ANGLE(35)) & 0xFFFF) >= 0x31C5)
+						if (((angle + ANGLE(35)) & 0xFFFF) < 0x31C5)
 						{
 							angle = 0;
 						}
@@ -5674,7 +5675,7 @@ int LaraTestHangOnClimbWall(struct ITEM_INFO* item, struct COLL_INFO* coll)//12C
 	if (item->fallspeed < 0)
 		return FALSE;
 
-	switch((unsigned short)(item->pos.y_rot + ANGLE(45)) / (unsigned short)ANGLE(90))
+	switch((unsigned short)(item->pos.y_rot + ANGLE(45)) >> 14)
 	{
 	case 0:
 	case 2:
@@ -5708,11 +5709,11 @@ int LaraTestHangOnClimbWall(struct ITEM_INFO* item, struct COLL_INFO* coll)//12C
 		if (result != 1)
 		{
 			item->pos.y_pos += shift;
-			return TRUE;
+			return FALSE;
 		}
 	}
 
-	return FALSE;
+	return TRUE;
 }
 
 void LaraSlideEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12B18, 12BC8 (F)
