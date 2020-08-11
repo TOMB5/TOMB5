@@ -2618,11 +2618,11 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 						short angle = item->pos.y_rot;
 						int test = ((angle + ANGLE(35)) & 0xFFFF);
 
-						if (((angle + ANGLE(35)) & 0xFFFF) < 0x31C5)
+						if ((unsigned)((angle + ANGLE(35)) & 0xFFFF) < 0x31C5)
 						{
 							angle = 0;
 						}
-						else if ((angle - 0x271E) < 0x31C5)
+						else if ((unsigned)(angle - 0x271E) < 0x31C5)
 						{
 							angle = 0x4000;
 						}
