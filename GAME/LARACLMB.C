@@ -481,7 +481,168 @@ int LaraClimbLeftCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//45A
 
 int LaraTestClimb(int x, int y, int z, int xfront, int zfront, int item_height, int item_room, int* shift)//457F0, 45C54
 {
-	UNIMPLEMENTED();
+	int hang; // stack offset -48
+	struct FLOOR_INFO* floor; // $s3
+	short room_number; // stack offset -56
+	short room_number2; //stack -52
+	int height; // $s2
+	int ceiling; // $v1
+
+	//s5 = shift
+	//v0 = 1
+	//s7 = x
+	//s4 = y
+	//fp = z
+	*shift = 0;
+	//s0 = item_height
+	//v1 = lara.climb_status
+	//v0 = item_room
+	//s1 = xfront
+	room_number2 = item_room;
+	if (lara.climb_status != FALSE)
+	{
+		room_number = room_number2;
+		floor = GetFloor(x, y - 128, z, &room_number);
+		height = GetHeight(floor, x, y, z);
+
+		//v0 = height - 128
+		if (height != -32512)
+		{
+			//v1 = y + item_height
+			height = (height - 128) - (y + item_height);
+
+			if (height >= -0x46)
+			{
+				//s6 = v1
+				//a0 = floor
+				if (height >= -0x46 < 0)
+				{
+					*shift = height;
+				}
+
+				//loc_458B8
+				ceiling = GetCeiling(floor, x, y, z) - y;
+
+				if (ceiling < 0x47)
+				{
+					//v0 = item_height - height
+					if (ceiling > 0)
+					{
+						if (*shift != 0)
+						{
+							return FALSE;
+						}
+
+						*shift = ceiling;
+					}
+
+					//loc_458F8
+					//s0 = x + xfront
+					if ((item_height - height) < 0x384)
+					{
+						hang = 0;
+					}
+					//loc_45908
+					floor = GetFloor(x + xfront, y, z + zfront, &room_number);
+					height = GetHeight(floor, x + xfront, y, z + zfront);
+
+					if (height != -32512)
+					{
+						height -= y;
+					}
+					//loc_45954
+					if (height >= 0x47)
+					{
+						ceiling = GetCeiling(floor, x + xfront, y, z + zfront) - y;
+						if (ceiling >= 0x200)
+						{
+							return TRUE;
+						}
+
+						if (ceiling >= 0x1BB)
+						{
+							//loc_45A60
+						}
+						else if (ceiling > 0)
+						{
+							//loc_45A78
+
+						}
+						else if (ceiling < -0x45 || hang == 0 || *shift > 0)
+						{
+							return 0;
+						}
+						else if (ceiling < *shift)
+						{
+							*shift = ceiling;
+						}
+
+						return -1;
+					}
+	
+					//a0 = s7
+					if (height > 0)//loc_459CC
+					{
+						if (*shift < 0)
+						{
+							return 0;
+						}
+						else if (*shift < height)
+						{
+							*shift = height;
+						}
+					}//loc_459F4
+					//a0 = s7
+					//a1 = s6
+					//a2 = fp
+					//v1 = room_number2
+					room_number = room_number2;
+					GetFloor(x, y + item_height, z, &room_number);
+					ceiling = GetCeiling(GetFloor(x + xfront, y + item_height, z + zfront, &room_number), x + xfront, y + item_height, z + zfront);
+
+					if (ceiling == -32512 || height >= ceiling - y || ceiling - y >= 0x200 )
+					{
+						return 1;
+					}
+					
+					if (ceiling - y < 0x1BB)
+					{
+						if (hang)
+						{
+							return -1;
+						}
+						else
+						{
+							return 0;
+						}
+					}
+					else
+					{
+						//loc_45A60
+						//v0 = *shift
+						if (*shift > 0)
+						{
+							if (hang)
+							{
+								return -1;
+							}
+							else
+							{
+								return 0;
+							}
+						}
+						else
+						{
+							*shift = ceiling - 0x200;
+							return 1;
+						}
+					}
+				}
+				//loc_45A8C
+			}//loc_45A88
+		}//loc_45A88
+	}
+
 	return 0;
 }
 
