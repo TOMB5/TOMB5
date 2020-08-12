@@ -275,9 +275,187 @@ void lara_as_climbleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//467E4(<)
 		item->goal_anim_state = STATE_LARA_LADDER_IDLE;
 }
 
-void lara_col_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//464E8, 4694C
+void lara_col_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//464E8, 4694C (F)
 {
-	UNIMPLEMENTED();
+	int result_r; // $s1
+	int result_l; // $a1
+	int shift_r; // stack offset -40
+	int shift_l; // stack offset -32
+	int ledge_r; // stack offset -36
+	int ledge_l; // stack offset -28
+	int v0;
+
+	//s2 = item
+	//s3 = coll
+	if (!LaraCheckForLetGo(item, coll) && item->anim_number == ANIMATION_LARA_LADDER_IDLE)
+	{
+		//v1 = input
+		if ((input & IN_FORWARD))
+		{
+			if (item->goal_anim_state == STATE_LARA_GRABBING)
+			{
+				return;
+			}
+
+			//a0 = item
+			//a3 = &shift_r
+			item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+			//a1 = coll->radius
+			//v0 = &ledge_r
+			//a2 = coll->radius + 120
+			result_r = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_r, &ledge_r);
+			//a0 = item
+			//a3 = &shift_l
+			//a2 = coll->radius
+			//v0 = &ledge_l
+			result_l = LaraTestClimbUpPos(item, coll->radius, -(coll->radius + 120), &shift_l, &ledge_l);
+
+			if (result_r == 0 || result_l == 0)
+			{
+				return;
+			}
+
+			if (result_r < 0 || result_l < 0)
+			{
+				//v0 = ledge_l
+				//v1 = ledge_r
+				//a0 = ledge_l - ledge_r
+				//a2 = ledge_l
+				
+				if (CLAMPSUB(ledge_l, ledge_r) >= 0x79)
+				{
+					return;
+				}
+
+				//v0 = 0x8A
+				if (result_r == -1 && result_l == -1)
+				{
+					//v0 = 0x13
+					item->goal_anim_state = STATE_LARA_GRABBING;
+					//v0 = (ledge_l + ledge_r + ((ledge_l + ledge_r) >> 31)) >> 1;
+					//v1 = ((ledge_l + ledge_r) >> 31);
+					item->pos.y_pos += (item->pos.y_pos - 256) + (ledge_l + ledge_r + ((ledge_l + ledge_r) >> 31)) >> 1;
+					return;
+				}
+				//loc_46620
+				//v1 = 0x47
+				item->goal_anim_state = STATE_LARA_UNKNOWN_138;
+				item->required_anim_state = STATE_LARA_CROUCH_IDLE;
+
+				return;
+			}
+			//loc_46630
+			if (shift_r != 0)
+			{
+				if (shift_l != 0)
+				{
+					v0 = shift_r >> 31;
+					if (shift_r >= 0)
+					{
+						v0 ^= 1;
+					}
+					//loc_4665C
+					if (v0 != 0)
+					{
+						return;
+					}
+
+					//v1 = shift_r
+					//a0 = shift_l
+					if (shift_r < 0 && shift_r < shift_l ||
+						shift_r > 0 && shift_l < shift_r)
+					{
+						//loc_46684
+						shift_l = shift_r;
+					}
+				}
+				else
+				{
+					//loc_46684
+					shift_l = shift_r;
+				}
+			}
+			//loc_46688
+			//v0 = item->pos.y_pos
+			//a0 = shift_l
+			//v1 = 0x39
+			//j       loc_467B4
+			item->goal_anim_state = STATE_LARA_LADDER_UP;
+			item->pos.y_pos += shift_l;
+			return;
+		}
+		else if((input & IN_BACK))
+		{
+			//loc_46698
+			if (item->goal_anim_state != STATE_LARA_HANG)
+			{
+				//a0 = item
+				//a3 = -512
+				//v0 = 0x38
+				//v1 = item->pos.y_pos + 256
+				//s0 = 512 sw var_30
+				item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+				item->pos.y_pos += 256;
+				//a1 = coll->left_floor2
+				//v0 = &shift_r
+				//a2 = coll->left_floor2 + 128
+				result_r = LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, &shift_r);
+				//a0 = item
+				//a3 = -512
+				//s0 = 512
+				result_l = LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, &shift_l);
+
+				//v1 = item->pos.y_pos - 256
+				if (result_r == 0 || result_l == 0 || result_l == -2 || result_r == -2)
+				{
+					return;
+				}
+
+				//v1 = shift_r
+				//a0 = shift_l
+				if (shift_r != 0)
+				{
+					//v0 = 1
+					if (shift_l != 0)
+					{
+						v0 = shift_r >> 31;
+						if (shift_l < 0)
+						{
+							v0 ^= 1;
+						}
+						//loc_4676C
+						if (v0 != 0)
+						{
+							return;
+						}
+
+						if (shift_r < 0 && shift_r < shift_l ||
+							shift_r > 0 && shift_l < shift_r)
+						{
+							shift_l = shift_r;
+						}
+						//loc_46794
+					}
+					//loc_4679C
+				}
+				//loc_46798
+				if (result_r != 1 || result_l != 1)
+				{
+					item->goal_anim_state = STATE_LARA_HANG;
+					return;
+				}
+
+				//v1 = 0x3D
+				//v0 = item->pos.y_pos
+				//a0 = shift_l
+				item->goal_anim_state = STATE_LARA_LADDER_DOWN;
+				item->pos.y_pos += shift_l;
+			}
+		}
+		//loc_467C8
+	}
+	//loc_467C8
+	return;
 }
 
 void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 46854 (F)
