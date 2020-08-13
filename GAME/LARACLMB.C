@@ -405,7 +405,7 @@ void lara_col_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//464E8, 
 				//s0 = 512
 				result_l = LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, &shift_l);
 
-				//v1 = item->pos.y_pos - 256
+				item->pos.y_pos -= 256;
 				if (result_r == 0 || result_l == 0 || result_l == -2 || result_r == -2)
 				{
 					return;
