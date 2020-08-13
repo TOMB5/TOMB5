@@ -204,7 +204,7 @@ void lara_col_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//469B0, 4
 			else
 			{
 				item->goal_anim_state = STATE_LARA_LADDER_UP;
-				item->pos.y_pos += 256 - yshift;
+				item->pos.y_pos -= yshift;
 			}
 		}
 		else
