@@ -5703,17 +5703,22 @@ int LaraTestHangOnClimbWall(struct ITEM_INFO* item, struct COLL_INFO* coll)//12C
 	}
 
 	if (LaraTestClimbPos(item, coll->radius, coll->radius, bounds[2], bounds[3] - bounds[2], &shift) &&
-		LaraTestClimbPos(item, coll->radius, -coll->radius, bounds[2], bounds[3] - bounds[2], &shift) &&
-		(result = LaraTestClimbPos(item, coll->radius, 0, bounds[2], bounds[3] - bounds[2], &shift)) != 0)
+		LaraTestClimbPos(item, coll->radius, -coll->radius, bounds[2], bounds[3] - bounds[2], &shift))
 	{
-		if (result != 1)
+		result = LaraTestClimbPos(item, coll->radius, 0, bounds[2], bounds[3] - bounds[2], &shift);
+
+		if (result != 0)
 		{
-			item->pos.y_pos += shift;
-			return FALSE;
+			if (result == 1)
+			{
+				item->pos.y_pos += shift;
+			}
+
+			return TRUE;
 		}
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 void LaraSlideEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12B18, 12BC8 (F)
