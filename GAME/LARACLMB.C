@@ -176,6 +176,8 @@ void lara_col_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//469B0, 4
 
 		result_r = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_r, &ledge_r);
 		result_l = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_l, &ledge_l);
+		
+		item->pos.y_pos += 256;
 
 		if (result_r && result_l && input & IN_FORWARD)
 		{
