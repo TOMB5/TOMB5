@@ -2152,8 +2152,6 @@ void lara_col_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19AC8, 19BFC
 				item->goal_anim_state = 0x13;
 			}
 
-			return;
-
 			if (lara.climb_status != 0 &&
 				coll->mid_ceiling <= -256 &&
 				ABS(coll->left_ceiling2 - coll->right_ceiling2) < 60)
