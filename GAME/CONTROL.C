@@ -4381,13 +4381,13 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 {
 	UNIMPLEMENTED();
 }
-#endif
 
 int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
+#endif
 
 int check_xray_machine_trigger()// (F)
 {
