@@ -4555,9 +4555,9 @@ void GetCarriedItems()//?(<), B9974(<) (F)
 			{
 				cur = &items[j];
 
-				if (abs(cur->pos.x_pos - item->pos.x_pos) < SECTOR(0.5) &&
-					abs(cur->pos.y_pos - item->pos.y_pos) < SECTOR(0.25) &&
-					abs(cur->pos.z_pos - item->pos.z_pos) < SECTOR(0.5) &&
+				if (abs(cur->pos.x_pos - item->pos.x_pos) < (int)SECTOR(0.5) &&
+					abs(cur->pos.y_pos - item->pos.y_pos) < (int)SECTOR(0.25) &&
+					abs(cur->pos.z_pos - item->pos.z_pos) < (int)SECTOR(0.5) &&
 					objects[cur->object_number].collision == PickUpCollision)
 				{
 					cur->carried_item = item->carried_item;
@@ -4586,8 +4586,8 @@ void GetAIPickups()//?, B9B84 (F)
 				//loc_6318
 				for (j = 0; j < nAIObjects; j++)
 				{
-					if (ABS(AIObjects[j].x - items[i].pos.x_pos) < SECTOR(0.5) &&
-						ABS(AIObjects[j].z - items[i].pos.z_pos) < SECTOR(0.5) &&
+					if (ABS(AIObjects[j].x - items[i].pos.x_pos) < (int)SECTOR(0.5) &&
+						ABS(AIObjects[j].z - items[i].pos.z_pos) < (int)SECTOR(0.5) &&
 						AIObjects[j].room_number == items[i].room_number &&
 						AIObjects[j].object_number < AI_PATROL2)
 					{
@@ -4876,7 +4876,7 @@ long sub_BA148(short* ptr)//?, BA148(<) (F)
 		{
 			v1 = ptr[15] + 1;
 			ptr += 4;
-			addr += (((((v1 + 1) << 2) + v1 + 1) << 2) + v1 + 1) << 2;///@FIXME * sizeof x
+			addr += (((((v1 << 2) + v1) << 2) + v1) << 2);///@FIXME * sizeof x
 		}
 	}//locret_68C0
 

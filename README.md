@@ -36,7 +36,7 @@ Current goals include decompiling all code up until the title screen sequence, e
 
 ## Usage
 
-Assuming you have compiled the most recent code or downloaded the latest binaries from appveyor (artifacts). Simply put your Tomb Raider: Chronicles PlayStation disc into your PC. At this point you'll need to copy all the files from the root of the CD to the same folder as MAIN.EXE. The codebase is currently based off the final NTSC version of Tomb Raider: Chronicles and final PC version. This means that other localised versions may not be supported.
+Assuming you have compiled the most recent code or downloaded the latest binaries from appveyor (artifacts). Simply put your Tomb Raider: Chronicles PlayStation disc into your PC. At this point you'll need to copy all the files from the root of the CD to the same folder as MAIN.EXE. The codebase is currently based off the final NTSC version of Tomb Raider: Chronicles and final PC version. This means that other localised versions may not be supported. For further usage and build instructions visit [this](CONTRIBUTING.md) file.
 
 ## How long will this take?
 
@@ -49,6 +49,6 @@ Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) ch
 - Gh0stBlade: Lead Programmer (PSX/PSXPC_N).
 - zdimension: Programmer (PSX/PSXPC_N,PC_N).
 - Stohrendorf: Symdump tool creator.
-- smf: GTE code for PSXPC_N code path.
-- XProger: HLE render optimisations.
+- smf: GTE code for EMU.
+- XProger: EMU render optimisations.
 - [You?](CONTRIBUTING.md)

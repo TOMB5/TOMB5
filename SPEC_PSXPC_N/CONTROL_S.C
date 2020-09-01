@@ -14,7 +14,7 @@ void DrawBinoculars()
 	S_Warn("[DrawBinoculars] - Unimplemented!\n");
 }
 
-void TranslateItem(struct ITEM_INFO* item, unsigned short x, unsigned short y, unsigned short z)
+void TranslateItem(struct ITEM_INFO* item, short x, short y, short z)
 {
 	short sin;//$v1
 	short cos;//$t0
@@ -51,7 +51,7 @@ int GetChange(struct ITEM_INFO* item, struct ANIM_STRUCT* anim)//7D48C
 						//loc_7D4E4
 						do
 						{
-							if (item->frame_number < range->start_frame && range->end_frame >= item->frame_number)
+							if (item->frame_number < range->start_frame || range->end_frame < item->frame_number)
 							{
 								//loc_7D4FC
 								j++;

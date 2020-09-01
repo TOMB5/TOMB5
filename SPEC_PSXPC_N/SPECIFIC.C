@@ -60,49 +60,46 @@ static char byte_A1F41 = 4;
 
 void S_control_screen_position()//6068C(<), 61204(<)
 {
-	if (input & 1)
+	if ((input & IN_FORWARD))
 	{
 		savegame.ScreenY--;
 
-		if ((savegame.ScreenY << 16) < 0)
+		if (savegame.ScreenY < 0)
 		{
 			savegame.ScreenY = 0;
 		}
+		//j loc_60708
 	}
-	else if (input & 2)
+	else if ((input & IN_BACK))
 	{
 		//loc_606D0
 		savegame.ScreenY++;
 
-		if (savegame.ScreenY > 40)
+		if (savegame.ScreenY >= 41)
 		{
 			savegame.ScreenY = 40;
 		}
 	}
 
 	//loc_60708
-	if (input & 4)
+	if ((input & IN_LEFT))
 	{
 		savegame.ScreenX--;
-
 		if (savegame.ScreenX < -10)
 		{
 			savegame.ScreenX = -10;
 		}
-
 	}
-	else if (input & 8)
+	else if ((input & IN_RIGHT))
 	{
 		//loc_60750
 		savegame.ScreenX++;
-
-		if (savegame.ScreenX > 32)
+		if (savegame.ScreenX >= 33)
 		{
 			savegame.ScreenX = 32;
 		}
 	}
 
-	//loc_60784
 	GPU_SetScreenPosition(savegame.ScreenX, savegame.ScreenY);
 }
 
@@ -338,7 +335,9 @@ int DoPauseMenu()//60F34(<), 61A68(<) (F)
 			}
 			//loc_61144
 			savegame.AutoTarget ^= 1;
-
+		}
+		else
+		{
 			//loc_61160
 			if (SettingsReq.CursorPos < 2)
 			{
@@ -443,10 +442,8 @@ int DoPauseMenu()//60F34(<), 61A68(<) (F)
 		if ((RawEdge & IN_CROSS))
 		{
 			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+			PauseMenuNum = 3;
 		}
-
-		PauseMenuNum = 3;
-
 		break;
 	case 20:
 		//loc_612F4

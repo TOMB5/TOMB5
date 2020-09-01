@@ -17,6 +17,8 @@
 #include "TEXT_S.H"
 #include "MISC.H"
 #include "LARA.H"
+#include "CALCLARA.H"
+#include "BUBBLES.H"
 
 #include <LIBETC.H>
 #include <stdio.h>//deleteme
@@ -70,6 +72,10 @@ unsigned short unk_3C[] = { STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_
 unsigned int word_38 = 1;
 unsigned char byte_2600[] = { 0, 0, 0, 0, 0 }; ///@FIXME i don't know the len (maybe max of byte_46)
 
+unsigned short special3_pistols_info[] =
+{
+	0x00C4, 0x00CC, 0x00D4, 0x00DC, 0x00E4, 0x00EC, 0x00F4, 0x00FC, 0x0104, 0x010C, 0x0114, 0x0121, 0xFFFF, 0x0000
+};
 
 struct CutseqMenuItem
 {
@@ -203,7 +209,7 @@ int TitleOptions(int Name)
 		a1 = current_sequence - 1;
 	}
 	//loc_57C
-	if (current_spline_camera > a1 && 0xCB20 < current_spline_position)
+	if (current_spline_camera >= a1 && 0xCB20 < current_spline_position)
 	{
 		title_controls_locked_out = 1;
 	}
@@ -995,6 +1001,260 @@ void titseq_special1_control()
 		FlipMap(0);
 		byte_28A = 1;
 	}
+}
+
+void titseq_special3_end()
+{
+}
+
+void titseq_special3_control()
+{
+	PHD_VECTOR pos;
+	PHD_VECTOR pos2;
+	pos.y = 200;
+	pos.x = 12;
+	pos.z = 92;
+	int rand = 0;
+
+	//20
+	//28
+	//s3 = GLOBAL_cutseq_frame
+	deal_with_actor_shooting(special3_pistols_info, 1, 13, &pos);
+	//v0 = 0x1D8
+	if (GLOBAL_cutseq_frame - 92 < 2 || GLOBAL_cutseq_frame == 143 || GLOBAL_cutseq_frame == 144)
+	{
+		//loc_16E8
+		pos.x = 0;
+		pos.y = 0;
+		pos.z = 0;
+		GetLaraJointPos(&pos, LJ_HIPS);
+		pos.z -= 256;
+
+		rand = GetRandomControl();
+		//s1 = (rand & 0x3F) + 192;
+		//s0 = (rand & 0x1F) + 128;
+		GetRandomControl();
+
+		TriggerDynamic(pos.x, pos.y, pos.z, 10, ((rand & 0x3F) + 192), ((rand & 0x1F) + 128), GetRandomControl() & 0x3F);
+	}
+	//loc_1750
+	if (GLOBAL_cutseq_frame == 472 || GLOBAL_cutseq_frame == 500)
+	{
+		//loc_1760
+		pos.x = 8;
+		pos.y = 230;
+		pos.z = 40;
+		GetActorJointAbsPosition(2, 5, &pos);
+		pos2.x = 8;
+		pos2.y = 4326;
+		pos2.z = 40;
+		GetActorJointAbsPosition(2, 5, &pos2);
+
+		//sub_1FA0(&pos, &pos2);
+	}
+	//loc_17BC
+#if 0
+		loc_17BC:                                # CODE XREF : ROM:00001758↑j
+		bne     $s3, $v0, loc_181C
+		li      $v0, 0x262
+		li      $a0, 2
+		li      $a1, 8
+		addiu   $a2, $sp, 0x20
+		li      $v0, 0xE6
+		li      $s1, 0x28  # '('
+		sw      $zero, 0x20($sp)
+		sw      $v0, 0x24($sp)
+		jal     0x2EC80
+		sw      $s1, 0x28($sp)
+		li      $a0, 2
+		li      $a1, 8
+		addiu   $s0, $sp, 0x30
+		move    $a2, $s0
+		li      $v0, 0x10E6
+		sw      $zero, 0x30($sp)
+		sw      $v0, 0x34($sp)
+		jal     0x2EC80
+		sw      $s1, 0x38($sp)
+		addiu   $a0, $sp, 0x20
+		jal     sub_1FA0
+		move    $a1, $s0
+		li      $v0, 0x262
+
+		loc_181C:                                # CODE XREF : ROM:loc_17BC↑j
+		bne     $s3, $v0, loc_1888
+		addiu   $v0, $s3, -0x262
+		li      $a0, 2
+		li      $a1, 8
+		addiu   $a2, $sp, 0x20
+		li      $v0, 0x8E6
+		li      $v1, 0x28  # '('
+		sw      $zero, 0x20($sp)
+		sw      $v0, 0x24($sp)
+		jal     0x2EC80
+		sw      $v1, 0x28($sp)
+		li      $a0, 1
+		move    $a1, $zero
+		addiu   $s0, $sp, 0x30
+		move    $a2, $s0
+		li      $v0, 0xFFFFFC00
+		sw      $zero, 0x30($sp)
+		sw      $zero, 0x34($sp)
+		jal     0x2EC80
+		sw      $v0, 0x38($sp)
+		addiu   $a0, $sp, 0x20
+		lw      $v0, 0x24($sp)
+		move    $a1, $s0
+		addiu   $v0, 0x280
+		jal     sub_1FA0
+		sw      $v0, 0x24($sp)
+		addiu   $v0, $s3, -0x262
+
+		loc_1888:                                # CODE XREF : ROM:loc_181C↑j
+		sltiu   $v0, 0x21  # '!'
+		beqz    $v0, loc_1AAC
+		li      $a0, 1
+		move    $a1, $zero
+		addiu   $a2, $sp, 0x30
+		sw      $zero, 0x30($sp)
+		sw      $zero, 0x34($sp)
+		jal     0x2EC80
+		sw      $zero, 0x38($sp)
+		jal     0x5E9F0
+		li      $s2, 2
+		andi    $v0, 0x3F
+		jal     0x5E9F0
+		addiu   $s1, $v0, 0x40
+		li      $v1, 0x282
+		subu    $v1, $s3
+		mult    $s1, $v1
+		mflo    $a0
+		andi    $v0, 0x3F
+		addiu   $s0, $v0, 0xB4
+		mult    $s0, $v1
+		sra     $s1, $a0, 5
+		mflo    $v1
+		jal     0x5E9F0
+		sra     $s0, $v1, 5
+		andi    $v0, 3
+		lw      $a0, 0x30($sp)
+		lw      $a1, 0x34($sp)
+		lw      $a2, 0x38($sp)
+		ori     $a3, $v0, 8
+		sw      $zero, 0x10($sp)
+		sw      $s1, 0x14($sp)
+		jal     0x8FE24
+		sw      $s0, 0x18($sp)
+		jal     0x8B2F8
+		li      $s3, 1
+		sll     $s0, $v0, 1
+		addu    $s0, $v0
+		sll     $s0, 2
+		addu    $s0, $v0
+		sll     $s0, 2
+		li      $v0, 0xA623C
+		addu    $s0, $v0
+		jal     0x5E9F0
+		sb      $s3, 0x20($s0)
+		andi    $v0, 0x7F
+		ori     $v0, 0x80
+		srl     $v1, $v0, 2
+		sb      $v0, 0x23($s0)
+		subu    $v0, $v1
+		sb      $v0, 0x21($s0)
+		sb      $v0, 0x22($s0)
+		jal     0x5E9F0
+		sb      $zero, 0x24($s0)
+		andi    $v0, 0x7F
+		addiu   $v0, 0x20  # ' '
+		sb      $v0, 0x26($s0)
+		srl     $v0, 2
+		jal     0x5E9F0
+		sb      $v0, 0x25($s0)
+		andi    $v0, 3
+		addiu   $v0, 8
+		sb      $v0, 0x2A($s0)
+		li      $v0, 8
+		jal     0x5E9F0
+		sb      $v0, 0x2B($s0)
+		andi    $v0, 3
+		addiu   $v0, 0x18
+		sb      $v0, 0x2D($s0)
+		sb      $v0, 0x2C($s0)
+		lw      $v0, 0x30($sp)
+		lw      $v1, 0x34($sp)
+		lw      $a0, 0x38($sp)
+		sb      $s2, 0x2E($s0)
+		sw      $v0, 0($s0)
+		sw      $v1, 4($s0)
+		jal     0x5E9F0
+		sw      $a0, 8($s0)
+		jal     0x5E9F0
+		sll     $s1, $v0, 1
+		sll     $v0, 1
+		li      $a3, 0x9A8C8
+		sra     $v1, $v0, 3
+		andi    $v1, 0x1FFE
+		addiu   $v1, 1
+		sll     $v1, 1
+		addu    $v1, $a3
+		sra     $s1, 3
+		andi    $s1, 0x1FFE
+		sll     $a0, $s1, 1
+		addu    $a0, $a3
+		lh      $a1, 0($v1)
+		lh      $a2, 0($a0)
+		sra     $a1, 2
+		mult    $a1, $a2
+		addiu   $s1, 1
+		sll     $s1, 1
+		addu    $s1, $a3
+		mflo    $a2
+		lh      $a0, 0($s1)
+		negu    $v0, $v0
+		mult    $a1, $a0
+		sra     $v0, 2
+		andi    $v0, 0x3FFC
+		addu    $v0, $a3
+		sb      $zero, 0x1B($s0)
+		lh      $v1, 0($v0)
+		li      $v0, 0x21A
+		sh      $v0, 0x16($s0)
+		sra     $v1, 4
+		sh      $v1, 0xE($s0)
+		sra     $a2, 12
+		sh      $a2, 0xC($s0)
+		mflo    $a0
+		sra     $a0, 12
+		jal     0x5E9F0
+		sh      $a0, 0x10($s0)
+		andi    $v0, 0xFFF
+		jal     0x5E9F0
+		sh      $v0, 0x14($s0)
+		andi    $v0, 0x7F
+		addiu   $v0, -0x40
+		jal     0x5E9F0
+		sb      $v0, 0x1E($s0)
+		andi    $v0, 0x1F
+		addiu   $v0, 0x20  # ' '
+		sh      $v0, 0x12($s0)
+		sb      $zero, 0x1F($s0)
+		jal     0x5E9F0
+		sb      $s2, 0x1C($s0)
+		andi    $v0, 0x3F
+		addiu   $a1, $v0, 0x10
+		sb      $a1, 0x18($s0)
+		sb      $a1, 0x1A($s0)
+		sb      $s3, 0x19($s0)
+
+		loc_1AAC:                                # CODE XREF : ROM:0000188C↑j
+		lw      $ra, 0x50($sp)
+		lw      $s3, 0x4C($sp)
+		lw      $s2, 0x48($sp)
+		lw      $s1, 0x44($sp)
+		lw      $s0, 0x40($sp)
+		jr      $ra
+		addiu   $sp, 0x58
+#endif
 }
 
 void titseq_special4_init()

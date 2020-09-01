@@ -11,7 +11,7 @@
 #include <assert.h>
 
 unsigned char div3tab[] = { 0x00,0x14,0x14,0x28,0x28,0x00,0x00,0x00,0x00,0x3C,0x64,0x00,0x3C,0x14,0x50,0x00,0x3C,0x50,0x64,0x00,0x64,0x50,0x28,0x00 };
-unsigned char div4tab[] = { 00,0x14,0x14,0x3C,0x28,0x3C,0x00,0x28,0x00,0x3C,0x00,0x00,0x00,0x50,0x8C,0xA0,0x50,0x14,0xA0,0x64,0x8C,0xA0,0x28,0x78,0xA0,0x64,0x78,0x3C };
+unsigned char div4tab[] = { 0x00,0x14,0x14,0x3C,0x28,0x3C,0x00,0x28,0x00,0x3C,0x00,0x00,0x00,0x50,0x8C,0xA0,0x50,0x14,0xA0,0x64,0x8C,0xA0,0x28,0x78,0xA0,0x64,0x78,0x3C };
 
 void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)//7FF38(<) ? (F)
 {
@@ -964,8 +964,6 @@ char* SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 		//loc_7E8D4
 	} while (t5-- != 0);
 
-	t0 = BFC;
-
 	return s0;
 #if 0//Not required? restore.
 mfc2    $ra, $20
@@ -1064,6 +1062,7 @@ loc_7E420:
 						t4 = ((int*)t5)[2];
 						at = t4 << 8;
 						UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
+
 						IRGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
 						at = IRGB;
 						t2 = ((int*)t5)[0];
@@ -1186,7 +1185,6 @@ loc_7E420:
 						t1 += (int)a3;
 
 						s0 = SubDiv4(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6, s0, s1, (int)a3, t9, t5);
-
 					}
 					//loc_7E634
 				}//loc_7E634
@@ -2358,7 +2356,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 	int gp = 0;
 	int t9;
 	int s77 = 0;
-#if !JULY_VERSION && !AUG_VERSION
+
 	S_MemSet((char*)&sp[0], 0, sizeof(sp));
 
 	initialise_light_matrix();
@@ -2784,7 +2782,6 @@ loc_7F1DC:
 DrawExit:
 	RFC = 0;
 	db.polyptr = s0;
-#endif
 
 	return;
 }

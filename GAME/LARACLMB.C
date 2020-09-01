@@ -176,6 +176,8 @@ void lara_col_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//469B0, 4
 
 		result_r = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_r, &ledge_r);
 		result_l = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_l, &ledge_l);
+		
+		item->pos.y_pos += 256;
 
 		if (result_r && result_l && input & IN_FORWARD)
 		{
@@ -202,7 +204,7 @@ void lara_col_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//469B0, 4
 			else
 			{
 				item->goal_anim_state = STATE_LARA_LADDER_UP;
-				item->pos.y_pos += 256 - yshift;
+				item->pos.y_pos -= yshift;
 			}
 		}
 		else
@@ -275,9 +277,187 @@ void lara_as_climbleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//467E4(<)
 		item->goal_anim_state = STATE_LARA_LADDER_IDLE;
 }
 
-void lara_col_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//464E8, 4694C
+void lara_col_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//464E8, 4694C (F)
 {
-	UNIMPLEMENTED();
+	int result_r; // $s1
+	int result_l; // $a1
+	int shift_r; // stack offset -40
+	int shift_l; // stack offset -32
+	int ledge_r; // stack offset -36
+	int ledge_l; // stack offset -28
+	int v0;
+
+	//s2 = item
+	//s3 = coll
+	if (!LaraCheckForLetGo(item, coll) && item->anim_number == ANIMATION_LARA_LADDER_IDLE)
+	{
+		//v1 = input
+		if ((input & IN_FORWARD))
+		{
+			if (item->goal_anim_state == STATE_LARA_GRABBING)
+			{
+				return;
+			}
+
+			//a0 = item
+			//a3 = &shift_r
+			item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+			//a1 = coll->radius
+			//v0 = &ledge_r
+			//a2 = coll->radius + 120
+			result_r = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_r, &ledge_r);
+			//a0 = item
+			//a3 = &shift_l
+			//a2 = coll->radius
+			//v0 = &ledge_l
+			result_l = LaraTestClimbUpPos(item, coll->radius, -(coll->radius + 120), &shift_l, &ledge_l);
+
+			if (result_r == 0 || result_l == 0)
+			{
+				return;
+			}
+
+			if (result_r < 0 || result_l < 0)
+			{
+				//v0 = ledge_l
+				//v1 = ledge_r
+				//a0 = ledge_l - ledge_r
+				//a2 = ledge_l
+				
+				if (CLAMPSUB(ledge_l, ledge_r) >= 0x79)
+				{
+					return;
+				}
+
+				//v0 = 0x8A
+				if (result_r == -1 && result_l == -1)
+				{
+					//v0 = 0x13
+					item->goal_anim_state = STATE_LARA_GRABBING;
+					//v0 = (ledge_l + ledge_r + ((ledge_l + ledge_r) >> 31)) >> 1;
+					//v1 = ((ledge_l + ledge_r) >> 31);
+					item->pos.y_pos += (item->pos.y_pos - 256) + (ledge_l + ledge_r + ((ledge_l + ledge_r) >> 31)) >> 1;
+					return;
+				}
+				//loc_46620
+				//v1 = 0x47
+				item->goal_anim_state = STATE_LARA_UNKNOWN_138;
+				item->required_anim_state = STATE_LARA_CROUCH_IDLE;
+
+				return;
+			}
+			//loc_46630
+			if (shift_r != 0)
+			{
+				if (shift_l != 0)
+				{
+					v0 = shift_r >> 31;
+					if (shift_r >= 0)
+					{
+						v0 ^= 1;
+					}
+					//loc_4665C
+					if (v0 != 0)
+					{
+						return;
+					}
+
+					//v1 = shift_r
+					//a0 = shift_l
+					if (shift_r < 0 && shift_r < shift_l ||
+						shift_r > 0 && shift_l < shift_r)
+					{
+						//loc_46684
+						shift_l = shift_r;
+					}
+				}
+				else
+				{
+					//loc_46684
+					shift_l = shift_r;
+				}
+			}
+			//loc_46688
+			//v0 = item->pos.y_pos
+			//a0 = shift_l
+			//v1 = 0x39
+			//j       loc_467B4
+			item->goal_anim_state = STATE_LARA_LADDER_UP;
+			item->pos.y_pos += shift_l;
+			return;
+		}
+		else if((input & IN_BACK))
+		{
+			//loc_46698
+			if (item->goal_anim_state != STATE_LARA_HANG)
+			{
+				//a0 = item
+				//a3 = -512
+				//v0 = 0x38
+				//v1 = item->pos.y_pos + 256
+				//s0 = 512 sw var_30
+				item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+				item->pos.y_pos += 256;
+				//a1 = coll->left_floor2
+				//v0 = &shift_r
+				//a2 = coll->left_floor2 + 128
+				result_r = LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, &shift_r);
+				//a0 = item
+				//a3 = -512
+				//s0 = 512
+				result_l = LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, &shift_l);
+
+				item->pos.y_pos -= 256;
+				if (result_r == 0 || result_l == 0 || result_l == -2 || result_r == -2)
+				{
+					return;
+				}
+
+				//v1 = shift_r
+				//a0 = shift_l
+				if (shift_r != 0)
+				{
+					//v0 = 1
+					if (shift_l != 0)
+					{
+						v0 = shift_r >> 31;
+						if (shift_l < 0)
+						{
+							v0 ^= 1;
+						}
+						//loc_4676C
+						if (v0 != 0)
+						{
+							return;
+						}
+
+						if (shift_r < 0 && shift_r < shift_l ||
+							shift_r > 0 && shift_l < shift_r)
+						{
+							shift_l = shift_r;
+						}
+						//loc_46794
+					}
+					//loc_4679C
+				}
+				//loc_46798
+				if (result_r != 1 || result_l != 1)
+				{
+					item->goal_anim_state = STATE_LARA_HANG;
+					return;
+				}
+
+				//v1 = 0x3D
+				//v0 = item->pos.y_pos
+				//a0 = shift_l
+				item->goal_anim_state = STATE_LARA_LADDER_DOWN;
+				item->pos.y_pos += shift_l;
+			}
+		}
+		//loc_467C8
+	}
+	//loc_467C8
+	return;
 }
 
 void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 46854 (F)
@@ -481,14 +661,323 @@ int LaraClimbLeftCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//45A
 
 int LaraTestClimb(int x, int y, int z, int xfront, int zfront, int item_height, int item_room, int* shift)//457F0, 45C54
 {
-	UNIMPLEMENTED();
+	int hang; // stack offset -48
+	struct FLOOR_INFO* floor; // $s3
+	short room_number; // stack offset -56
+	short room_number2; //stack -52
+	int height; // $s2
+	int ceiling; // $v1
+
+	//s5 = shift
+	//v0 = 1
+	//s7 = x
+	//s4 = y
+	//fp = z
+	*shift = 0;
+	//s0 = item_height
+	//v1 = lara.climb_status
+	//v0 = item_room
+	//s1 = xfront
+	room_number2 = item_room;
+	if (lara.climb_status != FALSE)
+	{
+		room_number = room_number2;
+		floor = GetFloor(x, y - 128, z, &room_number);
+		height = GetHeight(floor, x, y, z);
+
+		//v0 = height - 128
+		if (height != -32512)
+		{
+			//v1 = y + item_height
+			height = (height - 128) - (y + item_height);
+
+			if (height >= -0x46)
+			{
+				//s6 = v1
+				//a0 = floor
+				if (height >= -0x46 < 0)
+				{
+					*shift = height;
+				}
+
+				//loc_458B8
+				ceiling = GetCeiling(floor, x, y, z) - y;
+
+				if (ceiling < 0x47)
+				{
+					//v0 = item_height - height
+					if (ceiling > 0)
+					{
+						if (*shift != 0)
+						{
+							return FALSE;
+						}
+
+						*shift = ceiling;
+					}
+
+					//loc_458F8
+					//s0 = x + xfront
+					if ((item_height + height) < 0x384)
+					{
+						hang = 0;
+					}
+					//loc_45908
+					floor = GetFloor(x + xfront, y, z + zfront, &room_number);
+					height = GetHeight(floor, x + xfront, y, z + zfront);
+
+					if (height != -32512)
+					{
+						height -= y;
+					}
+					//loc_45954
+					if (height >= 0x47)
+					{
+						ceiling = GetCeiling(floor, x + xfront, y, z + zfront) - y;
+						if (ceiling >= 0x200)
+						{
+							return TRUE;
+						}
+
+						if (ceiling >= 0x1BB)
+						{
+							//loc_45A60
+							if (*shift > 0)
+							{
+								if (hang)
+								{
+									return -1;
+								}
+								else
+								{
+									return 0;
+								}
+							}
+							else
+							{
+								*shift = ceiling - 0x200;
+							}
+						}
+						else if (ceiling > 0)
+						{
+							//loc_45A78
+							if (hang)
+							{
+								return -1;
+							}
+							else
+							{
+								return 0;
+							}
+						}
+						else if (ceiling < -0x45 || hang == 0 || *shift > 0)
+						{
+							return 0;
+						}
+						else if (ceiling < *shift)
+						{
+							*shift = ceiling;
+						}
+
+						return -1;
+					}
+	
+					//a0 = s7
+					if (height > 0)//loc_459CC
+					{
+						if (*shift < 0)
+						{
+							return 0;
+						}
+						else if (*shift < height)
+						{
+							*shift = height;
+						}
+					}//loc_459F4
+					//a0 = s7
+					//a1 = s6
+					//a2 = fp
+					//v1 = room_number2
+					room_number = room_number2;
+					GetFloor(x, y + item_height, z, &room_number);
+					ceiling = GetCeiling(GetFloor(x + xfront, y + item_height, z + zfront, &room_number), x + xfront, y + item_height, z + zfront);
+
+					if (ceiling == -32512 || height >= ceiling - y || ceiling - y >= 0x200 )
+					{
+						return 1;
+					}
+					
+					if (ceiling - y < 0x1BB)
+					{
+						if (hang)
+						{
+							return -1;
+						}
+						else
+						{
+							return 0;
+						}
+					}
+					else
+					{
+						//loc_45A60
+						//v0 = *shift
+						if (*shift > 0)
+						{
+							if (hang)
+							{
+								return -1;
+							}
+							else
+							{
+								return 0;
+							}
+						}
+						else
+						{
+							*shift = ceiling - 0x200;
+							return 1;
+						}
+					}
+				}
+				//loc_45A8C
+			}//loc_45A88
+		}//loc_45A88
+	}
+
 	return 0;
 }
 
-int LaraTestClimbUpPos(struct ITEM_INFO* item, int front, int right, int* shift, int* ledge)//45530, 45994
+int LaraTestClimbUpPos(struct ITEM_INFO* item, int front, int right, int* shift, int* ledge)//45530, 45994 (F)
 {
-	UNIMPLEMENTED();
-	return 0;
+	struct FLOOR_INFO* floor; // $fp
+	short room_number; // stack offset -48
+	int angle; // $v1
+	int x; // $s3
+	int y; // $s5
+	int z; // $s4
+	int height; // $s2
+	int ceiling; // $v1
+	int xfront; // $s0
+	int zfront; // $s2
+
+	xfront = 0;
+	zfront = 0;
+
+	//s7 = item
+	//v0 = item->pos.y_pos
+	//v1 = item->pos.y_rot
+	y = item->pos.y_pos - 768;
+	angle = (((item->pos.y_rot + ANGLE(45)) & 0xFFFF) >> 14);
+
+	switch (angle)
+	{
+	case 0:
+		//loc_455B8
+		zfront = 4;
+		z = item->pos.z_pos + front;
+		x = item->pos.x_pos + right;
+		break;
+	case 1:
+		//loc_455D0
+		xfront = 4;
+		//v0 = item->pos.x_pos;
+		//v1 = item->pos.z_pos
+		x = item->pos.x_pos + front;
+		z = item->pos.z_pos - right;
+		break;
+	case 2:
+		//loc_455E8
+		zfront = -4;
+		//v0 = item->pos.z_pos
+		//v1 = item->pos.x_pos
+		z = item->pos.z_pos - front;
+		x = item->pos.x_pos - right;
+		break;
+	default:
+		//loc_45600
+		xfront = -4;
+		//v0 = item->pos.x_pos
+		//v1 = item->pos.z_pos
+		x = item->pos.x_pos - front;
+		z = item->pos.z_pos + right;
+		break;
+	}
+
+	//loc_45610
+	*shift = 0;
+	room_number = item->room_number;
+	ceiling = GetCeiling(GetFloor(x, y, z, &room_number), x, y, z) + 256 - y;
+	
+	if (ceiling >= 0x47)
+	{
+		return 0;
+	}
+
+	//s1 = x + xfront
+	if (ceiling > 0)
+	{
+		*shift = ceiling;
+	}
+	//loc_45678
+	floor = GetFloor(x + xfront, y, z + zfront, &room_number);
+	height = GetHeight(floor, x + xfront, y, z + zfront);
+	//s6 = z + zfront
+	if (height == -32512)
+	{
+		*ledge = height;
+		return 1;
+	}
+	//loc_456C4
+	height -= y;
+	//v1 = *ledge
+	*ledge = height;
+
+	if (height >= 0x81)
+	{
+		ceiling = GetCeiling(floor, x + xfront, y, z + zfront) - y;
+		if (ceiling >= 512)
+		{
+			return 1;
+		}
+
+		//v1 = height - ceiling
+		if (height - ceiling >= 0x2FB)
+		{
+			*shift = height;
+			return -1;
+		}
+		else if (height - ceiling >= 0x200)
+		{
+			*shift = height;
+			return -2;
+		}
+	}
+	//loc_45734
+	//a0 = x
+	if (height > 0)
+	{
+		//v0 = *shift
+		if (*shift < height)
+		{
+			*shift = height;
+		}
+	}
+	//loc_45760
+	//s0 = y + 512
+
+	//loc_45764
+	room_number = item->room_number;
+	GetFloor(x, y + 512, z, &room_number);
+	ceiling = GetCeiling(GetFloor(x + xfront, y + 512, z + zfront, &room_number), x + xfront, y + 512, z + zfront) - y;
+
+	if (height < ceiling)
+	{
+		return ceiling < 512 ? 1 : 0 ^ 1;
+	}
+
+	//loc_457BC
+	return 1;
 }
 
 long LaraCheckForLetGo(struct ITEM_INFO* item, struct COLL_INFO* coll)//45434, 45898 (F)

@@ -1,23 +1,25 @@
 #include "GETSTUFF.H"
 
 #include "DRAW.H"
+#include "CALCLARA.H"
 #include "CONTROL.H"
 #include "OBJECTS.H"
 #include "ROOMLOAD.H"
 #include "SPECIFIC.H"
 #include "TEXT_S.H"
 #include "SETUP.H"
+#include "GTEREG.H"
 
 #include <assert.h>
 
-long DIVFP(long A, long B)
+long DIVFP(long X, long Y)
 {
-	return (A / (B >> 8)) << 8;
+	return (X / (Y >> 8)) << 8;
 }
 
-long MULFP(long A, long B)
+long MULFP(long X, long Y)
 {
-	unsigned long long result = (long long)((long long)(int)A * (long long)(int)B);
+	unsigned long long result = (long long)((long long)(int)X * (long long)(int)Y);
 
 	return ((result >> 32) << 16) | ((result & 0xFFFFFFFF) >> 16);
 }
@@ -956,4 +958,146 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	} while (!(value & 0x8000));
 
 	return ret;
+}
+
+int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4)
+{
+	struct room_info* r;//$s4
+	struct ITEM_INFO* item;//$s0
+	struct object_info* object;//$a0
+	short* bounds;//$a2
+	int item_num;//$s2
+	struct MESH_INFO* mesh;//$s0
+	struct static_info* static_mesh;//$a2
+	int i;
+	int j;
+	//s1 = a4
+	//s3 = target
+	//s5 = start
+	//fp = a3
+
+	//v0 = target->x
+	//a1 = target->y
+	//a0 = target->z
+	//v1 = start->x
+	//at = start->y
+	//a2 = start->z
+
+	IR1 = target->x - start->x;
+	IR2 = target->y - start->y;
+	IR3 = target->z - start->z;
+
+	//v1 = 0x3E7
+
+	docop2(0xA00428);
+
+	//v0 = number_los_rooms
+	i = 0;
+	ClosestItem = 0x3E7;
+
+	//at = MAC1 + MAC2 + MAC3
+	//a1 = MAC2
+	//a0 = MAC3
+	ClosestDist = MAC1 + MAC2 + MAC3;
+
+	if (number_los_rooms > 0)
+	{
+		//s7 = &los_rooms;
+
+		//loc_79DC8
+		do
+		{
+			//v1 = los_rooms[0];
+
+			r = &room[los_rooms[i]];
+			item_num = r->item_number;
+
+			if (r->item_number != -1)
+			{
+				do
+				{
+					//s0 = items
+					item = &items[item_num];
+					//a0 = item->object_number
+					//v1 = GetLaraOnLOS
+					//v0 = item->flags
+					//v1 = item->object_number | GetLaraOnLOS
+					//a1 = item->object_number
+
+					//v1 = 4
+					if ((item->object_number | GetLaraOnLOS) != 0 && item->status != 2 && item->status != 3)
+					{
+						object = &objects[item->object_number];
+
+						if (item->object_number == 0 || object->collision != NULL)
+						{
+							bounds = GetBoundsAccurate(item);
+							///@TODO
+							//a3 = &var_40 output?
+							if (DoRayBox(start, target, bounds, NULL, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->pos.y_rot, a3, item_num))
+							{
+								target->room_number = los_rooms[i];
+							}
+						}
+						//loc_79EA8
+					}
+					//loc_79EA8
+					//v1 = items
+					item = &items[r->item_number];//$v0
+					item_num = item->next_item;
+				} while (item->next_item != -1);
+			}
+			//loc_79ECC
+			j = r->num_meshes;
+			mesh = r->mesh;
+			if (r->num_meshes > 0)
+			{
+				do
+				{
+					//loc_79EDC
+					//v0 = mesh->Flags
+					//a0 = start
+					//a1 = target
+					if ((mesh->Flags & 0x1))
+					{
+						//t0 = mesh->static_number
+						//a3 = &var_40
+						//at = mesh->x
+						//v0 = mesh->y
+						//v1 = mesh->z
+						//t1 = mesh->y_rot
+						static_mesh = &static_objects[mesh->static_number];
+
+						///@TODO
+						//a3 = &var_40 output?
+						if (DoRayBox(start, target, &static_mesh->x_minc, NULL, mesh->x, mesh->y, mesh->z, mesh->y_rot, a3, -(mesh->static_number + 1)))
+						{
+							//v0 = los_rooms[0];
+							a4[0] = mesh;
+							target->room_number = los_rooms[i];
+						}
+						//loc_79F58
+					}
+					//loc_79F58
+					mesh++;
+				} while (--j > 0);
+			}
+			//loc_79F64
+		} while (++i < number_los_rooms);
+	}
+	//loc_79F78
+	//v1 = ClosestCoord.x
+	//a0 = ClosestCoord.y
+	//a1 = ClosestCoord.z
+	//v0 = ClosestItem
+	a3->x = ClosestCoord.x;
+	a3->y = ClosestCoord.y;
+	a3->z = ClosestCoord.z;
+
+	return ClosestItem;
+}
+
+int DoRayBox(struct GAME_VECTOR* start, GAME_VECTOR* target, short* bounds, int* unknown, int x /*var_40*/, int y/*var_3C*/, int z/*var_38*/, short y_rot/*var_32*/, struct PHD_VECTOR* /*var_48*/a3, int /*var_44*/ item_num)
+{
+	return 0;
 }

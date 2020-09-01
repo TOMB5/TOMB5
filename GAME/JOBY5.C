@@ -3,6 +3,7 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "EFFECTS.H"
+#include "SOUND.H"
 #if PSX_VERSION
 #include "MISC.H"
 #endif

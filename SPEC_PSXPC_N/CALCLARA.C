@@ -1949,7 +1949,7 @@ short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 
 		v0 = v1 / var_8;
 		a2++;
-		a0 -= v0;
+		a0 += v0;
 		a2[-1] = a0;
 	} while (i != 0);
 

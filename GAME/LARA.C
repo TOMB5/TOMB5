@@ -856,7 +856,7 @@ void lara_col_roll(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C2B0, 1C3E4
 
 void lara_col_slideback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C284(<), 1C3B8(<) (F)
 {
-	lara.move_angle = item->pos.y_rot;
+	lara.move_angle = item->pos.y_rot - ANGLE(180);
 	lara_slide_slope(item, coll);
 }
 
@@ -1727,7 +1727,7 @@ void lara_as_backjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A854(<),
 		{
 			item->goal_anim_state = STATE_LARA_STOP;
 		}
-		else if((input & IN_FORWARD || input & IN_ROLL) && item->goal_anim_state != STATE_LARA_STOP)
+		else if(input & (IN_FORWARD | IN_ROLL) && item->goal_anim_state != STATE_LARA_STOP)
 		{
 			item->goal_anim_state = STATE_LARA_JUMP_ROLL;
 		}
@@ -2141,6 +2141,17 @@ void lara_col_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19AC8, 19BFC
 				}
 			}
 
+
+			if (lara.climb_status != 0)
+			{
+				item->goal_anim_state = 0x57;
+				item->required_anim_state = 0x47;
+			}
+			else
+			{
+				item->goal_anim_state = 0x13;
+			}
+
 			if (lara.climb_status != 0 &&
 				coll->mid_ceiling <= -256 &&
 				ABS(coll->left_ceiling2 - coll->right_ceiling2) < 60)
@@ -2551,7 +2562,7 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 
 	//v1 = item->pos.y_rot
 	//v0 = 0x7F00
-	lara.move_angle = item->pos.y_rot;
+	lara.move_angle = (unsigned short)item->pos.y_rot;
 	coll->bad_pos = 0x7F00;
 	coll->bad_neg = 0;
 	coll->bad_ceiling = 192;
@@ -2600,37 +2611,35 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 
 				if (edge_catch != 0)
 				{
-					//a2 = 0;
-					if (edge_catch > 0 && !LaraTestHangOnClimbWall(item, coll))
+					if (edge_catch >= 0 || LaraTestHangOnClimbWall(item, coll))
 					{
 						short angle = item->pos.y_rot;
+						int test = ((angle + ANGLE(35)) & 0xFFFF);
 
-						if (ABS(angle) > ANGLE(35))
-						{
-							if (angle < 10014 || angle > 22754)
-							{
-								if (angle >= 26397 || angle <= -26397)
-								{
-									angle = ANGLE(-180);
-								}
-								else if (angle >= -22754 && angle <= -10014)
-								{
-									angle = ANGLE(-90);
-								}
-							}
-							else
-							{
-								angle = ANGLE(90);
-							}
-						}
-						else
+						if ((unsigned)((angle + ANGLE(35)) & 0xFFFF) < 0x31C5)
 						{
 							angle = 0;
+						}
+						else if ((unsigned)(angle - 0x271E) < 0x31C5)
+						{
+							angle = 0x4000;
+						}
+						else if (angle >= 0x671D || angle < -0x671C)
+						{
+							angle = -0x8000;
+						}
+						else if (((angle + 0x58E2) & 0xFFFF) < 0x31C5)
+						{
+							angle = -0x4000;
 						}
 
 						if ((angle & 0x3FFF) == 0)
 						{
 							short* bounds;
+
+#if PSX_VERSION
+							SetupPadVibration(1, 20224, 20224, 8, 20224, 8);
+#endif
 
 							if (TestHangSwingIn(item, angle))
 							{
@@ -2654,17 +2663,19 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 								item->goal_anim_state = STATE_LARA_HANG;
 							}
 
+							//loc_18FB0
 							bounds = GetBoundsAccurate(item);
 
 							if (edge_catch <= 0)
 							{
 								item->pos.y_pos = edge - bounds[2] - 22;
+								a2 = 1;
 							}
 							else
 							{
 								item->pos.y_pos += coll->front_floor - bounds[2];
 
-								switch ((unsigned char)(item->pos.y_rot + ANGLE(45)) / (unsigned char)ANGLE(90))
+								switch ((item->pos.y_rot + ANGLE(45)) >> 14)
 								{
 								case 0u:
 									item->pos.z_pos = (item->pos.z_pos | 0x3FF) - 100;
@@ -2692,14 +2703,15 @@ void lara_col_reach(struct ITEM_INFO* item/*s0*/, struct COLL_INFO* coll/*s2*/)/
 							item->gravity_status = TRUE;
 							item->speed = 2;
 							item->fallspeed = 1;
-
+							a2 = 1;
 							lara.gun_status = LG_HANDS_BUSY;
 						}
 					}
-				}//loc_18F30
+				}
 			}//loc_190FC
 		}
 	}
+
 	//loc_190FC
 	if (a2 == 0)
 	{
@@ -5661,7 +5673,7 @@ int LaraTestHangOnClimbWall(struct ITEM_INFO* item, struct COLL_INFO* coll)//12C
 	if (item->fallspeed < 0)
 		return FALSE;
 
-	switch((unsigned short)(item->pos.y_rot + ANGLE(45)) / (unsigned short)ANGLE(90))
+	switch((unsigned short)(item->pos.y_rot + ANGLE(45)) >> 14)
 	{
 	case 0:
 	case 2:
@@ -5689,12 +5701,17 @@ int LaraTestHangOnClimbWall(struct ITEM_INFO* item, struct COLL_INFO* coll)//12C
 	}
 
 	if (LaraTestClimbPos(item, coll->radius, coll->radius, bounds[2], bounds[3] - bounds[2], &shift) &&
-		LaraTestClimbPos(item, coll->radius, -coll->radius, bounds[2], bounds[3] - bounds[2], &shift) &&
-		(result = LaraTestClimbPos(item, coll->radius, 0, bounds[2], bounds[3] - bounds[2], &shift)) != 0)
+		LaraTestClimbPos(item, coll->radius, -coll->radius, bounds[2], bounds[3] - bounds[2], &shift))
 	{
-		if (result != 1)
+		result = LaraTestClimbPos(item, coll->radius, 0, bounds[2], bounds[3] - bounds[2], &shift);
+
+		if (result != 0)
 		{
-			item->pos.y_pos += shift;
+			if (result == 1)
+			{
+				item->pos.y_pos += shift;
+			}
+
 			return TRUE;
 		}
 	}
@@ -5991,30 +6008,49 @@ int LaraTestClimbStance(struct ITEM_INFO* item, struct COLL_INFO* coll)//11F78, 
 
 int LaraTestEdgeCatch(struct ITEM_INFO* item, struct COLL_INFO* coll, long* edge)//11E60, 11F10 (F)
 {
-	short* bounds = GetBoundsAccurate(item);
-	int hdif = coll->front_floor - bounds[2];
+	int hdif; // $v1
+	short* bounds; // $a0
 
+	bounds = GetBoundsAccurate(item);
+	hdif = coll->front_floor - bounds[2];
+	
 	if (hdif < 0 && hdif + item->fallspeed < 0 || hdif > 0 && hdif + item->fallspeed > 0)
 	{
+		//loc_11ED0
 		hdif = item->pos.y_pos + bounds[2];
 
-		if (hdif >> (WALL_SHIFT - 2) != (hdif + item->fallspeed) >> (WALL_SHIFT - 2))
+		if((hdif >> 8) == ((hdif + item->fallspeed) >> 8))
 		{
-			if (item->fallspeed > 0)
-				*edge = (hdif + item->fallspeed) & ~(STEP_L - 1);
-			else
-				*edge = hdif & ~(STEP_L - 1);
-
-			return -1;
+			return 0;
 		}
 
-		return 0;
+		if (item->fallspeed <= 0)
+		{
+			//loc_11F10
+			*edge = hdif & -STEP_L;
+		}
+		else
+		{
+			//v0 = -WALL_L
+			*edge = (hdif + item->fallspeed) & -STEP_L;
+		}
+
+		return -1;
+	}
+	//loc_11F24
+	if (coll->left_floor2 - coll->right_floor2 >= 0)
+	{
+		if (coll->left_floor2 - coll->right_floor2 < 0x3C)
+		{
+			return 1;
+		}
+	}
+	else if (coll->right_floor2 - coll->left_floor2 < 0x3C)
+	{
+		return 1;
 	}
 
-	if (ABS(coll->left_floor2 - coll->right_floor2) >= SLOPE_DIF)
-		return 0;
-
-	return 1;
+	return 0;
 }
 
 int LaraDeflectEdgeDuck(struct ITEM_INFO* item, struct COLL_INFO* coll)//11DC0, 11E70 (F)

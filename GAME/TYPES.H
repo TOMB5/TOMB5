@@ -177,6 +177,7 @@ enum msoff {
 #define CLAMPADD2(x, a, b) ((unsigned short)((x)+(a))<(b)?0:((x)<(-(a)))?((x)+(a)):((x)+(-(a))))
 #define CLAMPADD3(x, a, b, c) ((unsigned short)((x)+(a))<(b)?c:((x)<(-(c)))?((x)):(-c))
 #define CLAMPADD(x, a, b) ((x)<(a)?((x)+(a)):((x)>(b)?((x)-(b)):0))///@FIXME this is actually incorrect, update all to use CLAMPADD2.
+#define CLAMPSUB(a, b) ((a + b)<(0)?((b)-(a)):(a)+(b))
 
 #define RED(rgb) (((rgb) >> 16) & 0xFF)
 #define GREEN(rgb) (((rgb) >> 8) & 0xFF)
@@ -613,9 +614,9 @@ struct savegame_info
  			char pad[3];
 #endif
  /* 0x00C */ unsigned char AutoTarget; // size=0, offset=12
- /* 0x010 */ lara_info Lara; // size=352, offset=16
- /* 0x170 */ STATS Level; // size=20, offset=368
- /* 0x184 */ STATS Game; // size=20, offset=388
+ /* 0x010 */ struct lara_info Lara; // size=352, offset=16
+ /* 0x170 */ struct STATS Level; // size=20, offset=368
+ /* 0x184 */ struct STATS Game; // size=20, offset=388
  /* 0x198 */ short WeaponObject; // size=0, offset=408
  /* 0x19A */ short WeaponAnim; // size=0, offset=410
  /* 0x19C */ short WeaponFrame; // size=0, offset=412
@@ -702,15 +703,15 @@ struct SPHERE
 
 struct PENDULUM
 {
- /* 0x00 */ PHD_VECTOR Position; // size=12, offset=0
- /* 0x0C */ PHD_VECTOR Velocity; // size=12, offset=12
+ /* 0x00 */ struct PHD_VECTOR Position; // size=12, offset=0
+ /* 0x0C */ struct PHD_VECTOR Velocity; // size=12, offset=12
  /* 0x18 */ int node; // size=0, offset=24
- /* 0x1C */ ROPE_STRUCT* Rope; // size=1172, offset=28
+ /* 0x1C */ struct ROPE_STRUCT* Rope; // size=1172, offset=28
 };
 
 struct RAT_STRUCT
 {
- /* 0x00 */ PHD_3DPOS pos; // size=20, offset=0
+ /* 0x00 */ struct PHD_3DPOS pos; // size=20, offset=0
  /* 0x14 */ short room_number; // size=0, offset=20
  /* 0x16 */ short speed; // size=0, offset=22
  /* 0x18 */ short fallspeed; // size=0, offset=24
@@ -720,7 +721,7 @@ struct RAT_STRUCT
 
 struct BAT_STRUCT
 {
- /* 0x00 */ PHD_3DPOS pos; // size=20, offset=0
+ /* 0x00 */ struct PHD_3DPOS pos; // size=20, offset=0
  /* 0x14 */ short room_number; // size=0, offset=20
  /* 0x16 */ short speed; // size=0, offset=22
  /* 0x18 */ short Counter; // size=0, offset=24
@@ -733,7 +734,7 @@ struct BAT_STRUCT
 
 struct SPIDER_STRUCT
 {
- /* 0x00 */ PHD_3DPOS pos; // size=20, offset=0
+ /* 0x00 */ struct PHD_3DPOS pos; // size=20, offset=0
  /* 0x14 */ short room_number; // size=0, offset=20
  /* 0x16 */ short speed; // size=0, offset=22
  /* 0x18 */ short fallspeed; // size=0, offset=24
@@ -743,7 +744,7 @@ struct SPIDER_STRUCT
 
 struct TWOGUN_INFO
 {
- /* 0x00 */ PHD_3DPOS pos; // size=20, offset=0
+ /* 0x00 */ struct PHD_3DPOS pos; // size=20, offset=0
  /* 0x14 */ short life; // size=0, offset=20
  /* 0x16 */ short coil; // size=0, offset=22
  /* 0x18 */ short spin; // size=0, offset=24
@@ -800,8 +801,8 @@ struct COLL_INFO
  /* 0x4C */ long bad_pos; // size=0, offset=76
  /* 0x50 */ long bad_neg; // size=0, offset=80
  /* 0x54 */ long bad_ceiling; // size=0, offset=84
- /* 0x58 */ PHD_VECTOR shift; // size=12, offset=88
- /* 0x64 */ PHD_VECTOR old; // size=12, offset=100
+ /* 0x58 */ struct PHD_VECTOR shift; // size=12, offset=88
+ /* 0x64 */ struct PHD_VECTOR old; // size=12, offset=100
  /* 0x70 */ short old_anim_state; // size=0, offset=112
  /* 0x72 */ short old_anim_number; // size=0, offset=114
  /* 0x74 */ short old_frame_number; // size=0, offset=116
@@ -907,9 +908,9 @@ struct PACKNODE
  /* 0x06 */ short xkey; // size=0, offset=6
  /* 0x08 */ short ykey; // size=0, offset=8
  /* 0x0A */ short zkey; // size=0, offset=10
- /* 0x0C */ RTDECODE decode_x; // size=16, offset=12
- /* 0x1C */ RTDECODE decode_y; // size=16, offset=28
- /* 0x2C */ RTDECODE decode_z; // size=16, offset=44
+ /* 0x0C */ struct RTDECODE decode_x; // size=16, offset=12
+ /* 0x1C */ struct RTDECODE decode_y; // size=16, offset=28
+ /* 0x2C */ struct RTDECODE decode_z; // size=16, offset=44
  /* 0x3C */ unsigned long xlength; // size=0, offset=60
  /* 0x40 */ unsigned long ylength; // size=0, offset=64
  /* 0x44 */ unsigned long zlength; // size=0, offset=68
@@ -943,7 +944,7 @@ struct NEW_CUTSCENE
  /* 0x0C */ int orgz; // size=0, offset=12
  /* 0x10 */ int audio_track; // size=0, offset=16
  /* 0x14 */ int camera_offset; // size=0, offset=20
- /* 0x18 */ ACTORME actor_data[10]; // size=80, offset=24
+ /* 0x18 */ struct ACTORME actor_data[10]; // size=80, offset=24
 };
 
 struct CUTSEQ_ROUTINES
@@ -955,17 +956,17 @@ struct CUTSEQ_ROUTINES
 
 struct DOORPOS_DATA
 {
- /* 0x00 */ FLOOR_INFO* floor; // size=8, offset=0
- /* 0x04 */ FLOOR_INFO data; // size=8, offset=4
+ /* 0x00 */ struct FLOOR_INFO* floor; // size=8, offset=0
+ /* 0x04 */ struct FLOOR_INFO data; // size=8, offset=4
  /* 0x0C */ short block; // size=0, offset=12
 };
 
 struct DOOR_DATA
 {
- /* 0x00 */ DOORPOS_DATA d1; // size=16, offset=0
- /* 0x10 */ DOORPOS_DATA d1flip; // size=16, offset=16
- /* 0x20 */ DOORPOS_DATA d2; // size=16, offset=32
- /* 0x30 */ DOORPOS_DATA d2flip; // size=16, offset=48
+ /* 0x00 */ struct DOORPOS_DATA d1; // size=16, offset=0
+ /* 0x10 */ struct DOORPOS_DATA d1flip; // size=16, offset=16
+ /* 0x20 */ struct DOORPOS_DATA d2; // size=16, offset=32
+ /* 0x30 */ struct DOORPOS_DATA d2flip; // size=16, offset=48
  /* 0x40 */ short Opened; // size=0, offset=64
  /* 0x44 */ short* dptr1; // size=0, offset=68
  /* 0x48 */ short* dptr2; // size=0, offset=72
@@ -975,7 +976,7 @@ struct DOOR_DATA
  /* 0x55 */ char dn2; // size=0, offset=85
  /* 0x56 */ char dn3; // size=0, offset=86
  /* 0x57 */ char dn4; // size=0, offset=87
- /* 0x58 */ ITEM_INFO* item; // size=144, offset=88
+ /* 0x58 */ struct ITEM_INFO* item; // size=144, offset=88
 };
 
 struct CHANGE_STRUCT
@@ -1044,8 +1045,8 @@ struct AIOBJECT
 
 struct CAMERA_INFO
 {
- /* 0x00 */ GAME_VECTOR pos; // size=16, offset=0
- /* 0x10 */ GAME_VECTOR target; // size=16, offset=16
+ /* 0x00 */ struct GAME_VECTOR pos; // size=16, offset=0
+ /* 0x10 */ struct GAME_VECTOR target; // size=16, offset=16
  /* 0x20 */ enum camera_type type; // size=4, offset=32
  /* 0x24 */ enum camera_type old_type; // size=4, offset=36
  /* 0x28 */ long shift; // size=0, offset=40
@@ -1066,16 +1067,16 @@ struct CAMERA_INFO
  /* 0x54 */ short timer; // size=0, offset=84
  /* 0x56 */ short speed; // size=0, offset=86
  /* 0x58 */ short targetspeed; // size=0, offset=88
- /* 0x5C */ ITEM_INFO* item; // size=144, offset=92
- /* 0x60 */ ITEM_INFO* last_item; // size=144, offset=96
- /* 0x64 */ OBJECT_VECTOR* fixed; // size=16, offset=100
+ /* 0x5C */ struct ITEM_INFO* item; // size=144, offset=92
+ /* 0x60 */ struct ITEM_INFO* last_item; // size=144, offset=96
+ /* 0x64 */ struct OBJECT_VECTOR* fixed; // size=16, offset=100
  /* 0x68 */ int mike_at_lara; // size=0, offset=104
- /* 0x6C */ PHD_VECTOR mike_pos; // size=12, offset=108
+ /* 0x6C */ struct PHD_VECTOR mike_pos; // size=12, offset=108
 };
 
 struct SHATTER_ITEM
 {
- /* 0x00 */ SPHERE Sphere; // size=16, offset=0
+ /* 0x00 */ struct SPHERE Sphere; // size=16, offset=0
  //  FIX ME:
  //  Excuse me? For some reason, I need to specify struct here or it'll break.
  //  The compiler doesnt seem to care about the other wrong typedefs?
@@ -1094,9 +1095,9 @@ struct OLD_CAMERA
  /* 0x08 */ short target_angle; // size=0, offset=8
  /* 0x0A */ short target_elevation; // size=0, offset=10
  /* 0x0C */ short actual_elevation; // size=0, offset=12
- /* 0x10 */ PHD_3DPOS pos; // size=20, offset=16
- /* 0x24 */ PHD_3DPOS pos2; // size=20, offset=36
- /* 0x38 */ PHD_VECTOR t; // size=12, offset=56
+ /* 0x10 */ struct PHD_3DPOS pos; // size=20, offset=16
+ /* 0x24 */ struct PHD_3DPOS pos2; // size=20, offset=36
+ /* 0x38 */ struct PHD_VECTOR t; // size=12, offset=56
 };
 
 struct DEBRIS_STRUCT
@@ -1143,8 +1144,8 @@ struct SPOTCAM
 
 struct QUAKE_CAM
 {
- /* 0x00 */ GAME_VECTOR spos; // size=16, offset=0
- /* 0x10 */ GAME_VECTOR epos; // size=16, offset=16
+ /* 0x00 */ struct GAME_VECTOR spos; // size=16, offset=0
+ /* 0x10 */ struct GAME_VECTOR epos; // size=16, offset=16
 };
 
 struct DYNAMIC
@@ -1333,7 +1334,7 @@ struct BLOOD_STRUCT
 
 struct GUNSHELL_STRUCT
 {
- /* 0x00 */ PHD_3DPOS pos; // size=20, offset=0
+ /* 0x00 */ struct PHD_3DPOS pos; // size=20, offset=0
  /* 0x14 */ short fallspeed; // size=0, offset=20
  /* 0x16 */ short room_number; // size=0, offset=22
  /* 0x18 */ short speed; // size=0, offset=24
@@ -1344,7 +1345,7 @@ struct GUNSHELL_STRUCT
 
 struct BUBBLE_STRUCT
 {
- /* 0x00 */ PHD_VECTOR pos; // size=12, offset=0
+ /* 0x00 */ struct PHD_VECTOR pos; // size=12, offset=0
  /* 0x0C */ short room_number; // size=0, offset=12
  /* 0x0E */ short speed; // size=0, offset=14
  /* 0x10 */ short size; // size=0, offset=16
@@ -1361,7 +1362,7 @@ struct BUBBLE_STRUCT
 
 struct GUNFLASH_STRUCT
 {
- /* 0x00 */ MATRIX3D matrix; // size=32, offset=0
+ /* 0x00 */ struct MATRIX3D matrix; // size=32, offset=0
  /* 0x20 */ short on; // size=0, offset=32
 };
 
@@ -1393,8 +1394,8 @@ struct SHOCKWAVE_STRUCT
 
 struct HAIR_STRUCT
 {
- /* 0x00 */ PHD_3DPOS pos; // size=20, offset=0
- /* 0x14 */ PHD_VECTOR vel; // size=12, offset=20
+ /* 0x00 */ struct PHD_3DPOS pos; // size=20, offset=0
+ /* 0x14 */ struct PHD_VECTOR vel; // size=12, offset=20
 };
 
 struct DISPLAYPU
@@ -1425,7 +1426,7 @@ struct OBJLIST
 
 struct RINGME
 {
- /* 0x000 */ OBJLIST current_object_list[100]; // size=600, offset=0
+ /* 0x000 */ struct OBJLIST current_object_list[100]; // size=600, offset=0
  /* 0x258 */ int ringactive; // size=0, offset=600
  /* 0x25C */ int objlistmovement; // size=0, offset=604
  /* 0x260 */ int curobjinlist; // size=0, offset=608
@@ -1504,7 +1505,7 @@ struct SoundSlot
  /* 0x0C */ int nPitch; // size=0, offset=12
  /* 0x10 */ int nSampleInfo; // size=0, offset=16
  /* 0x14 */ unsigned long distance; // size=0, offset=20
- /* 0x18 */ PHD_VECTOR pos; // size=12, offset=24
+ /* 0x18 */ struct PHD_VECTOR pos; // size=12, offset=24
 };
 
 struct FOOTPRINT
@@ -1552,8 +1553,8 @@ struct tr_vertex   // 6 bytes
 struct tr_room_portal  // 32 bytes
 {
  /* 0x00 */ unsigned short  AdjoiningRoom; // Which room this portal leads to
- /* 0x04 */ tr_vertex Normal;
- /* 0x08 */ tr_vertex Vertices[4];
+ /* 0x04 */ struct tr_vertex Normal;
+ /* 0x08 */ struct tr_vertex Vertices[4];
 };
 
 #if PC_VERSION || PSXPC_VERSION || PSXPC_TEST
