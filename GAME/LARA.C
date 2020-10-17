@@ -3005,6 +3005,8 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 		? lara.move_angle - ANGLE(180)
 		: lara.move_angle;
 
+	coll->slopes_are_walls = 1;
+
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 870);
 
 	if (input & IN_ACTION && lara.gun_status == LG_NO_ARMS && !coll->hit_static)
