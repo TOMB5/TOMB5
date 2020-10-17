@@ -2997,7 +2997,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 
 	lara.move_angle = item->pos.y_rot;
 
-	coll->bad_pos = BAD_HEIGHT;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
 	
@@ -3020,7 +3020,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 			item->frame_number = anims[ANIMATION_LARA_MONKEY_GRAB].frame_base;
 
 			item->gravity_status = FALSE;	
-			item->status = 0;
+			//item->status = 0;
 			item->speed = 0;
 			item->fallspeed = 0;
 
@@ -3149,7 +3149,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 		item->goal_anim_state = LaraLandedBad(item, coll) ? STATE_LARA_DEATH : STATE_LARA_STOP;
 
 		item->gravity_status = FALSE;
-		item->status = 0;
+		//item->status = 0;
 		item->fallspeed = 0;
 
 		if (coll->mid_floor != BAD_HEIGHT)
