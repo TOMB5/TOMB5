@@ -3000,12 +3000,12 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 	coll->bad_pos = BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
-
+	
 	coll->facing = item->speed < 0
 		? lara.move_angle - ANGLE(180)
 		: lara.move_angle;
 
-	coll->slopes_are_walls = 1;
+	coll->hit_ceiling = 0;
 
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 870);
 
@@ -3019,7 +3019,8 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 			item->anim_number = ANIMATION_LARA_MONKEY_GRAB;
 			item->frame_number = anims[ANIMATION_LARA_MONKEY_GRAB].frame_base;
 
-			item->gravity_status = FALSE;		
+			item->gravity_status = FALSE;	
+			item->status = 0;
 			item->speed = 0;
 			item->fallspeed = 0;
 
@@ -3113,6 +3114,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 		}
 	}
 
+	//loc_188CC
 	ShiftItem(item, coll);
 
 	if (coll->coll_type == CT_CLAMP ||
@@ -3121,6 +3123,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 		coll->hit_ceiling)
 		item->fallspeed = 1;
 
+	//loc_18918
 	if (coll->coll_type == CT_NONE)
 	{
 		if (item->fallspeed < -70)
@@ -3140,16 +3143,19 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 		item->speed = item->speed <= 0 ? -2 : 2;
 	}
 
+	//loc_189A8
 	if (item->fallspeed > 0 && coll->mid_floor <= 0)
 	{
 		item->goal_anim_state = LaraLandedBad(item, coll) ? STATE_LARA_DEATH : STATE_LARA_STOP;
 
 		item->gravity_status = FALSE;
+		item->status = 0;
 		item->fallspeed = 0;
 
 		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
+	//loc_18A14
 }
 
 void lara_as_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1851C(<), 18650(<) (F)
