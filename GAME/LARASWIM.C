@@ -569,12 +569,12 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 
 	if (LaraDrawType == 5)
 	{
-		item->pos.z_rot = CLAMPADD2(item->pos.z_rot, ANGLE(0), ANGLE(-44));///@TODO check me
+		item->pos.z_rot = item->pos.z_rot < -0x1F48 ? -0x1F48 : item->pos.z_rot < 0x1F49 ? item->pos.z_rot : 0x1F48;
 	}
 	else
 	{
 		//loc_4C208
-		item->pos.z_rot = CLAMPADD2(item->pos.z_rot, ANGLE(0), ANGLE(-22));///@TODO check me
+		item->pos.z_rot = item->pos.z_rot < -0xFA4 ? -0xFA4 : item->pos.z_rot < 0xFA5 ? item->pos.z_rot : 0xFA4;
 	}
 
 	//v1 = lara
