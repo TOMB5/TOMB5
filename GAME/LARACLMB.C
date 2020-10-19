@@ -771,11 +771,11 @@ int LaraClimbRightCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//45
 					//loc_45FFC
 					//a2 = -1024
 					//a1 = item->pos.x_pos
-					//v0 = (item->pos.z_pos & -1024)
+					//v0 = (((item->pos.z_pos) & -1024) - 1024)
 					//a0 = (item->pos.x_pos + 1024) & -1024
 					//v1 = (item->pos.z_pos & 1023)
 					x = ((item->pos.x_pos + 1024) & -1024) + (item->pos.z_pos & 1023);
-					z = (item->pos.z_pos & -1024) + (item->pos.x_pos & 1023);
+					z = (((item->pos.z_pos) & -1024) - 1024) + (item->pos.x_pos & 1023);
 				}
 			}
 			else if (angle == 0)
@@ -797,11 +797,11 @@ int LaraClimbRightCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//45
 				//loc_45FFC
 				//a2 = -1024
 				//a1 = item->pos.x_pos
-				//v0 = (item->pos.z_pos & -1024)
+				//v0 = (((item->pos.z_pos) & -1024) - 1024)
 				//a0 = (item->pos.x_pos + 1024) & -1024
 				//v1 = (item->pos.z_pos & 1023)
 				x = ((item->pos.x_pos + 1024) & -1024) + (item->pos.z_pos & 1023);
-				z = (item->pos.z_pos & -1024) + (item->pos.x_pos & 1023);
+				z = (((item->pos.z_pos) & -1024) - 1024) + (item->pos.x_pos & 1023);
 			}
 		}
 		else
