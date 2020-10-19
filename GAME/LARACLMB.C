@@ -22,22 +22,35 @@ static short LeftExtRightIntTab[4] = // offset 0xA0B84
 
 short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C (F)
 {
-	short* data = trigger_index;
-
+	short* data = NULL;
+	//s2 = x
+	//s1 = y
+	//s0 = z
 	GetHeight(GetFloor(x, y, z, &room_number), x, y, z);
+	data = trigger_index;
 
-	if (data == NULL)
-		return 0;
-
-	if ((*data & 0x1F) == 5)
+	//v0 = 5
+	if (data != NULL)
 	{
-		if ((*data >> 8) & 0x80)
-			return 0;
-
-		data++;
+		//a1 = *data & 0x1F
+		if ((*data & 0x1F) == 5)
+		{
+			if ((*data & 0x8000))
+				return 0;
+			data++;
+		}
+		//loc_46EAC
+		//a0 = *data
+		//v0 = 6
+		//v1 - *data & 0x1F
+		if ((*data & 0x1F) == 6)
+		{
+			return *data;
+		}
 	}
-
-	return (*data & 0x1F) == 6 ? *data : 0;
+	
+	//loc_46EC0
+	return 0;
 }
 
 void lara_col_climbend(struct ITEM_INFO* item, struct COLL_INFO* coll)//46E30(<), 47294(<) (F)
