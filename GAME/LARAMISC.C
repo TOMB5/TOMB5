@@ -247,7 +247,7 @@ void LaraControl(short item_number)//4A838, 4AC9C
 			{
 				lara.air = 1800;
 				lara.water_status = LW_UNDERWATER;
-				item->status = 0;
+				item->gravity_status = 0;
 
 				UpdateLaraRoom(lara_item, 0);
 				StopSoundEffect(SFX_LARA_FALL);
