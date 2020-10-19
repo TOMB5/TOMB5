@@ -546,13 +546,12 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 
 	if (LaraDrawType != 5)
 	{
-		//v1 = lara.turn_rate
-		lara.turn_rate = CLAMPADD2(lara.turn_rate, ANGLE(2), ANGLE(3));
+		lara.turn_rate = (lara.turn_rate + 0x16C) & 0xFFFF < 0x2D9 ? 0 : lara.turn_rate < - 0x16C ? lara.turn_rate + 0x16C : lara.turn_rate - 0x16C;
 	}
 	else
 	{
 		//loc_4C0FC
-		lara.turn_rate = CLAMPADD2(lara.turn_rate, ANGLE(0.5), ANGLE(1));
+		lara.turn_rate = (lara.turn_rate + 0x5B) & 0xFFFF < 0xB7 ? 0 : lara.turn_rate < - 0x5B ? lara.turn_rate + 0x5B : lara.turn_rate - 0x5B;
 	}
 	
 	//loc_4C13C
