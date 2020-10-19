@@ -766,6 +766,23 @@ void LaraControl(short item_number)//4A838, 4AC9C
 		}//loc_4B204
 		LaraUnderWater(item, coll);
 		break;
+	case 2:
+		//loc_4B218
+		//v0 = item->hit_points
+		//v1 = lara
+		if (item->hit_points >= 0)
+		{
+			lara.air += 10;
+
+			if(lara.air >= 0x709)
+			{
+				lara.air = 0x708;
+			}
+
+		}
+		//loc_4B250
+		LaraSurface(item, coll);
+		break;
 	case 4:
 		if (lara.Busy)
 		{
