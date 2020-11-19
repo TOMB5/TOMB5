@@ -19,6 +19,11 @@
 #include "LARA.H"
 #include "CALCLARA.H"
 #include "BUBBLES.H"
+#include "MATHS.H"
+#include "TWOGUN.H"
+#include "TOMB4FX.H"
+#include "CODEWAD.H"
+#include "SPECIFIC.H"
 
 #include <LIBETC.H>
 #include <stdio.h>//deleteme
@@ -1007,10 +1012,79 @@ void titseq_special3_end()
 {
 }
 
+void sub_1FA0(struct PHD_VECTOR* pos, struct PHD_VECTOR* pos2)
+{
+	short angles[2];
+	int i;//$v1
+	struct TWOGUN_INFO* gun;//$s0
+	int rand;//$v0
+	int rand2;//$a2
+	struct PHD_VECTOR pos3;//var_28
+
+	phd_GetVectorAngles(pos2->x - pos->x, pos2->y - pos->y, pos2->z - pos->z, &angles[0]);
+
+	gun = &twogun[0];
+	i = 0;
+	if (gun->life != 0)
+	{
+		//a0 = 3
+		gun++;
+		//loc_2008
+		do
+		{
+			if (++i < 4)
+			{
+				if (gun->life == 0)
+				{
+					break;
+				}
+				//loc_202C
+			}
+			//loc_202C
+		} while (i++ != 3);
+	}
+	//loc_202C
+	gun->pos.x_pos = pos->x;
+	gun->pos.y_pos = pos->y;
+	gun->pos.z_rot = 0;
+	gun->pos.x_rot = angles[1];
+	gun->pos.y_rot = angles[0];
+	gun->life = 17;
+	gun->pos.z_pos = pos->z;
+	gun->spin = GetRandomControl() << 11;
+	gun->dlength = 4096;
+	gun->b = 255;
+	gun->r = 0;
+	gun->g = 96;
+	gun->fadein = 8;
+
+	TriggerLightningGlow(gun->pos.x_pos, gun->pos.y_pos, gun->pos.z_pos, ((gun->b >> 1) << 16) | ((gun->g >> 1) << 8) | (((GetRandomControl() & 0x3) + 64) << 24));
+
+	rand2 = (GetRandomControl() & 0x7) | 0x8;
+
+	///@FIXME Is this passed to the next function call?
+	pos3.x = 12;
+	pos3.y = 80;
+	pos3.z = 5;
+
+	//v1 = RelocPtr
+	//t1 = 0x16000000
+	///@FIXME says a3 but function only accepts a1....
+	//a3 = (gun->b << 16) | (gun->g << 8) | (0x16000000)
+	//v0 = 
+
+#if PSX_VERSION && !PSXPC_TEST
+	((VOIDFUNCINT*)RelocPtr[MOD_LIGHTNG][0])();
+	UNIMPLEMENTED();
+#else
+	UNIMPLEMENTED();
+#endif
+}
+
 void titseq_special3_control()
 {
-	PHD_VECTOR pos;
-	PHD_VECTOR pos2;
+	PHD_VECTOR pos;//stack 0x20
+	PHD_VECTOR pos2;//stack 0x30
 	pos.y = 200;
 	pos.x = 12;
 	pos.z = 92;
@@ -1038,7 +1112,7 @@ void titseq_special3_control()
 		TriggerDynamic(pos.x, pos.y, pos.z, 10, ((rand & 0x3F) + 192), ((rand & 0x1F) + 128), GetRandomControl() & 0x3F);
 	}
 	//loc_1750
-	if (GLOBAL_cutseq_frame == 472 || GLOBAL_cutseq_frame == 500)
+	if (GLOBAL_cutseq_frame == 472 || GLOBAL_cutseq_frame == 528)
 	{
 		//loc_1760
 		pos.x = 8;
@@ -1050,57 +1124,46 @@ void titseq_special3_control()
 		pos2.z = 40;
 		GetActorJointAbsPosition(2, 5, &pos2);
 
-		//sub_1FA0(&pos, &pos2);
+		sub_1FA0(&pos, &pos2);
 	}
 	//loc_17BC
-#if 0
-		loc_17BC:                                # CODE XREF : ROM:00001758↑j
-		bne     $s3, $v0, loc_181C
-		li      $v0, 0x262
-		li      $a0, 2
-		li      $a1, 8
-		addiu   $a2, $sp, 0x20
-		li      $v0, 0xE6
-		li      $s1, 0x28  # '('
-		sw      $zero, 0x20($sp)
-		sw      $v0, 0x24($sp)
-		jal     0x2EC80
-		sw      $s1, 0x28($sp)
-		li      $a0, 2
-		li      $a1, 8
-		addiu   $s0, $sp, 0x30
-		move    $a2, $s0
-		li      $v0, 0x10E6
-		sw      $zero, 0x30($sp)
-		sw      $v0, 0x34($sp)
-		jal     0x2EC80
-		sw      $s1, 0x38($sp)
-		addiu   $a0, $sp, 0x20
-		jal     sub_1FA0
-		move    $a1, $s0
-		li      $v0, 0x262
+	//v0 = 0x262
+	if (GLOBAL_cutseq_frame == 500)
+	{
+		//a0 = 2
+		//a1 = 8
+		//a2 = &pos
+		//v0 = 0xE6
+		//s1 = 0x28
+		pos.x = 0;
+		pos.y = 230;
+		pos.z = 40;
+		GetActorJointAbsPosition(2, 8, &pos);
+		pos2.x = 0;
+		pos2.y = 4326;
+		pos2.z = 40;
+		GetActorJointAbsPosition(2, 8, &pos2);
 
-		loc_181C:                                # CODE XREF : ROM:loc_17BC↑j
-		bne     $s3, $v0, loc_1888
-		addiu   $v0, $s3, -0x262
-		li      $a0, 2
-		li      $a1, 8
-		addiu   $a2, $sp, 0x20
-		li      $v0, 0x8E6
-		li      $v1, 0x28  # '('
-		sw      $zero, 0x20($sp)
-		sw      $v0, 0x24($sp)
-		jal     0x2EC80
-		sw      $v1, 0x28($sp)
-		li      $a0, 1
-		move    $a1, $zero
-		addiu   $s0, $sp, 0x30
-		move    $a2, $s0
-		li      $v0, 0xFFFFFC00
-		sw      $zero, 0x30($sp)
-		sw      $zero, 0x34($sp)
-		jal     0x2EC80
-		sw      $v0, 0x38($sp)
+		sub_1FA0(&pos, &pos2);
+
+	}
+	//loc_181C
+	//v0 = GLOBAL_cutseq_frame - 610
+	if (GLOBAL_cutseq_frame == 610)
+	{
+		pos.x = 0;
+		pos.y = 2278;
+		pos.z = 40;
+		GetActorJointAbsPosition(2, 8, &pos);
+
+		pos2.x = 0;
+		pos2.y = 0;
+		pos2.z = -1024;
+		GetActorJointAbsPosition(1, 0, &pos2);
+	}
+	//loc_1888
+
+#if 0
 		addiu   $a0, $sp, 0x20
 		lw      $v0, 0x24($sp)
 		move    $a1, $s0

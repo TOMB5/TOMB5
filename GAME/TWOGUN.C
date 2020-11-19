@@ -1,6 +1,10 @@
 #include "TWOGUN.H"
 
+#if PC_VERSION || PSXPC_TEST
 struct TWOGUN_INFO twogun[4];
+#endif
+
+#if PC_VERSION///@TODO PSX overlay?
 
 void UpdateTwogunLasers()
 {
@@ -51,3 +55,4 @@ void UpdateTwogunLasers()
 		}
 	}
 }
+#endif

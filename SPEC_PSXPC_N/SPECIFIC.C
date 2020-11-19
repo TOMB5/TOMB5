@@ -306,7 +306,7 @@ int DoPauseMenu()//60F34(<), 61A68(<) (F)
 
 		}//loc_61090
 
-		PrintString(SCREEN_WIDTH, 232, 5, &gfStringWad[gfStringOffset[STR_SELECT]], FF_CENTER);
+		PrintString(SCREEN_WIDTH / 2, 232, 5, &gfStringWad[gfStringOffset[STR_SELECT]], FF_CENTER);
 		break;
 	case 3:
 		//loc_610C8

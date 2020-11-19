@@ -469,10 +469,6 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	else
 	{
 		//65290 (final game)
-		if (camera.pos.room_number == 71 && camera.pos.x == 27683 && camera.pos.y == -1011 && camera.pos.z == 74751)
-		{
-			printf("YES2!\n");
-		}
 		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 		//loc_64BA0
 		//unsigned long* v1 = (unsigned long*)RelocPtr[2];

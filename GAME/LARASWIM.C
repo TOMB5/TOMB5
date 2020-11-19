@@ -414,7 +414,7 @@ void lara_as_swimcheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C3A8, 4
 
 void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C418 (F)
 {
-#if PC_VERSION
+#if PC_VERSION || 0
 	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -400;
 	coll->bad_ceiling = 400;
@@ -546,13 +546,12 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 
 	if (LaraDrawType != 5)
 	{
-		//v1 = lara.turn_rate
-		lara.turn_rate = CLAMPADD2(lara.turn_rate, ANGLE(2), ANGLE(3));
+		lara.turn_rate = ((lara.turn_rate + 0x16C) & 0xFFFF) < 0x2D9 ? 0 : lara.turn_rate < - 0x16C ? lara.turn_rate + 0x16C : lara.turn_rate - 0x16C;
 	}
 	else
 	{
 		//loc_4C0FC
-		lara.turn_rate = CLAMPADD2(lara.turn_rate, ANGLE(0.5), ANGLE(1));
+		lara.turn_rate = ((lara.turn_rate + 0x5B) & 0xFFFF) < 0xB7 ? 0 : lara.turn_rate < - 0x5B ? lara.turn_rate + 0x5B : lara.turn_rate - 0x5B;
 	}
 	
 	//loc_4C13C
@@ -565,17 +564,17 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 		UpdateSubsuitAngles();
 	}
 	//loc_4C170
-	item->pos.z_rot = CLAMPADDSHIFT(item->pos.z_rot, ANGLE(2), ANGLE(4));
-	item->pos.x_rot = CLAMPADD3(item->pos.x_rot, ANGLE(0), ANGLE(-85), ANGLE(-85));
+	item->pos.z_rot = ((item->pos.z_rot + 0x16C) & 0xFFFF) < 0x2D9 ? 0 : item->pos.z_rot << 16 >= 0 ? item->pos.z_rot - 0x16C : item->pos.z_rot + 0x16C;
+	item->pos.x_rot = (item->pos.x_rot < -0x3C6E) ? -0x3C6E : item->pos.x_rot < 0x3C6F ? item->pos.x_rot : 0x3C6E;
 
 	if (LaraDrawType == 5)
 	{
-		item->pos.z_rot = CLAMPADD2(item->pos.z_rot, ANGLE(0), ANGLE(-44));///@TODO check me
+		item->pos.z_rot = item->pos.z_rot < -0x1F48 ? -0x1F48 : item->pos.z_rot < 0x1F49 ? item->pos.z_rot : 0x1F48;
 	}
 	else
 	{
 		//loc_4C208
-		item->pos.z_rot = CLAMPADD2(item->pos.z_rot, ANGLE(0), ANGLE(-22));///@TODO check me
+		item->pos.z_rot = item->pos.z_rot < -0xFA4 ? -0xFA4 : item->pos.z_rot < 0xFA5 ? item->pos.z_rot : 0xFA4;
 	}
 
 	//v1 = lara
@@ -597,17 +596,18 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 	//t0 = lara.fallspeed
 	//v1 = ((SIN(item->pos.x_rot) * lara.fallspeed)) >> 14;
 	//a0 = item->pos.y_rot
-	item->pos.y_pos -= ((SIN((unsigned short)item->pos.x_rot) * item->fallspeed)) >> 14;
+	item->pos.y_pos -= (SIN(item->pos.x_rot) * item->fallspeed) >> 14;
 	//v1 = (((SIN(item->pos.y_rot) * lara.fallspeed) >> 14) * COS(item->pos.x_rot) >> 12)
 	//a2 = COS(item->pos.x_rot)
-	item->pos.x_pos += (((SIN((unsigned short)item->pos.y_rot) * item->fallspeed) >> 14) * COS((unsigned short)item->pos.x_rot)) >> 12;
+	item->pos.x_pos += (((SIN(item->pos.y_rot) * item->fallspeed) >> 14) * COS(item->pos.x_rot)) >> 12;
 	//v0 = (((COS(item->pos.y_rot) * lara.fallspeed) >> 14) * COS(item->pos.x_rot)) >> 12
 	//v1 = 
 	//a0 = item
 	//a1 = coll
-	item->pos.z_pos += (((COS((unsigned short)item->pos.y_rot) * item->fallspeed) >> 14) * COS((unsigned short)item->pos.x_rot)) >> 12;
+	item->pos.z_pos += (((COS(item->pos.y_rot) * item->fallspeed) >> 14) * COS(item->pos.x_rot)) >> 12;
 	LaraBaddieCollision(item, coll);
 	//v0 = item->current_anim_state
+
 	lara_collision_routines[item->current_anim_state](item, coll);
 	UpdateLaraRoom(item, 0);
 	LaraGun();

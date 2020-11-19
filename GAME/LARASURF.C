@@ -270,8 +270,13 @@ void LaraSurface(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D684, 4DAE8 (
 
 	AnimateLara(item);
 
+#if PSX_VERSION
+	item->pos.x_pos += item->fallspeed * SIN(lara.move_angle) >> 14;
+	item->pos.z_pos += item->fallspeed * COS(lara.move_angle) >> 14;
+#elif PC_VERSION
 	item->pos.x_pos += item->fallspeed * SIN(lara.move_angle) >> W2V_SHIFT;
 	item->pos.z_pos += item->fallspeed * COS(lara.move_angle) >> W2V_SHIFT;
+#endif
 
 	LaraBaddieCollision(item, coll);
 
@@ -295,15 +300,15 @@ void LaraSurfaceCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D4F0
 		item->fallspeed = 0;
 		item->pos.x_pos = coll->old.x;
 		item->pos.y_pos = coll->old.y;
-		item->pos.z_pos = coll->old.z;
+item->pos.z_pos = coll->old.z;
 	}
 	else if (coll->coll_type == CT_LEFT)
 	{
-		item->pos.y_rot += ANGLE(5);
+	item->pos.y_rot += ANGLE(5);
 	}
 	else if (coll->coll_type == CT_RIGHT)
 	{
-		item->pos.y_rot -= ANGLE(5);
+	item->pos.y_rot -= ANGLE(5);
 	}
 	if (GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number) - item->pos.y_pos > -100)
 	{
@@ -323,8 +328,184 @@ void LaraSurfaceCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D4F0
 
 int LaraTestWaterClimbOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D22C, 4D690
 {
-	UNIMPLEMENTED();
-	return 0;
+	int hdif; // $s2
+	short angle; // $s0
+
+	//v1 = coll->coll_type
+	//s1 = item
+	if (coll->coll_type == 1)
+	{
+		//v0 = input
+
+		if (!(input & IN_ACTION))
+		{
+			return 0;
+		}
+
+		//a0 = coll->left_floor2
+		//v1 = coll->right_floor2
+
+		if (coll->left_floor2 - coll->right_floor2 >= 0 && coll->left_floor2 - coll->right_floor2 < 0x3C ||
+			coll->right_floor2 - coll->left_floor2 >= 0 < 0x3C)
+		{
+			//a0 = lara
+			//v1 = lara.gun_status
+
+			if (lara.gun_status != 0)
+			{
+				if (lara.gun_status != 4 || lara.gun_type != 7)
+				{
+					return 0;
+				}
+			}
+			//loc_4D2C4
+
+			if (coll->front_ceiling > 0)
+			{
+				return 0;
+			}
+
+			//v0 = coll->mid_ceiling
+			if (coll->mid_ceiling >= -0x17F)
+			{
+				return 0;
+			}
+
+			hdif = coll->front_floor + 0x2BC;
+			if (coll->front_floor + 0x4BB >= 0x33C)
+			{
+				return 0;
+			}
+
+			angle = item->pos.y_rot;
+
+			//v0 = ((angle + 0x18E2) & 0xFFFF);
+
+			if ((unsigned)((angle + 0x18E2) & 0xFFFF) < 0x31C5)
+			{
+				angle = 0;
+			}
+			else
+			{
+				if ((unsigned)(angle - 0x271E) < 0x31C5)
+				{
+					angle = 0x4000;
+				}
+				else
+				{
+					if (angle >= 0x671D || angle < -0x671C)
+					{
+						angle = -0x8000;
+					}
+					else
+					{
+						if (((angle + 0x58E2) & 0xFFFF) < 0x31C5)
+						{
+							angle = -0x4000;
+						}
+					}
+				}
+			}
+
+			//loc_4D368
+			if ((angle & 0x3FFF) != 0)
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			//loc_4D374
+			return 0;
+		}
+	}
+	else
+	{
+		//loc_4D374
+		return 0;
+	}
+	
+	//loc_4D37C
+	//v0 = (item->pos.y_pos - 5) + hdif
+	//a1 = -381
+	item->pos.y_pos = (item->pos.y_pos - 5) + hdif;
+	UpdateLaraRoom(item, -381);
+	//v0 = -0x4000
+
+	if (angle != -0x4000)
+	{
+		if (angle - 0x3FFF == 0)
+		{
+			//loc_4D3B8
+			if (angle == 0)
+			{
+				//loc_4D3D0
+				item->pos.z_pos = (item->pos.z_pos & -1024) + 0x464;
+				//j loc_4D428
+			}
+			else if (angle == 0x4000)
+			{
+				//loc_4D3E8
+				//v1 = -1024
+				item->pos.x_pos = (item->pos.x_pos & -1024) + 0x464;
+				//j loc_4D424
+			}
+		}
+		else if(angle == -0x8000)
+		{
+			//loc_4D3FC
+			//v0 = hdif < -0x80 ? 1 : 0
+			item->pos.z_pos = (item->pos.z_pos & -1024) - 0x64;
+			//j loc_4D428
+		}
+	}
+	else
+	{
+		//loc_4D414
+		item->pos.x_pos = (item->pos.x_pos & -1024) - 0x64;
+	}
+
+	//loc_4D428
+	//loc_4D42C
+	//v1 = 0x6F
+	if (hdif < -0x80)
+	{
+		//v0 = anims
+		//v1 = item->anim_number
+		//a0 = anims[ANIMATION_LARA_CLIMB_OUT_OF_WATER].frame_base
+		item->anim_number = ANIMATION_LARA_CLIMB_OUT_OF_WATER;
+		item->frame_number = anims[ANIMATION_LARA_CLIMB_OUT_OF_WATER].frame_base;
+	}
+	else if (hdif < 0x80)
+	{
+		//loc_4D44C
+		item->anim_number = ANIMATION_LARA_ONWATER_TO_LAND_LOW;
+		item->frame_number = anims[ANIMATION_LARA_ONWATER_TO_LAND_LOW].frame_base;
+	}
+	else
+	{
+		//loc_4D470
+		item->anim_number = ANIMATION_LARA_ONWATER_TO_WADE;
+		item->frame_number = anims[ANIMATION_LARA_ONWATER_TO_WADE].frame_base;
+	}
+	//loc_4D48C
+	//v0 = 1
+	//v1 = 0x37
+	//a0 = 2
+	//a1 = &lara
+	item->current_anim_state = STATE_LARA_ONWATER_EXIT;
+	//v1 = 1
+	item->goal_anim_state = STATE_LARA_STOP;
+	item->pos.y_rot = angle;
+	lara.gun_status = 1;
+	item->gravity_status = 0;
+	item->pos.z_rot = 0;
+	item->pos.x_rot = 0;
+	item->speed = 0;
+	item->fallspeed = 0;
+	lara.water_status = 0;
+
+	return 1;
 }
 
 int LaraTestWaterStepOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D100, 4D564 (F)

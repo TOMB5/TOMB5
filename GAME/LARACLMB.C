@@ -22,22 +22,35 @@ static short LeftExtRightIntTab[4] = // offset 0xA0B84
 
 short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C (F)
 {
-	short* data = trigger_index;
-
+	short* data = NULL;
+	//s2 = x
+	//s1 = y
+	//s0 = z
 	GetHeight(GetFloor(x, y, z, &room_number), x, y, z);
+	data = trigger_index;
 
-	if (data == NULL)
-		return 0;
-
-	if ((*data & 0x1F) == 5)
+	//v0 = 5
+	if (data != NULL)
 	{
-		if ((*data >> 8) & 0x80)
-			return 0;
-
-		data++;
+		//a1 = *data & 0x1F
+		if ((*data & 0x1F) == 5)
+		{
+			if ((*data & 0x8000))
+				return 0;
+			data++;
+		}
+		//loc_46EAC
+		//a0 = *data
+		//v0 = 6
+		//v1 - *data & 0x1F
+		if ((*data & 0x1F) == 6)
+		{
+			return *data;
+		}
 	}
-
-	return (*data & 0x1F) == 6 ? *data : 0;
+	
+	//loc_46EC0
+	return 0;
 }
 
 void lara_col_climbend(struct ITEM_INFO* item, struct COLL_INFO* coll)//46E30(<), 47294(<) (F)
@@ -649,8 +662,205 @@ void LaraDoClimbLeftRight(struct ITEM_INFO* item, struct COLL_INFO* coll, int re
 
 int LaraClimbRightCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//45DE4, 46248
 {
-	UNIMPLEMENTED();
-	return 0;
+	int x; // $s1
+	int z; // $s0
+	int shift; // stack offset -48
+	int flag; // $s6
+	int oldx; // $s7
+	int oldz; // $s4
+	short oldy; // $fp
+	short angle; // $s3
+
+	//s2 = item
+	//arg_4 = coll
+	//v1 = item->anim_number
+	flag = 0;
+	if (item->anim_number != ANIMATION_LARA_LADDER_RIGHT)
+	{
+		return 0;
+	}
+	//loc_45E30
+	//v0 = (item->pos.y_rot + 0x2000) & 0xFFFF
+	oldx = item->pos.x_pos;
+	oldy = item->pos.y_rot;
+	oldz = item->pos.z_pos;
+	angle = ((item->pos.y_rot + 0x2000) & 0xFFFF) >> 14;
+
+	//v1 = -1024
+	if (angle == 0 || angle == 2)
+	{
+		//loc_45E5C
+		//v0 = item->pos.x_pos & -1024;
+		//a0 = item->pos.z_pos & 1023;
+		x = (item->pos.x_pos & -1024) + (item->pos.z_pos & 1023);
+		//v1 = (item->pos.z_pos & -1024)
+		//v0 = (item->pos.x_pos & 1023)
+		z = (item->pos.z_pos & -1024) + (item->pos.x_pos & 1023);
+	}
+	else
+	{
+		//loc_45E7C
+		//v0 = ((item->pos.x_pos & -1024) + 1024)
+		//a0 = (item->pos.z_pos & 1023)
+		x = ((item->pos.x_pos & -1024) + 1024) - (item->pos.z_pos & 1023);
+		//v1 = ((item->pos.z_pos & -1024) + 1024)
+		//v0 = item->pos.x_pos & 1023
+		z = ((item->pos.z_pos & -1024) + 1024) - (item->pos.x_pos & 1023);
+	}
+	//loc_45E9C
+	//s5 = (item->pos.z_pos & 1023)
+	//GetClimbTrigger(x, item->pos.y_pos, z, item->room_number);
+	//v1 = angle << 1
+	//a0 = &LeftExtRightIntTab[angle]
+	//a1 = LeftExtRightIntTab[angle]
+	//var_2C = angle << 1
+	if (LeftExtRightIntTab[angle] & GetClimbTrigger(x, item->pos.y_pos, z, item->room_number))
+	{
+		//a0 = item
+		//a1 = lara
+		item->pos.x_pos = x;
+		lara.CornerX = x;
+		item->pos.z_pos = z;
+		lara.CornerZ = z;
+		item->pos.y_pos += 0x4000;
+		lara.move_angle = item->pos.y_pos;
+		//v1 = 0x200
+		//var_38 = 0x200
+		//v1 = coll
+		//a3 = -512
+		//a1 = coll->radius
+		//v0 = &shift
+		//var_34 = &shift
+		//a2 = coll->radius + 120
+		flag = LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, &shift);
+		if (flag != 0)
+		{
+			//loc_45F40
+			flag = -1;
+		}
+	}
+	//loc_45F34
+	if (flag == 0)
+	{
+		//a0 = 0xA0000
+		//loc_45F40
+		//v0 = lara
+		item->pos.x_pos = oldx;
+		lara.move_angle = oldy;
+		item->pos.y_rot = oldy;
+		item->pos.z_pos = oldz;
+		if (angle != 2)
+		{
+			if (angle >= 3)
+			{
+				//loc_45F78
+				if (angle == 3)
+				{
+					//loc_45FA4
+					//a2 = -1024
+					//a0 = (item->pos.x_pos & 1023)
+					//a1 = -1024
+					//v1 = (oldz + 1024) & -1024
+					//v0 = (item->pos.x_pos & -1024) - 1024
+					x = ((item->pos.x_pos & -1024) - 1024) + (item->pos.z_pos & 1023);
+					z = ((oldz + 1024) & -1024) + (item->pos.x_pos & 1023);
+					//j       loc_46024
+				}
+				else
+				{
+					//loc_45FFC
+					//a2 = -1024
+					//a1 = item->pos.x_pos
+					//v0 = (((item->pos.z_pos) & -1024) - 1024)
+					//a0 = (item->pos.x_pos + 1024) & -1024
+					//v1 = (item->pos.z_pos & 1023)
+					x = ((item->pos.x_pos + 1024) & -1024) + (item->pos.z_pos & 1023);
+					z = (((item->pos.z_pos) & -1024) - 1024) + (item->pos.x_pos & 1023);
+				}
+			}
+			else if (angle == 0)
+			{
+				//loc_45F88
+				//a2 = -1024
+				//a0 = item->pos.x_pos & 1023
+				//a1 = -1024
+				//v1 = (((oldz + 1024) & -1024) + 1024)
+				//v0 = ((item->pos.x_pos + 1024) & -1024) + 1024;
+				//loc_45FE4
+				x = (((item->pos.x_pos + 1024) & -1024) + 1024) - (item->pos.z_pos & 1023);
+				z = (((oldz + 1024) & -1024) + 1024) - (item->pos.x_pos & 1023);
+				//j loc_46024
+
+			}
+			else
+			{
+				//loc_45FFC
+				//a2 = -1024
+				//a1 = item->pos.x_pos
+				//v0 = (((item->pos.z_pos) & -1024) - 1024)
+				//a0 = (item->pos.x_pos + 1024) & -1024
+				//v1 = (item->pos.z_pos & 1023)
+				x = ((item->pos.x_pos + 1024) & -1024) + (item->pos.z_pos & 1023);
+				z = (((item->pos.z_pos) & -1024) - 1024) + (item->pos.x_pos & 1023);
+			}
+		}
+		else
+		{
+			//loc_45FCC
+			//a0 = item->pos.x_pos & 1023
+			//a1 = -1024
+			//v1 = ((oldz - 1024) & -1024) + 1024
+			//v0 = ((item->pos.x_pos - 1024) & -1024) + 1024;
+
+			//loc_45FE4
+			x = (((item->pos.x_pos - 1024) & -1024) + 1024) - (item->pos.z_pos & 1023);
+			z = (((oldz - 1024) & -1024) + 1024) - (item->pos.x_pos & 1023);
+			//j loc_46024
+		}
+
+		//loc_46024
+		//a0 = x
+		//a1 = item->pos.y_pos
+		//a3 = item->pos.room_number
+		//a2 = z
+		//a0 = LeftIntRightExtTab[angle]
+
+		if (LeftIntRightExtTab[angle] & GetClimbTrigger(x, item->pos.y_pos, z, item->room_number))
+		{
+			//a0 = item
+			//a1 = &lara
+			item->pos.x_pos = x;
+			lara.CornerX = x;
+			item->pos.z_pos = z;
+			lara.CornerZ = z;
+			//v0 = item->pos.y_rot - 0x4000
+			//v1 = 512
+			//var_38 = 512
+			item->pos.y_rot -= 0x4000;
+			lara.move_angle = item->pos.y_rot;
+			//v1 = coll
+			//a3 = -512
+			//a1 = coll->radius
+			//v0 = &shift
+			//var_34 = &shift
+			//a2 = coll->radius + 120
+			flag = LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, &shift);
+
+			if (flag)
+			{
+				flag = 1;
+			}
+		}
+		//loc_460B4
+	}
+
+	item->pos.x_pos = oldx;
+	lara.move_angle = oldy;
+	item->pos.y_rot = oldy;
+	item->pos.z_pos = oldz;
+
+	//loc_460B8
+	return flag;
 }
 
 int LaraClimbLeftCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//45ABC, 45F20

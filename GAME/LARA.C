@@ -3000,10 +3000,12 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 192;
-
+	
 	coll->facing = item->speed < 0
 		? lara.move_angle - ANGLE(180)
 		: lara.move_angle;
+
+	coll->hit_ceiling = 0;
 
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 870);
 
@@ -3017,7 +3019,8 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 			item->anim_number = ANIMATION_LARA_MONKEY_GRAB;
 			item->frame_number = anims[ANIMATION_LARA_MONKEY_GRAB].frame_base;
 
-			item->gravity_status = FALSE;		
+			item->gravity_status = FALSE;	
+			//item->status = 0;
 			item->speed = 0;
 			item->fallspeed = 0;
 
@@ -3111,6 +3114,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 		}
 	}
 
+	//loc_188CC
 	ShiftItem(item, coll);
 
 	if (coll->coll_type == CT_CLAMP ||
@@ -3119,6 +3123,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 		coll->hit_ceiling)
 		item->fallspeed = 1;
 
+	//loc_18918
 	if (coll->coll_type == CT_NONE)
 	{
 		if (item->fallspeed < -70)
@@ -3138,16 +3143,19 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 		item->speed = item->speed <= 0 ? -2 : 2;
 	}
 
+	//loc_189A8
 	if (item->fallspeed > 0 && coll->mid_floor <= 0)
 	{
 		item->goal_anim_state = LaraLandedBad(item, coll) ? STATE_LARA_DEATH : STATE_LARA_STOP;
 
 		item->gravity_status = FALSE;
+		//item->status = 0;
 		item->fallspeed = 0;
 
 		if (coll->mid_floor != BAD_HEIGHT)
 			item->pos.y_pos += coll->mid_floor;
 	}
+	//loc_18A14
 }
 
 void lara_as_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1851C(<), 18650(<) (F)
@@ -5963,9 +5971,343 @@ int TestWall(struct ITEM_INFO* item, long front, long right, long down)//12550, 
 	return 0;
 }
 
-int TestLaraVault(struct ITEM_INFO* item, struct COLL_INFO* coll)//120C0, 12170
+int TestLaraVault(struct ITEM_INFO* item /*s0*/, struct COLL_INFO* coll/*s2*/)//120C0, 12170
 {
-	UNIMPLEMENTED();
+	int hdif; // $a2
+	int slope; // $v1
+	short angle; // $s1
+	//v0 = input
+
+	if ((input & IN_ACTION))
+	{
+		//v1 = &lara
+	}
+	//loc_12530
+#if 0
+		lh      $a0, 2($v1)
+		nop
+		bnez    $a0, loc_12530
+		move    $s3, $v0
+		lh      $v1, 0x7A($s2)
+		li      $v0, 1
+		bne     $v1, $v0, loc_12534
+		move    $v0, $zero
+		lh      $s1, 0x4E($s0)
+		nop
+		addiu   $v0, $s1, 0x1554
+		andi    $v0, 0xFFFF
+		sltiu   $v0, 0x2AA9
+		beqz    $v0, loc_1213C
+		addiu   $v0, $s1, -0x2AAC
+		j       loc_1217C
+		move    $s1, $zero
+
+		loc_1213C :
+	sltiu   $v0, 0x2AA9
+		beqz    $v0, loc_12150
+		slti    $v0, $s1, 0x6AAB
+		j       loc_1217C
+		li      $s1, 0x4000
+
+		loc_12150 :
+		beqz    $v0, loc_12160
+		slti    $v0, $s1, -0x6AAA
+		beqz    $v0, loc_12168
+		addiu   $v0, $s1, 0x5554
+
+		loc_12160 :
+		j       loc_1217C
+		li      $s1, 0xFFFF8000
+
+		loc_12168 :
+		andi    $v0, 0xFFFF
+		sltiu   $v0, 0x2AA9
+		beqz    $v0, loc_12180
+		andi    $v0, $s1, 0x3FFF
+		li      $s1, 0xFFFFC000
+
+		loc_1217C :
+		andi    $v0, $s1, 0x3FFF
+
+		loc_12180 :
+		bnez    $v0, loc_12534
+		move    $v0, $zero
+		lw      $v0, 0x30($s2)
+		lw      $v1, 0x3C($s2)
+		lw      $a2, 0xC($s2)
+		subu    $a0, $v0, $v1
+		move    $t0, $a2
+		move    $a1, $v0
+		bltz    $a0, loc_121B0
+		move    $a3, $v1
+		j       loc_121B8
+		slti    $v0, $a0, 0x3C
+
+		loc_121B0:
+	subu    $v1, $a3, $a1
+		slti    $v0, $v1, 0x3C
+
+		loc_121B8 :
+		xori    $v1, $v0, 1
+		addiu   $v0, $a2, 0x280
+		sltiu   $v0, 0x101
+		beqz    $v0, loc_12238
+		addiu   $v0, $a2, 0x380
+		bnez    $v1, loc_12534
+		move    $v0, $zero
+		lw      $v0, 0x10($s2)
+		nop
+		subu    $v0, $t0, $v0
+		bltz    $v0, loc_12534
+		move    $v0, $zero
+		lw      $v0, 0x34($s2)
+		nop
+		subu    $v0, $a1, $v0
+		bltz    $v0, loc_12534
+		move    $v0, $zero
+		lw      $v0, 0x40($s2)
+		nop
+		subu    $v0, $a3, $v0
+		bltz    $v0, loc_12530
+		li      $v0, 0x32
+		lw      $a0, dword_800A25E0
+		sh      $v0, 0x14($s0)
+		lw      $v0, 0x44($s0)
+		lhu     $a1, 0x7E8($a0)
+		li      $v1, 0x13
+		sh      $v1, 0xE($s0)
+		li      $v1, 2
+		j       loc_122AC
+		addiu   $v0, 0x200
+
+		loc_12238:
+	sltiu   $v0, 0x101
+		beqz    $v0, loc_122CC
+		nop
+		bnez    $v1, loc_12534
+		move    $v0, $zero
+		lw      $v0, 0x10($s2)
+		nop
+		subu    $v0, $t0, $v0
+		bltz    $v0, loc_12534
+		move    $v0, $zero
+		lw      $v0, 0x34($s2)
+		nop
+		subu    $v0, $a1, $v0
+		bltz    $v0, loc_12534
+		move    $v0, $zero
+		lw      $v0, 0x40($s2)
+		nop
+		subu    $v0, $a3, $v0
+		bltz    $v0, loc_12530
+		li      $v0, 0x2A
+		lw      $a0, dword_800A25E0
+		sh      $v0, 0x14($s0)
+		lw      $v0, 0x44($s0)
+		lhu     $a1, 0x6A8($a0)
+		li      $v1, 0x13
+		sh      $v1, 0xE($s0)
+		li      $v1, 2
+		addiu   $v0, 0x300
+
+		loc_122AC:
+	addu    $v0, $a2
+		sh      $v1, 0x10($s0)
+		addiu   $v1, $s3, 0x57DC
+		sw      $v0, 0x44($s0)
+		li      $v0, 1
+		sh      $a1, 0x16($s0)
+		j       loc_1246C
+		sh      $v0, 2($v1)
+
+		loc_122CC:
+	bnez    $v1, loc_12344
+		addiu   $t0, $s3, 0x57DC
+		slti    $v0, $a2, -0x780
+		bnez    $v0, loc_12344
+		slti    $v0, $a2, -0x37F
+		beqz    $v0, loc_12344
+		addiu   $v0, $a2, 0x320
+		sll     $a0, $v0, 1
+		addu    $a0, $v0
+		sll     $a0, 2
+		negu    $a0, $a0
+		lw      $v1, dword_800A25E0
+		li      $v0, 0xB
+		sh      $v0, 0x14($s0)
+		li      $v0, 0x1C
+		lhu     $a1, 0x1D0($v1)
+		li      $v1, 2
+		sh      $v0, 0x10($s0)
+		sh      $v1, 0xE($s0)
+		jal     sub_779DC
+		sh      $a1, 0x16($s0)
+		move    $a0, $s0
+		addiu   $v1, $s3, 0x57DC
+		addiu   $v0, 3
+		negu    $v0, $v0
+		jal     sub_7D53C
+		sh      $v0, 0xA($v1)
+		j       loc_12470
+		move    $a0, $s0
+
+		loc_12344 :
+	lh      $v0, 0xE($t0)
+		nop
+		beqz    $v0, loc_12530
+		slti    $v0, $a2, -0x77F
+		beqz    $v0, loc_123CC
+		li      $v0, 4
+		lh      $v1, 0xC($t0)
+		nop
+		beq     $v1, $v0, loc_123CC
+		slti    $v0, $a1, -0x77F
+		beqz    $v0, loc_123CC
+		slti    $v0, $a3, -0x7FF
+		beqz    $v0, loc_123CC
+		nop
+		lw      $v0, 4($s2)
+		nop
+		slti    $v0, -0x485
+		beqz    $v0, loc_123CC
+		move    $a0, $s0
+		lw      $v1, dword_800A25E0
+		li      $v0, 0xB
+		sh      $v0, 0x14($s0)
+		li      $v0, 0x1C
+		lhu     $a1, 0x1D0($v1)
+		li      $v1, 2
+		sh      $v0, 0x10($s0)
+		li      $v0, 0xFFFFFF8C
+		sh      $v1, 0xE($s0)
+		sh      $a1, 0x16($s0)
+		jal     sub_7D53C
+		sh      $v0, 0xA($t0)
+		j       loc_12470
+		move    $a0, $s0
+
+		loc_123CC :
+	addiu   $s3, 0x57DC
+		lh      $v0, 0xE($s3)
+		nop
+		beqz    $v0, loc_12530
+		slti    $v0, $a2, -0x400
+		bnez    $v0, loc_123FC
+		nop
+		lw      $v0, 0x10($s2)
+		nop
+		slti    $v0, 0x1FA
+		bnez    $v0, loc_12534
+		move    $v0, $zero
+
+		loc_123FC :
+	lw      $v0, 4($s2)
+		nop
+		slti    $v0, -0x205
+		beqz    $v0, loc_12530
+		move    $a0, $s0
+		jal     sub_7BEEC
+		move    $a1, $s2
+		move    $a0, $s0
+		jal     sub_11F78
+		move    $a1, $s2
+		beqz    $v0, loc_12530
+		move    $a0, $s0
+		lw      $v1, dword_800A25E0
+		li      $v0, 0xB
+		sh      $v0, 0x14($s0)
+		li      $v0, 0x38
+		lhu     $a1, 0x1D0($v1)
+		li      $v1, 2
+		sh      $v0, 0x10($s0)
+		sh      $v1, 0xE($s0)
+		jal     sub_7D53C
+		sh      $a1, 0x16($s0)
+		li      $v0, 1
+		li      $v1, 1
+		sh      $s1, 0x4E($s0)
+		j       loc_12534
+		sh      $v1, 2($s3)
+
+		loc_1246C:
+	move    $a0, $s0
+
+		loc_12470 :
+	move    $a1, $s2
+		jal     sub_7BEEC
+		sh      $s1, 0x4E($s0)
+		lhu     $v0, 0x4E($s0)
+		li      $v1, 1
+		addiu   $v0, 0x2000
+		andi    $v0, 0xFFFF
+		srl     $a0, $v0, 14
+		beq     $a0, $v1, loc_12500
+		nop
+		slti    $v0, $a0, 2
+		beqz    $v0, loc_124B4
+		nop
+		beqz    $a0, loc_124D0
+		li      $v0, 1
+		j       loc_12534
+		nop
+
+		loc_124B4 :
+	li      $v0, 2
+		beq     $a0, $v0, loc_124E8
+		li      $v0, 3
+		beq     $a0, $v0, loc_12514
+		li      $v1, 0xFFFFFC00
+		j       loc_12534
+		li      $v0, 1
+
+		loc_124D0:
+	lw      $v0, 0x48($s0)
+		nop
+		ori     $v0, 0x3FF
+		addiu   $v0, -0x64
+		j       loc_12528
+		sw      $v0, 0x48($s0)
+
+		loc_124E8:
+	lw      $v0, 0x48($s0)
+		li      $v1, 0xFFFFFC00
+		and $v0, $v1
+		addiu   $v0, 0x64
+		j       loc_12528
+		sw      $v0, 0x48($s0)
+
+		loc_12500:
+	lw      $v0, 0x40($s0)
+		nop
+		ori     $v0, 0x3FF
+		j       loc_12524
+		addiu   $v0, -0x64
+
+		loc_12514 :
+		lw      $v0, 0x40($s0)
+		nop
+		and $v0, $v1
+		addiu   $v0, 0x64
+
+		loc_12524 :
+		sw      $v0, 0x40($s0)
+
+		loc_12528 :
+		j       loc_12534
+		li      $v0, 1
+
+		loc_12530 :
+		move    $v0, $zero
+
+		loc_12534 :
+	lw      $ra, 0x28 + var_8($sp)
+		lw      $s3, 0x28 + var_C($sp)
+		lw      $s2, 0x28 + var_10($sp)
+		lw      $s1, 0x28 + var_14($sp)
+		lw      $s0, 0x28 + var_18($sp)
+		jr      $ra
+		addiu   $sp, 0x28
+#endif
 	return 0;
 }
 
