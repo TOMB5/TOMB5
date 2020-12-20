@@ -32,7 +32,7 @@ Markers are as follows:
 - Code Analyser (ASM - PSX) - Compare compiled code to the original to help detect any possible errors in exising code.
 - Debugger - Debug existing code issues/crashes, propose a solution by basing the patch off the original disassembly.
 - General Programmer - Clean existing code to improve readability without changing the structure, improve code documentation.
-- Build Engineer - Manage and maintain existing Travis/Appveyor build automation systems. Improve code distribution/publishing methods by implmenting a system to support all platforms and possible release versions.
+- Build Engineer - Manage and maintain existing Travis/Appveyor build automation systems. Improve code distribution/publishing methods by implementing a system to support all platforms and possible release versions.
 
 ## Folder Structure
 - CMAKE - Default CMake module folder. 
