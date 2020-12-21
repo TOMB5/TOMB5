@@ -4,6 +4,9 @@
 #include "EMULATOR_PRIVATE.H"
 #include <assert.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define WIDE_SCREEN (0)
 
@@ -11,6 +14,9 @@
 #define MAX_NUM_VERTICES 32768
 //Index of last vertex added to vertex buffer
 int pgxp_vertex_index = 0;
+
+int last_pgxp_quad_match = 0;
+int last_pgxp_tri_match = 0;
 
 int pgxp_vertex_count = 0;
 
@@ -2770,6 +2776,54 @@ void NormalColorCol(SVECTOR* v0, CVECTOR* v1, CVECTOR* v2)
     UNIMPLEMENTED();
 }
 
+static void RCpolyFT4A()
+{
+
+}
+
+long DivideFT4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, CVECTOR* col0/*arg_20*/, POLY_FT4* poly/*arg_24*/, long otz/*arg_28*/, DIVPOLYGON4* divp4/*arg_2C*/)
+{
+    RVECTOR* r0;//$s1
+    RVECTOR* r1;//$s2
+    RVECTOR* r2;//$s4
+    RVECTOR* r3;//$s5
+    long p;
+    long rotz;
+    long flag;
+
+    //s0 = divp4
+
+    r0 = &divp4->r0;
+    r1 = &divp4->r1;
+    r2 = &divp4->r2;
+    r3 = &divp4->r3;
+
+    constexpr int test = offsetof(DIVPOLYGON4, r3.sxy);
+    //constexpr int test2 = offsetof(RVECTOR, r0->sxy);
+
+    divp4->cr[0].r0 = r0;
+    divp4->cr[0].r1 = r1;
+    divp4->cr[0].r2 = r2;
+    divp4->cr[0].r3 = r3;
+
+    divp4->r0 = *r0;
+    divp4->r1 = *r1;
+    divp4->r2 = *r2;
+    divp4->r3 = *r3;
+
+    //a0 = r0
+    //a1 = r1
+    //a2 = r2
+    //a3 = r3
+
+    //s7 = sxy0
+    //fp = sxy1
+
+    RotAverageNclip4(v0, v1, v2, v3, (long*)&divp4->r0.sxy, (long*)&divp4->r1.sxy, (long*)&divp4->r2.sxy, (long*)&divp4->r3.sxy, &p, &rotz, &flag);
+
+    return 0;
+}
+
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
     VX0 = v0->vx;
@@ -3010,3 +3064,13 @@ int rsin(int a)
     UNIMPLEMENTED();
     return 0;
 }
+
+int rcos(int a)
+{
+    UNIMPLEMENTED();
+    return 0;
+}
+
+#ifdef __cplusplus
+}
+#endif
