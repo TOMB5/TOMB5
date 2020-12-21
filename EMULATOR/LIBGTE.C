@@ -2826,7 +2826,18 @@ long DivideFT4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*a
 
 void DpqColor(CVECTOR* v0, long p, CVECTOR* v1)
 {
-    UNIMPLEMENTED();
+    R = v0->r;
+    G = v0->g;
+    B = v0->b;
+    CODE = v0->cd;
+    IR0 = p;
+    
+    docop2(0x780010);
+
+    v1->r = R2;
+    v1->g = G2;
+    v1->b = B2;
+    v1->cd = CD2;
 }
 
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
