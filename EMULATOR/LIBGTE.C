@@ -2824,6 +2824,11 @@ long DivideFT4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*a
     return 0;
 }
 
+void DpqColor(CVECTOR* v0, long p, CVECTOR* v1)
+{
+    UNIMPLEMENTED();
+}
+
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
     VX0 = v0->vx;
@@ -3059,9 +3064,24 @@ void SetFogNear(long a, long h)
     SetDQB(20971520);
 }
 
-int rsin(int a)
+static int sin_1(int a)
 {
     UNIMPLEMENTED();
+    return 0;
+}
+
+int rsin(int a)
+{
+    if (a >= 0)
+    {
+        return sin_1(a & 0xFFF);
+    }
+    else
+    {
+        //loc_21C
+        return -sin_1(-a & 0xFFF);
+    }
+
     return 0;
 }
 
