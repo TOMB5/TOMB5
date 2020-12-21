@@ -2840,6 +2840,130 @@ void DpqColor(CVECTOR* v0, long p, CVECTOR* v1)
     v1->cd = CD2;
 }
 
+void ApplyMatrixLV(MATRIX* mat, VECTOR* v0, VECTOR* v1)
+{
+    int t0;
+    int t1;
+    int t2;
+    int t3;
+    int t4;
+    int t5;
+
+    R11 = mat->m[0][0];
+    R12 = mat->m[0][1];
+    R13 = mat->m[0][2];
+    R21 = mat->m[1][0];
+    R22 = mat->m[1][1];
+    R23 = mat->m[1][2];
+    R31 = mat->m[2][0];
+    R32 = mat->m[2][1];
+    R33 = mat->m[2][2];
+
+    t0 = v0->vx;
+    t1 = v0->vy;
+    t2 = v0->vz;
+
+    if (t0 < 0)
+    {
+        t0 = -t0;
+        t3 = t0 >> 15;
+        t3 = -t3;
+        t0 &= 0x7FFF;
+        t0 = -t0;
+    }
+    else
+    {
+        t3 = t0 >> 15;
+        t0 &= 0x7FFF;
+    }
+
+    if (t1 < 0)
+    {
+        t1 = -t1;
+        t4 = t1 >> 15;
+        t4 = -t4;
+        t1 &= 0x7FFF;
+        t1 = -t1;
+    }
+    else
+    {
+        t4 = t1 >> 15;
+        t1 &= 0x7FFF;
+    }
+
+    if (t2 < 0)
+    {
+        t2 = -t2;
+        t5 = t2 >> 15;
+        t5 = -t5;
+        t2 &= 0x7FFF;
+        t2 = -t2;
+    }
+    else
+    {
+        t5 = t2 >> 15;
+        t2 &= 0x7FFF;
+    }
+
+    IR1 = t3;
+    IR2 = t4;
+    IR3 = t5;
+
+    docop2(0x41E012);
+
+    t3 = MAC1;
+    t4 = MAC2;
+    t5 = MAC3;
+
+    IR1 = t0;
+    IR2 = t1;
+    IR3 = t2;
+
+    docop2(0x49E012);
+
+    if (t3 < 0)
+    {
+        t3 = -t3;
+        t3 <<= 3;
+        t3 = -t3;
+    }
+    else
+    {
+        t3 <<= 3;
+    }
+
+    if (t3 < 0)
+    {
+        t4 = -t4;
+        t4 <<= 3;
+        t4 = -t4;
+    }
+    else
+    {
+        t4 <<= 3;
+    }
+
+
+    if (t5 < 0)
+    {
+        t5 = -t5;
+        t5 <<= 3;
+        t5 = -t5;
+    }
+    else
+    {
+        t5 <<= 3;
+    }
+
+    t0 = MAC1 + t3;
+    t1 = MAC2 + t4;
+    t2 = MAC3 + t5;
+
+    v1->vx = t0;
+    v1->vy = t1;
+    v1->vz = t2;
+}
+
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
     VX0 = v0->vx;
