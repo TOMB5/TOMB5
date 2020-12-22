@@ -3217,9 +3217,9 @@ long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* 
 
     if (MAC0 > 0)
     {
-        SXY0 = sxy0[0];
-        SXY1 = sxy1[0];
-        SXY2 = sxy2[0];
+        sxy0[0] = SXY0;
+        sxy1[0] = SXY1;
+        sxy2[0] = SXY2;
 
         VX0 = v3->vx;
         VY0 = v3->vy;
