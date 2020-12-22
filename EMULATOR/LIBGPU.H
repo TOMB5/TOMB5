@@ -1,7 +1,11 @@
 #ifndef LIBGPU_H
 #define LIBGPU_H
 
-#include "LIBGTE.H"
+#include "TYPES.H"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern	int (*GPU_printf)(const char *fmt, ...);
 
@@ -1079,5 +1083,9 @@ extern void GetDrawEnv2(DR_ENV *p);
 
 extern DISPENV activeDispEnv;
 extern DRAWENV activeDrawEnv;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
