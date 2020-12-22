@@ -2964,6 +2964,202 @@ void ApplyMatrixLV(MATRIX* mat, VECTOR* v0, VECTOR* v1)
     v1->vz = t2;
 }
 
+void CompMatrixLV(MATRIX* m0, MATRIX* m1, MATRIX* m2)
+{
+    int t0;
+    int t1;
+    int t2;
+    int t3;
+    int t4;
+    int t5;
+    int t6;
+    int t7;
+    int t8;
+
+    int at;
+
+    R11 = m0->m[0][0];
+    R12 = m0->m[0][1];
+    R13 = m0->m[0][2];
+    R21 = m0->m[1][0];
+    R22 = m0->m[1][1];
+    R23 = m0->m[1][2];
+    R31 = m0->m[2][0];
+    R32 = m0->m[2][1];
+    R33 = m0->m[2][2];
+
+    t0 = m1->m[0][0];
+    t1 = ((int*)m1)[1];
+    t2 = ((int*)m1)[3];
+
+    at = 0xFFFF0000;
+    t1 &= at;
+    t0 |= t1;
+
+    VX0 = t0 & 0xFFFF;
+    VY0 = (t0 >> 16) & 0xFFFF;
+    VZ0 = t2;
+
+    docop2(0x486012);
+
+    t0 = m1->m[0][1];
+    t1 = ((int*)m1)[2];
+    t2 = ((short*)m1)[7];
+    t1 <<= 16;
+    t0 |= t1;
+    
+    t3 = IR1;
+    t4 = IR2;
+    t5 = IR3;
+
+    VX0 = t0 & 0xFFFF;
+    VY0 = (t0 >> 16) & 0xFFFF;
+    VZ0 = t2;
+
+    docop2(0x486012);
+
+    t0 = m1->m[0][2];
+    t1 = ((int*)m1)[2];
+    t2 = ((int*)m1)[4];
+
+    at = 0xFFFF0000;
+    t1 &= at;
+    t0 |= t1;
+
+    t6 = IR1;
+    t7 = IR2;
+    t8 = IR3;
+
+    VX0 = t0 & 0xFFFF;
+    VY0 = (t0 >> 16) & 0xFFFF;
+    VZ0 = t2;
+
+    docop2(0x486012);
+
+    t3 &= 0xFFFF;
+    t6 <<= 16;
+    t6 |= t3;
+    ((int*)m2)[0] = t6;
+
+    t5 &= 0xFFFF;
+    t8 <<= 16;
+    t8 |= t5;
+    ((int*)m2)[3] = t8;
+
+    t0 = IR1;
+    t1 = IR2;
+    ((int*)m2)[4] = IR3;
+
+    t4 <<= 16;
+    t0 &= 0xFFFF;
+    t0 |= t4;
+    ((int*)m2)[1] = t0;
+
+    t7 &= 0xFFFF;
+    t1 <<= 16;
+    t1 |= t7;
+    ((int*)m2)[2] = t1;
+
+    t0 = m1->t[0];
+    t1 = m1->t[1];
+    t2 = m1->t[2];
+
+    if (t0 < 0)
+    {
+        t0 = -t0;
+        t3 = t0 >> 15;
+        t3 = -t3;
+        t0 &= 0x7FFF;
+        t0 = -t0;
+    }
+    else
+    {
+        t3 = t0 >> 15;
+        t0 &= 0x7FFF;
+    }
+
+    if (t1 < 0)
+    {
+        t1 = -t1;
+        t4 = t1 >> 15;
+        t4 = -t4;
+        t1 &= 0x7FFF;
+        t1 = -t1;
+    }
+    else
+    {
+        t4 = t1 >> 15;
+        t1 &= 0x7FFF;
+    }
+
+    if (t2 < 0)
+    {
+        t2 = -t2;
+        t5 = t2 >> 15;
+        t5 = -t5;
+        t2 &= 0x7FFF;
+        t2 = -t2;
+    }
+    else
+    {
+        t5 = t2 >> 15;
+        t2 &= 0x7FFF;
+    }
+
+    IR1 = t3;
+    IR2 = t4;
+    IR3 = t5;
+
+    docop2(0x41E012);
+
+    t3 = MAC1;
+    t4 = MAC2;
+    t5 = MAC3;
+
+    IR1 = t0;
+    IR2 = t1;
+    IR3 = t2;
+
+    docop2(0x49E012);
+
+    if (t3 < 0)
+    {
+        t3 = -t3;
+        t3 <<= 3;
+        t3 = -t3;
+    }
+    else
+    {
+        t3 <<= 3;
+    }
+
+    if (t4 < 0)
+    {
+        t4 = -t4;
+        t4 <<= 3;
+        t4 = -t4;
+    }
+    else
+    {
+        t4 <<= 3;
+    }
+
+    if (t5 < 0)
+    {
+        t5 = -t5;
+        t5 <<= 3;
+        t5 = -t5;
+    }
+    else
+    {
+        t5 <<= 3;
+    }
+
+    m2->t[0] = MAC1 + m0->t[0];
+    m2->t[1] = MAC2 + m0->t[1];
+    m2->t[2] = MAC3 + m0->t[2];
+}
+
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
     VX0 = v0->vx;
