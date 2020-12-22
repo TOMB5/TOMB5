@@ -2820,7 +2820,7 @@ long DivideFT4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*a
     //fp = sxy1
 
     RotAverageNclip4(v0, v1, v2, v3, (long*)&divp4->r0.sxy, (long*)&divp4->r1.sxy, (long*)&divp4->r2.sxy, (long*)&divp4->r3.sxy, &p, &rotz, &flag);
-
+    UNIMPLEMENTED();
     return 0;
 }
 
@@ -3158,6 +3158,41 @@ void CompMatrixLV(MATRIX* m0, MATRIX* m1, MATRIX* m2)
     m2->t[0] = MAC1 + m0->t[0];
     m2->t[1] = MAC2 + m0->t[1];
     m2->t[2] = MAC3 + m0->t[2];
+}
+
+long RotAverageNclip3(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, long* sxy0, long* sxy1/*arg_10*/, long* sxy2/*arg_14*/, long* p/*arg_18*/, long* otz/*arg_1C*/, long* flag/*arg_20*/)
+{
+    VX0 = v0->vx;
+    VY0 = v0->vy;
+    VZ0 = v0->vz;
+
+    VX1 = v1->vx;
+    VY1 = v1->vy;
+    VZ1 = v1->vz;
+
+    VX2 = v2->vx;
+    VY2 = v2->vy;
+    VZ2 = v2->vz;
+
+    docop2(0x280030);
+
+    flag[0] = FLAG;
+
+    docop2(0x1400006);
+
+    if (MAC0 > 0)
+    {
+        sxy0[0] = SXY0;
+        sxy1[0] = SXY1;
+        sxy2[0] = SXY2;
+        p[0] = IR0;
+
+        docop2(0x158002D);
+
+        otz[0] = OTZ;
+    }
+
+    return MAC0;
 }
 
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)

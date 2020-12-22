@@ -144,6 +144,7 @@ extern long DivideFT4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* 
 extern void DpqColor(CVECTOR* v0, long p, CVECTOR* v1);
 extern void ApplyMatrixLV(MATRIX* mat, VECTOR* v0, VECTOR* v1);
 extern void CompMatrixLV(MATRIX* m0, MATRIX* m1, MATRIX* m2);
+extern long RotAverageNclip3(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, long* sxy0, long* sxy1, long* sxy2, long* p, long* otz, long* flag);
 
 #if defined(PGXP)
 #define MAX_NUM_VERTICES 32768
