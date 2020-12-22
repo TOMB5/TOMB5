@@ -3259,7 +3259,9 @@ MATRIX* MulMatrix2(MATRIX* m0, MATRIX* m1)
 
 void SetBackColor(long rbk, long gbk, long bbk)
 {
-    UNIMPLEMENTED();
+    RBK = rbk << 4;
+    GBK = gbk << 4;
+    BBK = bbk << 4;
 }
 
 void SetFarColor(long rfc, long gfc, long bfc)
