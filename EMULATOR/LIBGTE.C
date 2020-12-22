@@ -3266,7 +3266,9 @@ void SetBackColor(long rbk, long gbk, long bbk)
 
 void SetFarColor(long rfc, long gfc, long bfc)
 {
-    UNIMPLEMENTED();
+    RFC = rfc >> 4;
+    GFC = gfc >> 4;
+    BFC = bfc >> 4;
 }
 
 MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
