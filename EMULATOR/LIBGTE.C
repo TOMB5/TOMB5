@@ -3195,6 +3195,36 @@ long RotAverageNclip3(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, long* sxy0, long* s
     return MAC0;
 }
 
+void SetFogNearFar(long a, long b, long h)
+{
+    if ((b - a) < 100)
+    {
+        return;
+    }
+
+    assert((b - a));
+    assert((b - a) != -1 && (-a * b) != 32768);
+    assert((b - a));
+    assert((b - a) != -1 && (b << 12) != 32768);
+    assert(h != 0);
+    assert(h != -1 && (((-a * b) / (b - a)) << 8) != 32768);
+
+    int a0 = (((-a * b) / (b - a)) << 8) / h;
+    
+    if (a0 < -32768)
+    {
+        a0 = -32768;
+    }
+
+    if (32767 < a0)
+    {
+        a0 = 32767;
+    }
+
+    SetDQA(a0);
+    SetDQB((((b << 12) / (b - a)) << 12));
+}
+
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
     VX0 = v0->vx;
