@@ -3503,14 +3503,14 @@ static unsigned short rsin_tbl[] = {
 static int sin_1(int a)
 {
     short sin;
-
+    
     if (a >= 2048)
     {
         //loc_284
         if (a <= 3072)
         {
             //loc_2B0
-            sin = -rsin_tbl[4096 + a];
+            sin = -rsin_tbl[a - 2048];
         }
         else
         {
@@ -3541,8 +3541,6 @@ int rsin(int a)
         //loc_21C
         return -sin_1(-a & 0xFFF);
     }
-
-    return 0;
 }
 
 int rcos(int a)
@@ -3561,12 +3559,12 @@ int rcos(int a)
         //loc_258
         if (a <= 3072)
         {
-            //loc_27C
             cos = -rsin_tbl[3072 - a];
         }
         else
         {
-            cos = rsin_tbl[3072 + a];
+            //loc_27C
+            cos = rsin_tbl[a - 3072];
         }
     }
     else if (a >= 1024)
