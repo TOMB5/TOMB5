@@ -1,5 +1,6 @@
 #include "LIBPAD.H"
 
+#include "LIBETC.H"
 #include "EMULATOR.H"
 
 #if defined(SDL2)
@@ -315,6 +316,92 @@ unsigned short UpdateKeyboardInput()
 	}
 
 	if (keyboardState[SDL_SCANCODE_RETURN])//START
+	{
+		ret &= ~0x8;
+	}
+#endif
+	return ret;
+}
+
+unsigned short UpdateKeyboardInputDebug()
+{
+	unsigned short ret = 0xFFFF;
+
+#if defined(SDL2)
+	//Not initialised yet
+	if (keyboardStateDebug == NULL)
+	{
+		return ret;
+	}
+
+	SDL_PumpEvents();
+
+	if (keyboardStateDebug[SDL_SCANCODE_X])//Square
+	{
+		ret &= ~0x8000;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_V])//Circle
+	{
+		ret &= ~0x2000;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_Z])//Triangle
+	{
+		ret &= ~0x1000;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_C])//Cross
+	{
+		ret &= ~0x4000;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_LSHIFT])//L1
+	{
+		ret &= ~0x400;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_RSHIFT])//R1
+	{
+		ret &= ~0x800;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_UP])//UP
+	{
+		ret &= ~0x10;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_DOWN])//DOWN
+	{
+		ret &= ~0x40;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_LEFT])//LEFT
+	{
+		ret &= ~0x80;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_RIGHT])//RIGHT
+	{
+		ret &= ~0x20;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_LCTRL])//L2
+	{
+		ret &= ~0x100;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_RCTRL])//R2
+	{
+		ret &= ~0x200;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_SPACE])//SELECT
+	{
+		ret &= ~0x1;
+	}
+
+	if (keyboardStateDebug[SDL_SCANCODE_RETURN])//START
 	{
 		ret &= ~0x8;
 	}

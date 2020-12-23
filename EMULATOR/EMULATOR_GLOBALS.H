@@ -24,6 +24,7 @@ extern int g_polygonSelected;
 #if defined(SDL2)
 extern unsigned short UpdateGameControllerInput(SDL_GameController* pad);
 extern unsigned short UpdateKeyboardInput();
+extern unsigned short UpdateKeyboardInputDebug();
 
 extern SDL_GameController* padHandle[];
 #endif
