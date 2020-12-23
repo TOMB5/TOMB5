@@ -66,6 +66,7 @@ unsigned int terminator = -1;
 static char unk_1B00[1024];//unk_1B00
 static char unk_1F00[16384];//unk_1F00
 static unsigned int fontStreamCount = 0;//dword_E80
+static unsigned int fontCurrentStream = 0;//dword_E84
 static unsigned int fontUsedCharacterCount = 0;//dword_1888
 static DR_MODE fontMode = { 0, 0, 0, 0 };//unk_D10
 static unsigned short fontTpage = getTPage(2, 0, 0, 0);//word_5F00
@@ -1091,7 +1092,11 @@ void SetSprt(SPRT* p)
 
 void SetDumpFnt(int id)
 {
-	UNIMPLEMENTED();
+	if (id >= 0 && fontStreamCount >= id)
+	{
+		fontCurrentStream = id;
+		//sw v0, GPU_printf///@FIXME?
+	}
 }
 
 void SetLineF3(LINE_F3* p)
