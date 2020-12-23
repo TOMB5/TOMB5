@@ -63,6 +63,34 @@ unsigned int terminator[2] = { -1, 0 };
 unsigned int terminator = -1;
 #endif
 
+static char unk_1B00[1024];//unk_1B00
+static char unk_1F00[16384];//unk_1F00
+static unsigned int fontStreamCount = 0;//dword_E80
+static unsigned int fontUsedCharacterCount = 0;//dword_1888
+static DR_MODE fontMode = { 0, 0, 0, 0 };//unk_D10
+static unsigned short fontTpage = getTPage(2, 0, 0, 0);//word_5F00
+static unsigned short fontClut = getClut(960, 384);//word_5F02
+#define MAX_NUM_FONT_STREAMS (8)
+#define MAX_FONT_CHARACTER_COUNT (1024)
+
+#pragma pack(push,1)
+
+struct Font
+{
+	TILE tile;
+	unsigned int unk01;
+	unsigned int unk02;
+	unsigned int characterCount;
+	SPRT_8* pSprites;
+	char* unk05;
+	unsigned int unk06;
+	unsigned int unk07;
+};
+
+#pragma pack(pop)
+
+struct Font font[MAX_NUM_FONT_STREAMS];//dword_D00
+
 void(*drawsync_callback)(void) = NULL;
 
 void* off_3348[] =
@@ -1204,8 +1232,71 @@ int KanjiFntOpen(int x, int y, int w, int h, int dx, int dy, int cx, int cy, int
 
 int FntOpen(int x, int y, int w, int h, int isbg, int n)
 {
-	UNIMPLEMENTED();
-	return 0;
+	RECT16 rect;
+	int characterCount = n;
+	int i;
+	SPRT_8* pSprite;
+
+	//Maximum number of font streams is 8.
+	if (fontStreamCount >= MAX_NUM_FONT_STREAMS)
+	{
+		return -1;
+	}
+
+	//loc_338
+	if (fontStreamCount == 0)
+	{
+		fontUsedCharacterCount = 0;
+	}
+
+	//loc_348
+	font[fontStreamCount].unk07 = w < 1;
+
+	if (characterCount + fontUsedCharacterCount >= MAX_FONT_CHARACTER_COUNT)
+	{
+		characterCount = MAX_FONT_CHARACTER_COUNT - fontUsedCharacterCount;
+	}
+
+	//loc_37C
+	rect.x = 0;
+	rect.x = 0;
+	rect.w = 256;
+	rect.h = 256;
+	SetDrawMode(&fontMode, 0, 0, fontTpage, &rect);
+
+	//Should we clear the draw area?
+	if (isbg != FALSE)
+	{
+		SetTile(&font[fontStreamCount].tile);
+		setRGB0(&font[fontStreamCount].tile, 0, 0, 0);
+		SetSemiTrans(&font[fontStreamCount].tile, (isbg ^ 2) < 1);
+	}
+
+	//loc_460
+	setXY0(&font[fontStreamCount].tile, x, y);
+	setWH(&font[fontStreamCount].tile, w, h);
+
+	font[fontStreamCount].characterCount = n;
+	font[fontStreamCount].unk06 = 0;
+	font[fontStreamCount].unk05 = &unk_1B00[fontUsedCharacterCount];
+	font[fontStreamCount].pSprites = (SPRT_8*)&unk_1F00[fontUsedCharacterCount << 4];
+	font[fontStreamCount].unk05[0] = 0;
+	
+	if (n > 0)
+	{
+		pSprite = &font[fontStreamCount].pSprites[0];
+
+		for (int i = 0; i < n; i++, pSprite++)
+		{
+			SetSprt8(pSprite);
+			pSprite->clut = fontClut;
+		}
+	}
+
+	fontUsedCharacterCount += n;
+	fontStreamCount += 1;
+
+	return fontStreamCount - 1;
 }
 
 void SetPolyF4(POLY_F4* p)
