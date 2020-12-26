@@ -4,10 +4,6 @@
 #include "EMULATOR_PRIVATE.H"
 #include <assert.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define WIDE_SCREEN (0)
 
 #if defined(PGXP)
@@ -1809,6 +1805,10 @@ unsigned int* gte_rcossin_tbl = (unsigned int*)&ida_chars[0];///@FIXME convert t
 #   define min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void InitGeom()
 {
     //_patch_gte(); //Extern
@@ -3225,6 +3225,12 @@ void SetFogNearFar(long a, long b, long h)
     SetDQB((((b << 12) / (b - a)) << 12));
 }
 
+long RotTransPers4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0, long* sxy1, long* sxy2, long* sxy3, long* p, long* flag)
+{
+    UNIMPLEMENTED();
+    return 0;
+}
+
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
     VX0 = v0->vx;
@@ -3440,8 +3446,27 @@ MATRIX* TransMatrix(MATRIX* m, VECTOR* v)
 
 MATRIX* ScaleMatrix(MATRIX* m, VECTOR* v)
 {
-    UNIMPLEMENTED();
-    return NULL;
+    unsigned t0 = ((unsigned int*)m)[0];
+    unsigned t1 = ((((t0 & 0xFFFF) * v->vx) >> 12) & 0xFFFF) | ((((t0 >> 16) * v->vy) >> 12) << 16);
+    ((unsigned int*)m)[0] = t1;
+    
+    t0 = ((unsigned int*)m)[1];
+    t1 = ((((t0 & 0xFFFF) * v->vz) >> 12) & 0xFFFF) | ((((t0 >> 16) * v->vx) >> 12) << 16);
+    ((unsigned int*)m)[1] = t1;
+
+    t0 = ((unsigned int*)m)[2];
+    t1 = ((((t0 & 0xFFFF) * v->vy) >> 12) & 0xFFFF) | ((((t0 >> 16) * v->vz) >> 12) << 16);
+    ((unsigned int*)m)[2] = t1;
+
+    t0 = ((unsigned int*)m)[3];
+    t1 = ((((t0 & 0xFFFF) * v->vx) >> 12) & 0xFFFF) | ((((t0 >> 16) * v->vy) >> 12) << 16);
+    ((unsigned int*)m)[3] = t1;
+
+    t0 = ((unsigned int*)m)[4];
+    t1 = ((t0 & 0xFFFF) * v->vz) >> 12;
+    ((unsigned int*)m)[4] = t1;
+
+    return m;
 }
 
 void SetDQA(int iDQA)
