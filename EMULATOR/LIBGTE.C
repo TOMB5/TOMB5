@@ -3278,8 +3278,30 @@ void RotTransSV(SVECTOR* v0, SVECTOR* v1, long* flag)
 
 long TransRotPers(SVECTOR* v0, long* sxy, long* p, long* flag)
 {
-    UNIMPLEMENTED();
-    return 0;
+    int transX = TRX;//$t3
+    int transY = TRY;//$t4
+    int transZ = TRZ;//$t5
+
+    TRX = 0;
+    TRY = 0;
+    TRZ = 0;
+
+    VX0 = ((v0->vx + transX) & 0xFFFF);
+    VY0 = v0->vy + transY;
+    VZ0 = v0->vy + transZ;
+
+    docop2(0x180001);
+
+    sxy[0] = SXY2;
+    p[0] = IR0;
+
+    TRX = transX;
+    TRY = transY;
+    TRZ = transZ;
+
+    flag[0] = FLAG;
+
+    return SZ3 >> 2;
 }
 
 long NormalClip(long sxy0, long sxy1, long sxy2)
