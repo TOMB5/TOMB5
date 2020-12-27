@@ -3262,6 +3262,32 @@ long RotTransPers4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy
     return SZ3 >> 2;
 }
 
+void RotTransSV(SVECTOR* v0, SVECTOR* v1, long* flag)
+{
+    VX0 = v0->vx;
+    VY0 = v0->vy;
+    VZ0 = v0->vz;
+
+    docop2(0x480012);
+
+    v1->vx = IR1;
+    v1->vy = IR2;
+    ((int*)v1)[1] = IR3;
+    flag[0] = FLAG;
+}
+
+long TransRotPers(SVECTOR* v0, long* sxy, long* p, long* flag)
+{
+    UNIMPLEMENTED();
+    return 0;
+}
+
+long NormalClip(long sxy0, long sxy1, long sxy2)
+{
+    UNIMPLEMENTED();
+    return 0;
+}
+
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
     VX0 = v0->vx;
