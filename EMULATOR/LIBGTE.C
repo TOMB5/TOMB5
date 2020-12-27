@@ -3284,8 +3284,13 @@ long TransRotPers(SVECTOR* v0, long* sxy, long* p, long* flag)
 
 long NormalClip(long sxy0, long sxy1, long sxy2)
 {
-    UNIMPLEMENTED();
-    return 0;
+    SXY0 = sxy0;
+    SXY1 = sxy1;
+    SXY2 = sxy2;
+    
+    docop2(0x1400006);
+
+    return MAC0;
 }
 
 long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
