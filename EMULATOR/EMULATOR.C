@@ -2877,24 +2877,6 @@ void Emulator_TakeScreenshot()
 }
 #endif
 
-static void* lara_item = NULL;
-static void* items = NULL;
-static int item_index = 0;
-
-void Emulator_InitialiseCheatLaraToItem(void* laraitem, void* allitems)
-{
-	lara_item = laraitem;
-	items = allitems;
-}
-
-void Emulator_CheatLaraToNextItem()
-{
-	if (lara_item != NULL && items != NULL)
-	{
-		memcpy((char*)lara_item + 64, (char*)items + 64 + (item_index++ * 144), 20);
-	}
-}
-
 void Emulator_DoDebugKeys(int nKey, bool down)
 {
 #if defined(SDL2)
