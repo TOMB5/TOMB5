@@ -2929,9 +2929,6 @@ void Emulator_DoDebugKeys(int nKey, bool down)
 				Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 				break;
 #endif
-			case SDL_SCANCODE_6:
-				Emulator_CheatLaraToNextItem();
-				break;
 		}
 	}
 #endif
