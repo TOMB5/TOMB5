@@ -190,10 +190,23 @@ struct ShaderID {
 };
 
 typedef ID3D11RenderTargetView* RenderTargetID;
+#elif defined(D3D12)
+typedef void* TextureID;
+
+struct ShaderID {
+	D3D12_SHADER_BYTECODE VS;
+	D3D12_SHADER_BYTECODE PS;
+	D3D12_INPUT_LAYOUT_DESC IL;
+};
+
+typedef D3D12_RENDER_TARGET_VIEW_DESC* RenderTargetID;
 #else
 #error
 #endif
 
+extern int vram_need_update;
+extern bool begin_scene_flag;
+extern bool vbo_was_dirty_flag;
 extern int  Emulator_Initialise();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_CopyVRAM(unsigned short* src, int x, int y, int w, int h, int dst_x, int dst_y);
@@ -234,12 +247,17 @@ extern void Emulator_CreateGlobalShaders();
 extern void Emulator_DestroyGlobalShaders();
 extern void Emulator_GenerateCommonTextures();
 
+extern void Emulator_DoPollEvent();
+
 #if defined(D3D11)
 extern void Emulator_CreateConstantBuffers();
 extern void Emulator_UpdateProjectionConstantBuffer(float* ortho);
 extern void Emulator_SetConstantBuffers();
 extern void Emulator_DestroyConstantBuffers();
 extern void Emulator_CreateRasterState(int wireframe);
+#elif defined(D3D12)
+extern void Emulator_CreateRasterState(int wireframe);
+extern void Emulator_WaitForPreviousFrame();
 #endif
 
 #if defined(D3D9) || defined(XED3D)

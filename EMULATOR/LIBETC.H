@@ -3,6 +3,10 @@
 
 #include "TYPES.H"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int PadIdentifier;
 
 #define PADLup     (1<<12)
@@ -33,10 +37,14 @@ extern int PadIdentifier;
 
 #define _PAD(x,y) ((y)<<((x)<<4))
 
-#define getScratchAddr(offset)  ((u_long *)(0x1f800000+(offset)*4))
+extern char scratchData[4096];
+
+#define getScratchAddr(offset)  ((u_long *)(&scratchData+(offset)*4))
 
 #define MODE_NTSC 0
 #define MODE_PAL 1 
+
+#define MAX_CONTROLLERS 2
 
 extern int CheckCallback(void);
 extern void PadInit(int mode);
@@ -50,6 +58,12 @@ extern long SetVideoMode (long mode);
 extern u_long PadRead(int id);
 extern void PadStop(void);
 extern void(*vsync_callback)(void);
+
+extern const unsigned char* keyboardStateDebug;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

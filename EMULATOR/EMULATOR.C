@@ -56,6 +56,29 @@ TextureID whiteTexture;
 	ID3D11SamplerState		*samplerState;
 	ID3D11BlendState		*blendState;
 	ID3D11RasterizerState	*rasterState;
+#elif defined(D3D12)
+	ID3D12Resource* dynamic_vertex_buffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW dynamic_vertex_buffer_view;
+	ID3D12Device* d3ddev = NULL;
+	ID3D12CommandQueue* commandQueue = NULL;
+	IDXGISwapChain3* swapChain = NULL;
+	ID3D12PipelineState* pipelineState = NULL;
+	//ID3D11RenderTargetView* renderTargetView;
+	//ID3D11Buffer* projectionMatrixBuffer;
+	//ID3D11SamplerState* samplerState;
+	D3D12_BLEND_DESC blendDesc;
+	D3D12_RASTERIZER_DESC rsd;
+	ID3D12DescriptorHeap* renderTargetDescriptorHeap;
+	int renderTargetDescriptorSize = 0;
+	int frameIndex = 0;
+#define RENDER_TARGET_COUNT (2)
+	ID3D12Resource* renderTargets[RENDER_TARGET_COUNT];
+	ID3D12CommandAllocator* commandAllocator[RENDER_TARGET_COUNT];
+	ID3D12GraphicsCommandList* commandList;
+	ID3D12RootSignature* rootSignature;
+	ID3D12Fence* fence[RENDER_TARGET_COUNT];
+	unsigned int fenceValue[RENDER_TARGET_COUNT];
+	HANDLE fenceEvent;
 #endif
 
 int windowWidth = 0;
@@ -220,6 +243,36 @@ void Emulator_ResetDevice()
 	d3dcontext->OMSetRenderTargets(1, &renderTargetView, NULL);
 	d3dcontext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	Emulator_CreateRasterState(FALSE);
+#elif defined(D3D12)
+
+	D3D12_HEAP_PROPERTIES heapProperties;
+	heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+	heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	heapProperties.CreationNodeMask = 1;
+	heapProperties.VisibleNodeMask = 1;
+
+	D3D12_RESOURCE_DESC vertexBufferResourceDesc;
+	vertexBufferResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	vertexBufferResourceDesc.Alignment = 0;
+	vertexBufferResourceDesc.Width = sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES;
+	vertexBufferResourceDesc.Height = 1;
+	vertexBufferResourceDesc.DepthOrArraySize = 1;
+	vertexBufferResourceDesc.MipLevels = 1;
+	vertexBufferResourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+	vertexBufferResourceDesc.SampleDesc.Count = 1;
+	vertexBufferResourceDesc.SampleDesc.Quality = 0;
+	vertexBufferResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	vertexBufferResourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	HRESULT hr = d3ddev->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &vertexBufferResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, IID_PPV_ARGS(&dynamic_vertex_buffer));
+	assert(!FAILED(hr));
+	
+	commandList->IASetVertexBuffers(0, 1, &dynamic_vertex_buffer_view);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	rtvHandle.ptr = rtvHandle.ptr + (frameIndex * renderTargetDescriptorSize);
+	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+	Emulator_CreateRasterState(FALSE);
 #endif
 }
 
@@ -340,6 +393,248 @@ static int Emulator_InitialiseD3D11Context(char* windowName)
 	}
 
 	backBuffer->Release();
+
+	return TRUE;
+}
+#endif
+
+#if defined(D3D12)
+static int Emulator_InitialiseD3D12Context(char* windowName)
+{
+#if defined(SDL2)
+	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_RESIZABLE);
+	if (g_window == NULL)
+	{
+		eprinterr("Failed to initialise SDL window!\n");
+		return FALSE;
+	}
+#endif
+	SDL_SysWMinfo wmInfo;
+	SDL_VERSION(&wmInfo.version);
+	SDL_GetWindowWMInfo(g_window, &wmInfo);
+	
+	IDXGIFactory2* factory = NULL;
+	HRESULT hr = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&factory));
+	
+	if (!SUCCEEDED(hr)) {
+		eprinterr("Failed to create DXGI factory2!\n");
+		return FALSE;
+	}
+
+	int adapterIndex = 0;
+	int adapterFound = FALSE;
+	IDXGIAdapter1* adapter = NULL;
+	while (factory->EnumAdapters1(adapterIndex, &adapter) != DXGI_ERROR_NOT_FOUND)
+	{
+		DXGI_ADAPTER_DESC1 adapterDesc;
+		adapter->GetDesc1(&adapterDesc);
+
+		if (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+		{
+			continue;
+		}
+
+		hr = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), NULL);
+
+		if (SUCCEEDED(hr))
+		{
+			adapterFound = TRUE;
+			break;
+		}
+
+		adapterIndex++;
+	}
+
+	if (!adapterFound) {
+		eprinterr("Failed to locate D3D12 compatible adapter!\n");
+		return FALSE;
+	}
+
+	ID3D12Debug* debugController;
+	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+	{
+		debugController->EnableDebugLayer();
+	}
+
+	hr = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&d3ddev));
+	if (!SUCCEEDED(hr)) {
+		eprinterr("Failed to create D3D12 device!\n");
+		return FALSE;
+	}
+
+	hr = d3ddev->GetDeviceRemovedReason();
+
+	D3D12_COMMAND_QUEUE_DESC commandQDesc;
+	ZeroMemory(&commandQDesc, sizeof(D3D12_COMMAND_QUEUE_DESC));
+	commandQDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	commandQDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+	hr = d3ddev->CreateCommandQueue(&commandQDesc, IID_PPV_ARGS(&commandQueue));
+	if (!SUCCEEDED(hr)) {
+		eprinterr("Failed to create D3D12 command queue!\n");
+		return FALSE;
+	}
+
+	DXGI_MODE_DESC backBufferDesc;
+	ZeroMemory(&backBufferDesc, sizeof(DXGI_MODE_DESC));
+	backBufferDesc.Width = windowWidth;
+	backBufferDesc.Height = windowHeight;
+	backBufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	DXGI_SAMPLE_DESC sampleDesc;
+	ZeroMemory(&sampleDesc, sizeof(DXGI_SAMPLE_DESC));
+	sampleDesc.Count = 1;
+
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	ZeroMemory(&swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
+	swapChainDesc.BufferCount = RENDER_TARGET_COUNT;
+	swapChainDesc.BufferDesc = backBufferDesc;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.OutputWindow = wmInfo.info.win.window;
+	swapChainDesc.SampleDesc = sampleDesc;
+	swapChainDesc.Windowed = TRUE;
+
+	IDXGISwapChain* tempSwapChain;
+
+	hr = factory->CreateSwapChain(commandQueue, &swapChainDesc, &tempSwapChain);
+
+	if (!SUCCEEDED(hr)) {
+		eprinterr("Failed to create swap chain!\n");
+		return FALSE;
+	}
+
+	swapChain = (IDXGISwapChain3*)tempSwapChain;
+	frameIndex = swapChain->GetCurrentBackBufferIndex();
+
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
+	ZeroMemory(&heapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
+	heapDesc.NumDescriptors = RENDER_TARGET_COUNT;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+	hr = d3ddev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&renderTargetDescriptorHeap));
+	if (!SUCCEEDED(hr)) {
+		eprinterr("Failed to create RTV Descripter heap!\n");
+		return FALSE;
+	}
+
+	renderTargetDescriptorSize = d3ddev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetHandle(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+	for (int i = 0; i < RENDER_TARGET_COUNT; i++)
+	{
+		hr = swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
+		if (FAILED(hr))
+		{
+			return FALSE;
+		}
+
+		d3ddev->CreateRenderTargetView(renderTargets[i], nullptr, renderTargetHandle);
+
+		renderTargetHandle.ptr += (1 * renderTargetDescriptorSize);
+	}
+
+	for (int i = 0; i < RENDER_TARGET_COUNT; i++)
+	{
+		hr = d3ddev->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator[i]));
+		if (FAILED(hr))
+		{
+			return FALSE;
+		}
+	}
+
+	hr = d3ddev->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator[frameIndex], NULL, IID_PPV_ARGS(&commandList));
+	if (FAILED(hr))
+	{
+		return FALSE;
+	}
+
+	for (int i = 0; i < RENDER_TARGET_COUNT; i++)
+	{
+		hr = d3ddev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence[i]));
+		if (FAILED(hr))
+		{
+			return FALSE;
+		}
+
+		fenceValue[i] = 0;
+	}
+
+	fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	if (fenceEvent == NULL)
+	{
+		eprinterr("Failed to create fence event!\n");
+		return FALSE;
+	}
+
+	D3D12_DESCRIPTOR_RANGE rangesVertex[1];
+	rangesVertex[0].BaseShaderRegister = 0;
+	rangesVertex[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	rangesVertex[0].NumDescriptors = 1;
+	rangesVertex[0].RegisterSpace = 0;
+	rangesVertex[0].OffsetInDescriptorsFromTableStart = 0;
+
+	D3D12_DESCRIPTOR_RANGE rangesPixel[1];
+	rangesPixel[0].BaseShaderRegister = 0;
+	rangesPixel[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+	rangesPixel[0].NumDescriptors = 1;
+	rangesPixel[0].RegisterSpace = 0;
+	rangesPixel[0].OffsetInDescriptorsFromTableStart = 0;
+
+	D3D12_DESCRIPTOR_RANGE rangesSRV[1];
+	rangesSRV[0].BaseShaderRegister = 0;
+	rangesSRV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	rangesSRV[0].NumDescriptors = 1;
+	rangesSRV[0].RegisterSpace = 0;
+	rangesSRV[0].OffsetInDescriptorsFromTableStart = 0;
+
+	D3D12_ROOT_PARAMETER rootParameters[3];
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[0].DescriptorTable.NumDescriptorRanges = sizeof(rangesVertex) / sizeof(D3D12_DESCRIPTOR_RANGE);
+	rootParameters[0].DescriptorTable.pDescriptorRanges = rangesVertex;
+	
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[1].DescriptorTable.NumDescriptorRanges = sizeof(rangesPixel) / sizeof(D3D12_DESCRIPTOR_RANGE);
+	rootParameters[1].DescriptorTable.pDescriptorRanges = rangesPixel;
+
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = sizeof(rangesSRV) / sizeof(D3D12_DESCRIPTOR_RANGE);
+	rootParameters[2].DescriptorTable.pDescriptorRanges = rangesSRV;
+
+	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	rootSignatureDesc.NumParameters = sizeof(rootParameters) / sizeof(D3D12_ROOT_PARAMETER);
+	rootSignatureDesc.pParameters = rootParameters;
+	rootSignatureDesc.NumStaticSamplers = 0;
+	rootSignatureDesc.pStaticSamplers = nullptr;
+
+	ID3DBlob* errorBlob;
+	ID3DBlob* signature;
+	hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &errorBlob);
+	if (FAILED(hr))
+	{
+		printf("%s\n", errorBlob->GetBufferPointer());
+		return FALSE;
+	}
+
+	hr = d3ddev->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+	if (FAILED(hr))
+	{
+		return FALSE;
+	}
+
+	commandList->Close();
+	fenceValue[frameIndex]++;
+	hr = commandQueue->Signal(fence[frameIndex], fenceValue[frameIndex]);
+	if (FAILED(hr))
+	{
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -524,6 +819,12 @@ static int Emulator_InitialiseSDL(char* windowName, int width, int height)
 	if (Emulator_InitialiseD3D11Context(windowName) == FALSE)
 	{
 		eprinterr("Failed to Initialise D3D11 Context!\n");
+		return FALSE;
+	}
+#elif defined(D3D12)
+	if (Emulator_InitialiseD3D12Context(windowName) == FALSE)
+	{
+		eprinterr("Failed to Initialise D3D12 Context!\n");
 		return FALSE;
 	}
 #endif
@@ -1702,7 +2003,7 @@ ShaderID Shader_Compile_Internal(const DWORD* vs_data, const DWORD* ps_data, con
 {
 	ShaderID shader;
 	HRESULT hr;
-	int test = sizeof(gte_shader_4_vs);
+
 	hr = d3ddev->CreateVertexShader(vs_data, vs_size, NULL, &shader.VS);
 	assert(!FAILED(hr));
 	hr = d3ddev->CreatePixelShader(ps_data, ps_size, NULL, &shader.PS);
@@ -1714,10 +2015,10 @@ ShaderID Shader_Compile_Internal(const DWORD* vs_data, const DWORD* ps_data, con
 #if defined(PGXP)
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, OFFSETOF(Vertex, x), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 #else	
-		{ "POSITION", 0, DXGI_FORMAT_R16G16B16A16_SINT, 0, OFFSETOF(Vertex, x), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "POSITION", 0, DXGI_FORMAT_R16G16B16A16_SINT,  0, OFFSETOF(Vertex, x), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 #endif
-		{ "TEXCOORD", 0, DXGI_FORMAT_R8G8B8A8_UINT,		0, OFFSETOF(Vertex, u), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,	0, OFFSETOF(Vertex, r), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R8G8B8A8_UINT,		 0, OFFSETOF(Vertex, u), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,	 0, OFFSETOF(Vertex, r), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 };
 
 	hr = d3ddev->CreateInputLayout(INPUT_LAYOUT, sizeof(INPUT_LAYOUT) / sizeof(D3D11_INPUT_ELEMENT_DESC), vs_data, vs_size, &shader.IL);
@@ -1754,8 +2055,67 @@ ShaderID Shader_Compile_Internal(const DWORD* vs_data, const DWORD* ps_data, con
 
 ShaderID Shader_Compile_Internal(const DWORD* vs_data, const DWORD* ps_data, const unsigned int vs_size, const unsigned int ps_size)
 {
-	ShaderID shader;
+	ShaderID shader = {};
 	HRESULT hr;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc = {};
+
+	D3D12_SHADER_BYTECODE vertexShaderByteCode;
+	vertexShaderByteCode.pShaderBytecode = vs_data;
+	vertexShaderByteCode.BytecodeLength = vs_size;
+	pipelineStateDesc.VS = vertexShaderByteCode;
+
+	D3D12_SHADER_BYTECODE pixelShaderByteCode;
+	pixelShaderByteCode.pShaderBytecode = ps_data;
+	pixelShaderByteCode.BytecodeLength = ps_size;
+	pipelineStateDesc.PS = pixelShaderByteCode;
+
+#define OFFSETOF(T, E)     ((size_t)&(((T*)0)->E))
+
+	const D3D12_INPUT_ELEMENT_DESC INPUT_LAYOUT[] =
+	{
+#if defined(PGXP)
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, OFFSETOF(Vertex, x), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+#else	
+		{ "POSITION", 0, DXGI_FORMAT_R16G16B16A16_SINT,  0, OFFSETOF(Vertex, x), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+#endif
+		{ "TEXCOORD", 0, DXGI_FORMAT_R8G8B8A8_UINT,		 0, OFFSETOF(Vertex, u), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,	 0, OFFSETOF(Vertex, r), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
+
+	
+	pipelineStateDesc.InputLayout = { INPUT_LAYOUT, sizeof(INPUT_LAYOUT) /  sizeof(D3D12_INPUT_ELEMENT_DESC)};
+	pipelineStateDesc.pRootSignature = rootSignature;
+	pipelineStateDesc.RasterizerState = rsd;
+
+	blendDesc.AlphaToCoverageEnable = FALSE;
+	blendDesc.IndependentBlendEnable = FALSE;
+	const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc =
+	{
+		  FALSE,FALSE,
+		  D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		  D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		  D3D12_LOGIC_OP_NOOP,
+		  D3D12_COLOR_WRITE_ENABLE_ALL,
+	};
+
+	for (UINT i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
+		blendDesc.RenderTarget[i] = defaultRenderTargetBlendDesc;
+
+	pipelineStateDesc.BlendState = blendDesc;
+	pipelineStateDesc.DepthStencilState.DepthEnable = FALSE;
+	pipelineStateDesc.DepthStencilState.StencilEnable = FALSE;
+	pipelineStateDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	pipelineStateDesc.SampleMask = UINT_MAX;
+	pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	pipelineStateDesc.NumRenderTargets = 1;
+	pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	pipelineStateDesc.SampleDesc.Count = 1;
+
+	assert(!FAILED(d3ddev->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineState))));
+
+	///@TODO one per shader needs switching
+	commandList->SetPipelineState(pipelineState);
+	commandList->SetGraphicsRootSignature(rootSignature);
 
 #undef OFFSETOF
 
@@ -1767,6 +2127,10 @@ ShaderID Shader_Compile_Internal(const DWORD* vs_data, const DWORD* ps_data, con
 
 void Emulator_CreateGlobalShaders()
 {
+#if defined(D3D12)
+	Emulator_CreateRasterState(FALSE);
+#endif
+
 	g_gte_shader_4  = Shader_Compile(gte_shader_4);
 	g_gte_shader_8  = Shader_Compile(gte_shader_8);
 	g_gte_shader_16 = Shader_Compile(gte_shader_16);
@@ -1846,7 +2210,10 @@ void Emulator_GenerateCommonTextures()
 	hr = d3ddev->CreateShaderResourceView(t, &srvd, &whiteTexture);
 	assert(!FAILED(hr));
 	t->Release();
-
+#elif defined(D3D12)
+	UNIMPLEMENTED();
+#else
+	#error
 #endif
 }
 
@@ -1859,7 +2226,7 @@ int Emulator_Initialise()
 #if defined(D3D11)
 	Emulator_CreateConstantBuffers();
 #endif
-	
+
 #if defined(OGL) || defined(OGLES)
 	glDisable(GL_DEPTH_TEST);
 	glBlendColor(0.5f, 0.5f, 0.5f, 0.25f);
@@ -1879,18 +2246,18 @@ int Emulator_Initialise()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(a_position);
 	glEnableVertexAttribArray(a_texcoord);
-	
-    glEnableVertexAttribArray(a_color);
+
+	glEnableVertexAttribArray(a_color);
 #if defined(PGXP)
-	glVertexAttribPointer(a_position, 4, GL_FLOAT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
+	glVertexAttribPointer(a_position, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
 #else
-	glVertexAttribPointer(a_position, 4, GL_SHORT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
+	glVertexAttribPointer(a_position, 4, GL_SHORT, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
 #endif
 	glVertexAttribPointer(a_texcoord, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->u);
-	glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(Vertex), &((Vertex*)NULL)->r);
+	glVertexAttribPointer(a_color, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), &((Vertex*)NULL)->r);
 #if defined(PGXP)
-	glVertexAttribPointer(a_z,        1, GL_FLOAT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->z);
-	glVertexAttribPointer(a_w,        1, GL_FLOAT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->w);
+	glVertexAttribPointer(a_z, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->z);
+	glVertexAttribPointer(a_w, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->w);
 
 	glEnableVertexAttribArray(a_z);
 	glEnableVertexAttribArray(a_w);
@@ -1903,7 +2270,7 @@ int Emulator_Initialise()
 		return FALSE;
 	}
 
-	#define OFFSETOF(T, E)     ((size_t)&(((T*)0)->E))
+#define OFFSETOF(T, E)     ((size_t)&(((T*)0)->E))
 
 	const D3DVERTEXELEMENT9 VERTEX_DECL[] = {
 #if defined(PGXP)
@@ -1918,7 +2285,7 @@ int Emulator_Initialise()
 
 	d3ddev->CreateVertexDeclaration(VERTEX_DECL, &vertexDecl);
 
-	#undef OFFSETOF
+#undef OFFSETOF
 #elif defined(D3D11)
 
 	D3D11_TEXTURE2D_DESC td;
@@ -1953,14 +2320,14 @@ int Emulator_Initialise()
 		return FALSE;
 	}
 #elif defined(D3D12)
-	///@D3D12
+	UNIMPLEMENTED();
 #else
 	#error
 #endif
 
 	Emulator_ResetDevice();
-	
-    return TRUE;
+
+	return TRUE;
 }
 
 void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar)
@@ -1994,6 +2361,7 @@ void Emulator_Ortho2D(float left, float right, float bottom, float top, float zn
 	Emulator_SetConstantBuffers();
 #elif defined(D3D12)
 	///@D3D12
+	UNIMPLEMENTED();
 #else
 	#error
 #endif
@@ -2012,6 +2380,7 @@ void Emulator_SetShader(const ShaderID &shader)
 	d3dcontext->IASetInputLayout(shader.IL);
 #elif defined(D3D12)
 	///@D3D12
+	UNIMPLEMENTED();
 #else
 	#error
 #endif
@@ -2051,6 +2420,7 @@ void Emulator_SetTexture(TextureID texture, TexFormat texFormat)
 	d3dcontext->PSSetSamplers(0, 1, &samplerState);
 #elif defined(D3D12)
 	///@D3D12
+	UNIMPLEMENTED();
 #else
 	#error
 #endif
@@ -2064,6 +2434,9 @@ void Emulator_DestroyTexture(TextureID texture)
     glDeleteTextures(1, &texture);
 #elif defined(D3D9) || defined(XED3D) || defined(D3D11)
     texture->Release();
+#elif defined(D3D12)
+	///@TODO D3D12
+	UNIMPLEMENTED();
 #else
     #error
 #endif
@@ -2082,7 +2455,9 @@ extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned
 	FLOAT clearColor[4]{ r / 255.0f, g / 255.0f, b / 255.0f, 1.0f };
 	d3dcontext->ClearRenderTargetView(renderTargetView, clearColor);
 #elif defined(D3D12)
-	///@D3D12
+	FLOAT clearColor[4]{ r / 255.0f, g / 255.0f, b / 255.0f, 1.0f };
+	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetHandle(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	commandList->ClearRenderTargetView(renderTargetHandle, clearColor, 0, NULL);
 #else
 	#error
 #endif
@@ -2208,7 +2583,10 @@ void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
 	int* data = (int*)resource.pData;
 
 #define FLIP_Y (fy)
-
+#elif defined(D3D12)
+#define FLIP_Y (fy)
+	int* data = NULL;
+	return;
 #endif
 
 	unsigned int   *data_src = (unsigned int*)data;
@@ -2424,6 +2802,21 @@ bool vbo_was_dirty_flag = FALSE;
 
 int Emulator_BeginScene()
 {
+#if defined(D3D12)
+	Emulator_WaitForPreviousFrame();
+
+	HRESULT hr = commandAllocator[frameIndex]->Reset();
+	assert(!FAILED(hr));
+	hr = commandList->Reset(commandAllocator[frameIndex], pipelineState);
+	assert(!FAILED(hr));
+
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	rtvHandle.ptr = rtvHandle.ptr + (frameIndex * renderTargetDescriptorSize);
+	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+	commandList->SetGraphicsRootSignature(rootSignature);
+
+#endif
+
 	Emulator_DoPollEvent();
 
 	if (begin_scene_flag)
@@ -2444,7 +2837,7 @@ int Emulator_BeginScene()
 	UINT offset = 0;
 	d3dcontext->IASetVertexBuffers(0, 1, &dynamic_vertex_buffer, &stride, &offset);
 #elif defined(D3D12)
-	///@D3D12
+	
 #else
 	#error
 #endif
@@ -2522,7 +2915,6 @@ void Emulator_DoDebugKeys(int nKey, bool down)
 			case SDL_SCANCODE_3:
 				g_emulatorPaused ^= 1;
 				break;
-
 			case SDL_SCANCODE_UP:
 			case SDL_SCANCODE_DOWN:
 				if (g_emulatorPaused)
@@ -2542,13 +2934,15 @@ void Emulator_DoDebugKeys(int nKey, bool down)
 #endif
 }
 
+unsigned short kbInputs = 0xFFFF;
+
 void Emulator_UpdateInput()
 {
 	// also poll events here
 	Emulator_DoPollEvent();
 
 #if defined(SDL2)
-	unsigned short kbInputs = UpdateKeyboardInput();
+	kbInputs = UpdateKeyboardInput();
 
 	//Update pad
 	if (SDL_NumJoysticks() > 0)
@@ -2580,6 +2974,38 @@ void Emulator_UpdateInput()
 #if defined(__ANDROID__)
     ///@TODO SDL_NumJoysticks always reports > 0 for some reason on Android.
     ((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
+#endif
+}
+
+void Emulator_UpdateInputDebug()
+{
+	// also poll events here
+	Emulator_DoPollEvent();
+
+#if defined(SDL2)
+	kbInputs = UpdateKeyboardInputDebug();
+
+	//Update pad
+	if (SDL_NumJoysticks() > 0)
+	{
+		for (int i = 0; i < MAX_CONTROLLERS; i++)
+		{
+			if (padHandle[i] != NULL)
+			{
+				unsigned short controllerInputs = UpdateGameControllerInput(padHandle[i]);
+
+				padData[i][0] = 0;
+				padData[i][1] = 0x41;//?
+				((unsigned short*)padData[i])[1] = kbInputs & controllerInputs;
+			}
+		}
+	}
+
+#endif
+
+#if defined(__ANDROID__)
+	///@TODO SDL_NumJoysticks always reports > 0 for some reason on Android.
+	((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
 #endif
 }
 
@@ -2620,11 +3046,13 @@ void Emulator_SwapWindow()
 	if (d3ddev->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST) {
 		Emulator_ResetDevice();
 	}
-#elif defined(D3D11)
+#elif defined(D3D11) || defined(D3D12)
 	HRESULT hr = swapChain->Present(g_swapInterval, 0);
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 		Emulator_ResetDevice();
 	}
+#else
+	#error
 #endif
 #else
 	glFinish();
@@ -2680,10 +3108,27 @@ void Emulator_EndScene()
 	glBindVertexArray(0);
 #elif defined(D3D9) || defined(XED3D)
 	d3ddev->EndScene();
+#elif defined(D3D12)
+	D3D12_RESOURCE_BARRIER presentBarrier;
+	presentBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	presentBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	presentBarrier.Transition.pResource = renderTargets[0];
+	presentBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	presentBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	presentBarrier.Transition.Subresource =D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList->ResourceBarrier(1, &presentBarrier);
+	commandList->Close();
+
+	ID3D12CommandList* ppCommandLists[] = { commandList };
+	commandQueue->ExecuteCommandLists(sizeof(ppCommandLists) / sizeof(commandList), ppCommandLists);
+	HRESULT hr = commandQueue->Signal(fence[frameIndex], fenceValue[frameIndex]);
+	assert(!FAILED(hr));
 #endif
 
 	begin_scene_flag = FALSE;
 	vbo_was_dirty_flag = FALSE;
+
+
 
 	Emulator_SwapWindow();
 }
@@ -2708,6 +3153,8 @@ void Emulator_ShutDown()
 	d3dcontext->Release();
 	vramBaseTexture->Release();
 	///@TODO release shaders.
+#elif defined(D3D12)
+	///@TODO D3D12
 #endif
 
 #if defined(SDL2)
@@ -2906,6 +3353,7 @@ void Emulator_SetBlendMode(BlendMode blendMode)
 	}
 #elif defined(D3D12)
 	///@D3D12
+	UNIMPLEMENTED();
 #else
 	#error
 #endif
@@ -2946,7 +3394,21 @@ void Emulator_SetViewPort(int x, int y, int width, int height)
 	viewport.MaxDepth	= 1.0f;
 	d3dcontext->RSSetViewports(1, &viewport);
 #elif defined(D3D12)
-	///@D3D12
+	D3D12_VIEWPORT viewport;
+	viewport.TopLeftX = (float)x + offset_x;
+	viewport.TopLeftY = (float)y + offset_y;
+	viewport.Width = (float)width;
+	viewport.Height = (float)height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	commandList->RSSetViewports(1, &viewport);
+
+	D3D12_RECT rect;
+	rect.left = 0;
+	rect.right = width;
+	rect.top = 0;
+	rect.bottom = height;
+	commandList->RSSetScissorRects(1, &rect);
 #else
 	#error
 #endif
@@ -2961,7 +3423,9 @@ void Emulator_SetRenderTarget(const RenderTargetID &frameBufferObject)
 #elif defined(D3D11)
 	d3dcontext->OMSetRenderTargets(1, &frameBufferObject, NULL);
 #elif defined(D3D12)
-	///@D3D12
+	///@TODO
+	UNIMPLEMENTED();
+	assert(false);
 #else
     #error
 #endif
@@ -2973,7 +3437,7 @@ void Emulator_SetWireframe(bool enable)
 	glPolygonMode(GL_FRONT_AND_BACK, enable ? GL_LINE : GL_FILL);
 #elif defined(D3D9) || defined(XED3D)
 	d3ddev->SetRenderState(D3DRS_FILLMODE, enable ? D3DFILL_WIREFRAME : D3DFILL_SOLID);
-#elif defined(D3D11)
+#elif defined(D3D11) || defined(D3D12)
 	Emulator_CreateRasterState(enable ? TRUE : FALSE);
 #endif
 }
@@ -3003,7 +3467,20 @@ void Emulator_UpdateVertexBuffer(const Vertex *vertices, int num_vertices)
 	memcpy(sr.pData, vertices, num_vertices * sizeof(Vertex));
 	d3dcontext->Unmap(dynamic_vertex_buffer, 0);
 #elif defined(D3D12)
-	///@D3D12
+	char* pVertexData = NULL;
+	
+	D3D12_RANGE readRange;
+	readRange.Begin = 0;
+	readRange.End = 0;
+
+	HRESULT hr = dynamic_vertex_buffer->Map(0, &readRange, (void**)&pVertexData);
+	assert(!FAILED(hr));
+	memcpy(pVertexData, vertices, num_vertices * sizeof(Vertex));
+	dynamic_vertex_buffer->Unmap(0, NULL);
+	
+	dynamic_vertex_buffer_view.BufferLocation = dynamic_vertex_buffer->GetGPUVirtualAddress();
+	dynamic_vertex_buffer_view.StrideInBytes = sizeof(Vertex);
+	dynamic_vertex_buffer_view.SizeInBytes = num_vertices * sizeof(Vertex);
 #else
 	#error
 #endif
@@ -3020,7 +3497,8 @@ void Emulator_DrawTriangles(int start_vertex, int triangles)
 #elif defined(D3D11)
 	d3dcontext->Draw(triangles * 3, start_vertex);
 #elif defined(D3D12)
-	///@D3D12
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandList->DrawInstanced(triangles, 1, start_vertex, 0);
 #else
 	#error
 #endif
@@ -3078,6 +3556,36 @@ void Emulator_CreateRasterState(int wireframe)
 	HRESULT hr = d3ddev->CreateRasterizerState(&rsd, &rasterState);
 	assert(!FAILED(hr));
 	d3dcontext->RSSetState(rasterState);
+}
+
+#elif defined(D3D12)
+void Emulator_CreateRasterState(int wireframe)
+{
+	rsd.FillMode = wireframe ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
+	rsd.CullMode = D3D12_CULL_MODE_NONE;
+	rsd.FrontCounterClockwise = FALSE;
+	rsd.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+	rsd.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+	rsd.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+	rsd.DepthClipEnable = FALSE;
+	rsd.MultisampleEnable = FALSE;
+	rsd.AntialiasedLineEnable = FALSE;
+	rsd.ForcedSampleCount = 0;
+	rsd.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+}
+
+void Emulator_WaitForPreviousFrame()
+{
+	frameIndex = swapChain->GetCurrentBackBufferIndex();
+
+	if (fence[frameIndex]->GetCompletedValue() < fenceValue[frameIndex])
+	{
+		HRESULT hr = fence[frameIndex]->SetEventOnCompletion(fenceValue[frameIndex], fenceEvent);
+		assert(!FAILED(hr));
+		WaitForSingleObject(fenceEvent, INFINITE);
+	}
+
+	fenceValue[frameIndex]++;
 }
 
 #endif

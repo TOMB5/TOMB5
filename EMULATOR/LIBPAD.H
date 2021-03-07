@@ -1,6 +1,10 @@
 #ifndef LIBPAD_H
 #define LIBPAD_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef TRUE
 #define TRUE		1
 #endif
@@ -51,5 +55,9 @@ extern int PadInfoComb(int unk00, int, int unk01);
 extern int PadSetActAlign(int unk00, unsigned char* unk01);
 extern int PadSetMainMode(int socket, int offs, int lock);
 extern void PadSetAct(int unk00, unsigned char* unk01, int unk02);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

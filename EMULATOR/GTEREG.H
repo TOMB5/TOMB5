@@ -1,12 +1,22 @@
 #ifndef GTEREG_H
 #define GTEREG_H
 
+#include <LIBGTE.H>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //Externals
 extern int LIM(int value, int max, int min, unsigned int flag);
 
 extern GTERegisters gteRegs;
 
 extern int docop2(int op);
+
+#ifdef __cplusplus
+}
+#endif
 
 /* Data Registers mtc2 mfc2 */
 #define VX0  (gteRegs.CP2D.p[ 0 ].sw.l)

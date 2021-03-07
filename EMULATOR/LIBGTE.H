@@ -3,30 +3,18 @@
 
 #include "TYPES.H"
 
-#include "LIBGTE.H"
+#include "LIBGPU.H"
 
-typedef struct {
-	short	m[3][3];	/* 3x3 rotation matrix */
-	long    t[3];		/* transfer vector */
-} MATRIX;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef struct {		/* long word type 3D vector */
-	long	vx, vy;
-	long	vz, pad;
-} VECTOR;
-
-typedef struct {		/* short word type 3D vector */	
-	short	vx, vy;
-	short	vz, pad;
-} SVECTOR;
-
-typedef struct {		/* color type vector */	
-	u_char	r, g, b, cd;
-} CVECTOR;
-
-typedef struct {		/* 2D short vector */
-	short vx, vy;
-} DVECTOR;
+/*
+ * Geometry Structures:
+ */
+#define	ONE		4096	/* GTE regards 4096 as 1.0 */
+#define TMPVTXNUM	16	/* Clip Function Header */
+#define OUTVTXNUM	10
 
 extern void InitGeom();
 extern void SetGeomOffset(int ofx, int ofy);
@@ -151,6 +139,17 @@ extern void SetDQA(int iDQA);
 extern void SetDQB(int iDQB);
 extern void SetFogNear(long a, long h);
 extern int rsin(int a);
+extern int rcos(int a);
+extern long DivideFT4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0, long* sxy1, long* sxy2, long* sxy3, CVECTOR* col0, POLY_FT4* poly, long otz, DIVPOLYGON4* divp4);
+extern void DpqColor(CVECTOR* v0, long p, CVECTOR* v1);
+extern void ApplyMatrixLV(MATRIX* mat, VECTOR* v0, VECTOR* v1);
+extern void CompMatrixLV(MATRIX* m0, MATRIX* m1, MATRIX* m2);
+extern long RotAverageNclip3(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, long* sxy0, long* sxy1, long* sxy2, long* p, long* otz, long* flag);
+extern void SetFogNearFar(long a, long b, long h);
+extern long RotTransPers4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0, long* sxy1, long* sxy2, long* sxy3, long* p, long* flag);
+extern void RotTransSV(SVECTOR* v0, SVECTOR* v1, long* flag);
+extern long TransRotPers(SVECTOR* v0, long* sxy, long* p, long* flag);
+extern long NormalClip(long sxy0, long sxy1, long sxy2);
 
 #if defined(PGXP)
 #define MAX_NUM_VERTICES 32768
@@ -161,11 +160,19 @@ struct PGXPVertex
 	float x;
 	float y;
 	float z;
+	int used;
 };
 
 extern struct PGXPVertex pgxp_vertex_buffer[MAX_NUM_VERTICES];
 extern int pgxp_vertex_index;
+extern int last_pgxp_quad_match;
+extern int last_pgxp_tri_match;
 extern int pgxp_vertex_count;
+#endif
+
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
