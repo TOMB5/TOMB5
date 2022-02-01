@@ -64,9 +64,9 @@ void CalcClipWindow_ONGTE(short room_number, long unknown)//8F374,
 	t4 = number_draw_rooms;
 	//t6 = room;
 	t7 = ((int*)lara_item)[6];
-	a0 = 512;
+	a0 = SCREEN_WIDTH;
 	a1 = 0;
-	a2 = 256;
+	a2 = SCREEN_HEIGHT;
 	a3 = 0;
 
 	t3 = 0;

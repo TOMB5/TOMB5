@@ -10,9 +10,16 @@
 #include "GPU.H"
 #include "ROOMLETB.H"
 #include "EMULATOR_PRIVATE.H"
+#include "MISC.H"
+#include "TEXT_S.H"
+
+#include <stdio.h>
 
 unsigned short* QuadVertTableRL3 = &QuadVertTable[0];
 unsigned short* TriVertTableRL3 = &TriVertTable[0];
+
+#define FAR_CLIP 0x480
+#define CLIP_Z 0x1500
 
 int ClipToScreenRL3(int t2)
 {
@@ -25,7 +32,7 @@ int ClipToScreenRL3(int t2)
     t8 = SXY1;
     s2 = SXY2;
 
-    if ((t7 & 0xFE00) == 0 || (t8 & 0xFE00) == 0 || (t2 & 0xFE00) == 0 || (s2 & 0xFE00) == 0)
+    if ((t7 & 0x7600) == 0 || (t8 & 0x7600) == 0 || (t2 & 0x7600) == 0 || (s2 & 0x7600) == 0)
     {
         at = t7 & t8;
         at &= s2;
@@ -38,7 +45,7 @@ int ClipToScreenRL3(int t2)
             s2 >>= 16;
             t2 >>= 16;
 
-            if (t7 < 0xF0 || t8 < 0xF0 || t2 < 0xF0 || s2 < 0xF0)
+            if (t7 < SCREEN_HEIGHT || t8 < SCREEN_HEIGHT || t2 < SCREEN_HEIGHT || s2 < SCREEN_HEIGHT)
             {
                 return 0;
             }
@@ -66,514 +73,6 @@ void MyAddPrimRL3(int t7/*len*/, int* t9, int* s0, int* a3)
     addPrim(*t9, a3);
 #endif
 }
-
-void SubdivSetup3RL3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)//(F)
-{
-    int t7;
-    int t8;
-
-    setXY3((POLY_GT3*)a3, (SXY0 & 0xFFFF), (SXY0 >> 16) & 0xFFFF, (SXY1 & 0xFFFF), (SXY1 >> 16) & 0xFFFF, (SXY2 & 0xFFFF), (SXY2 >> 16) & 0xFFFF);
-
-    t7 = t3[4];
-    t8 = ((unsigned short*)t3)[7];
-    t7 |= fp;
-    t8 |= t1;
-
-    setRGB0((POLY_GT3*)a3, (t7 & 0xFF), (t7 & 0xFF00) >> 8, (t7 & 0xFF0000) >> 16);
-    ((POLY_GT3*)a3)->code = (t7 & 0xFF000000) >> 24;
-    setUV0((POLY_GT3*)a3, (t8 & 0xFF), (t8 & 0xFF00) >> 8);
-    ((POLY_GT3*)a3)->clut = (t8 & 0xFFFF0000) >> 16;
-
-    t7 = t4[4];
-    t8 = ((unsigned short*)t4)[7];
-
-    setRGBP1((POLY_GT3*)a3, (t7 & 0xFF), (t7 & 0xFF00) >> 8, (t7 & 0xFF0000) >> 16, (t7 & 0xFF000000) >> 24);
-
-    t8 |= t2;
-
-    ((POLY_GT3*)a3)->u1 = (t8 & 0xFF);
-    ((POLY_GT3*)a3)->v1 = (t8 & 0xFF00) >> 8;
-    ((POLY_GT3*)a3)->tpage = (t8 & 0xFFFF0000) >> 16;
-
-    t7 = t5[4];
-    t8 = ((unsigned short*)t5)[7];
-
-    ((POLY_GT3*)a3)->r2 = (t7 & 0xFF);
-    ((POLY_GT3*)a3)->g2 = (t7 & 0xFF00) >> 8;
-    ((POLY_GT3*)a3)->b2 = (t7 & 0xFF0000) >> 16;
-    ((POLY_GT3*)a3)->p2 = (t7 & 0xFF000000) >> 24;
-
-    ((POLY_GT3*)a3)->u2 = (t8 & 0xFF);
-    ((POLY_GT3*)a3)->v2 = (t8 & 0xFF00) >> 8;
-    ((POLY_GT3*)a3)->pad2 = (t8 & 0xFFFF0000) >> 16;
-}
-
-int* SubPolyGTLoopRL3(int gp, int* t0, int* t1, int s1)
-{
-	int t3 = 0;
-	int t5 = 0;
-	int t6 = 0;
-	int t7 = 0;
-	int t8 = 0;
-	int t4 = 0;
-
-    int* t00 = (int*)t0[0];
-    int t2 = 0xF8F8F8;
-
-    //loc_C94
-    do
-    {
-        t3 = t00[0];
-        t00++;
-
-        t4 = t3 >> 16;
-        t3 &= 0xFFFF;
-        t3 += s1;
-        t4 += s1;
-
-        t5 = ((short*)t3)[4];
-        t6 = ((short*)t3)[5];
-        t7 = ((short*)t4)[4];
-        t8 = ((short*)t4)[5];
-        t5 += t7;
-        t5 >>= 1;
-        t6 += t8;
-
-        t7 = ((short*)t3)[6];
-        t8 = ((short*)t4)[6];
-        t6 >>= 1;
-        t7 += t8;
-        t7 >>= 1;
-
-        ((short*)t1)[4] = t5;
-        ((short*)t1)[5] = t6;
-        ((short*)t1)[6] = t7;
-
-        t5 &= 0xFFFF;
-        t6 <<= 16;
-        t6 |= t5;
-
-        VX0 = t6 & 0xFFFF;
-        VY0 = (t6 >> 16) & 0xFFFF;
-        VZ0 = t7 & 0xFFFF;
-        t5 = ((unsigned char*)t3)[14];
-        docop2(0x180001);
-
-        t6 = ((unsigned char*)t3)[15];
-        t7 = ((unsigned char*)t4)[14];
-        t8 = ((unsigned char*)t4)[15];
-        t5 += t7;
-        t5 >>= 1;
-        t6 += t8;
-        t7 = ((int*)t3)[4];
-        t8 = ((int*)t4)[4];
-        t6 >>= 1;
-        ((char*)t1)[14] = t5;
-        ((int*)t1)[0] = SXY2;
-        ((int*)t1)[1] = SZ3;
-        t7 += t8;
-        t7 >>= 1;
-        t7 &= t2;
-        ((int*)t1)[4] = t7;
-        ((char*)t1)[15] = t6;
-
-        t1 += 5;
-    } while (--gp);
-
-    return t00;
-}
-
-int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
-{
-    int s7;
-    int gp;
-    int t2;
-    int t3;
-    int t5;
-    int t4;
-    int t6;
-    int t9;
-    int t7;
-    int t8;
-    int at;
-    int ra = 0;
-    int s4;
-    int s5;
-    int s6;
-	int att = 0;
-//    int t00;
-
-    t0 = SubPolyGTLoopRL3(5, t0, t1, (int)s1);
-
-    gp = 3;
-    t1 = (int*)RGB2;
-    t2 = RGB1;
-
-    //loc_759D8
-    do
-    {
-        t3 = t0[0];
-        t5 = t0[1];
-        t0 += 2;
-
-        t4 = t3 >> 16;
-        t3 &= 0xFFFF;
-
-        t3 += (int)s1;
-        t4 += (int)s1;
-        t6 = t5 >> 16;
-        t5 &= 0xFFFF;
-        t5 += (int)s1;
-        t6 += (int)s1;
-
-        SXY0 = ((int*)t4)[0];
-        SXY1 = ((int*)t6)[0];
-        SXY2 = ((int*)t5)[0];
-
-        t7 = ((short*)t3)[2];
-        t8 = ((short*)t4)[2];
-
-        docop2(0x1400006);
-        t9 = ((short*)t5)[2];
-
-        at = t7 < t9 ? 1 : 0;
-        if (t7 < t8)
-        {
-            t7 = t8;
-        }
-
-        //loc_75A30
-        t8 = ((short*)t6)[2];
-        att = t7 < t8 ? 1 : 0;
-        if (at != 0)
-        {
-            t7 = t9;
-        }
-
-        //loc_75A40
-        if (att != 0)
-        {
-            t7 = t8 >> 3;
-        }
-        else
-        {
-            t7 >>= 3;
-        }
-
-        //loc_75A4C
-        at = DQB >> 31;
-
-        if (t7 != 0)
-        {
-            at = t7 << at;
-            t9 = t7 << 2;
-
-            if (at < 0x280u && s3 == 0)
-            {
-                s3 = 1;
-                s4 = gp;
-                s5 = ra;
-                s6 = (int)t0;
-                a3 = SubPolyGT4RL3((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
-                t1 = (int*)RGB2;
-                t2 = RGB1;
-                s3 = 0;
-                gp = s4;
-                ra = s5;
-                t0 = (int*)s6;
-            }
-            else
-            {
-                //loc_75AB0
-                s3 = 1;
-                at = MAC0;
-                SXY0 = ((int*)t3)[0];
-                SXY1 = ((int*)t4)[0];
-
-                s7 = ra;
-                if (at <= 0)
-                {
-                    docop2(0x1400006);
-                    at = MAC0;
-
-                    if (at < 0)
-                    {
-                        goto loc_75B24;
-                    }
-                }//loc_75AD4
-
-                t2 = ((int*)t6)[0];
-                at = ClipToScreenRL3(t2);
-
-                if (at == 0)
-                {
-                    t2 = RGB1;
-                    SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
-                    t5 = ((int*)t6)[0];
-                    t7 = ((int*)t6)[4];
-                    t8 = ((unsigned short*)t6)[7];
-                    ((POLY_GT4*)a3)->x3 = (t5 & 0xFFFF);
-                    ((POLY_GT4*)a3)->y3 = (t5 >> 16) & 0xFFFF;
-                    ((POLY_GT4*)a3)->r3 = (t7 & 0xFF);
-                    ((POLY_GT4*)a3)->g3 = (t7 & 0xFF00) >> 8;
-                    ((POLY_GT4*)a3)->b3 = (t7 & 0xFF0000) >> 16;
-                    ((POLY_GT4*)a3)->p3 = (t7 & 0xFF000000) >> 24;
-                    ((POLY_GT4*)a3)->u3 = (t8 & 0xFF);
-                    ((POLY_GT4*)a3)->v3 = (t8 & 0xFF00) >> 8;
-                    ((POLY_GT4*)a3)->pad3 = (t8 & 0xFFFF0000) >> 16;
-                    MyAddPrimRL3(0xC000000, &t9, &s0, a3);
-                    a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
-                }
-            loc_75B20:
-                ra = s7;
-            }
-        loc_75B24:;
-        }
-
-    } while (gp-- != 0);
-    return a3;
-}
-
-char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
-{
-    int gp;
-    int t2;
-    int t3;
-    int t5;
-    int t4;
-    int t7;
-    int t8;
-    int t9;
-    int at;
-    int s4;
-    int s6;
-
-    t0 = SubPolyGTLoopRL3(3, t0, t1, (int)s1);
-    gp = 3;
-    t1 = (int*)RGB2;
-    t2 = RGB1;
-
-    //loc_DC4
-    do
-    {
-        t3 = t0[0];
-        t5 = ((short*)t0)[2];
-        t0 += 2;
-        t4 = t3 >> 16;
-        t3 &= 0xFFFF;
-
-        t3 += (int)s1;
-        t4 += (int)s1;
-        t5 += (int)s1;
-
-        SXY0 = ((int*)t3)[0];
-        SXY1 = ((int*)t4)[0];
-        SXY2 = ((int*)t5)[0];
-
-        t7 = ((short*)t3)[2];
-        t8 = ((short*)t4)[2];
-
-        docop2(0x1400006);
-        t9 = ((short*)t5)[2];
-
-        at = t7 < t9 ? 1 : 0;
-        if (t7 < t8)
-        {
-            t7 = t8;
-        }
-
-        //loc_E10
-        if (at != 0)
-        {
-            t7 = t9 >> 3;
-        }
-        else
-        {
-            t7 >>= 3;
-        }
-
-        //loc_E1C
-        at = DQB >> 31;
-
-        if (t7 != 0)
-        {
-            at = t7 << at;
-            t9 = t7 << 2;
-            if (at < 0x180u && s3 == 0)
-            {
-                s3 = 1;
-                s4 = gp;
-                s6 = (int)t0;
-                a3 = (int*)SubPolyGT3RL3((int*)&TriVertTables[gp], &s1[216], s1, a3, s3, fp, s0);
-                t1 = (int*)RGB2;
-                t2 = RGB1;
-                s3 = 0;
-                gp = s4;
-                t0 = (int*)s6;
-
-            }
-            else
-            {
-                //loc_E80
-                s3 = 1;
-                t7 = MAC0;
-
-                if (t7 >= 0)
-                {
-                    //loc_EA8
-                    t2 = ((int*)t5)[0];
-                    at = ClipToScreenRL3(t2);
-
-                    if (at == 0)
-                    {
-                        t2 = RGB1;
-                        SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
-                        MyAddPrimRL3(0x9000000, &t9, &s0, a3);
-                        a3 += sizeof(POLY_GT3) / sizeof(unsigned long);
-                    }
-                }//loc_ED4
-            }
-        }
-        //loc_ED4
-    } while (gp--);
-
-    return (char*)a3;
-}
-
-int* InitSubdivisionRL3(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5, int gp, int t6, int* t3, int s6, int s3, int* t7, int* s7)//(F)
-{
-    int t11;
-//    int t77;
-    char* gpp;
-    int t00;
-    int t55;
-    int t22;
-    char* s55;
-    char* s44;
-    char* s33;
-    int t66;
-    int t44;
-
-    s1[186] = t1;
-    ((short*)s1)[374] = s4;
-
-    /* Original does this but it is unsafe/doesn't work properly? */
-    //t11 = (*fp << 8) >> 8;
-    t11 = *fp & 0xFFFFFF;
-
-    s1[190] = t11;
-    ((short*)s1)[379] = t5;
-
-    s1[191] = t2;
-    ((short*)s1)[384] = s5;
-
-    s1[195] = gp;
-    ((short*)s1)[389] = t6;
-
-    s1[196] = *t3;
-    ((short*)s1)[394] = s6;
-
-    s1[200] = s3;
-    ((short*)s1)[399] = *t7;
-
-    *t3 = RBK;
-    *t7 = GBK;
-    *s7 = BBK;
-
-    gpp = (char*)&YOffset[0];
-
-    *fp >>= 24;
-    *fp <<= 24;
-
-    t5 &= 0xFFFF0000;
-    t6 &= 0xFFFF0000;
-
-    RGB2 = t5;
-    RGB1 = t6;
-
-    t00 = DQB;
-    t55 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
-
-    t22 = (t00 >> 12) & 0x1FC;
-    s55 = &gpp[t22];
-    t22 += t55;
-
-    t11 = (t00 >> 5) & 0x1FC;
-    s44 = &gpp[t11];
-    t11 += t55;
-
-    t00 = (t00 << 2) & 0x1FC;
-    s33 = &gpp[t00];
-    t00 += t55;
-
-    t00 = ((int*)t00)[0];
-    t11 = ((int*)t11)[0];
-    t22 = ((int*)t22)[0];
-    t66 = ((int*)s33)[0];
-
-    t44 = (t00 & 0x3E0) << 3;
-    t55 = t00 & 0x1F;
-
-    if (t00 <= 0)
-    {
-        t44 += t66;
-    }
-    //loc_756CC
-    t55 <<= 10;
-    t00 &= 0x7C00;
-    t00 += *t3;
-    t44 += *t7;
-    t55 += *s7;
-
-    ((short*)s1)[376] = t00;
-    ((short*)s1)[377] = t44;
-    ((short*)s1)[378] = t55;
-
-    t66 = ((int*)s44)[0];
-    t44 = (t11 & 0x3E0) << 3;
-    t55 = t11 & 0x1F;
-
-    if (t11 <= 0)
-    {
-        t44 += t66;
-    }
-
-    //loc_75704
-    t55 <<= 10;
-    t11 &= 0x7C00;
-    t11 += *t3;
-    t44 += *t7;
-    t55 += *s7;
-
-    ((short*)s1)[386] = t11;
-    ((short*)s1)[387] = t44;
-    ((short*)s1)[388] = t55;
-
-    t66 = ((int*)s55)[0];
-
-    t44 = t22 & 0x3E0;
-    t44 <<= 3;
-    t55 = t22 & 0x1F;
-
-    if (t22 <= 0)
-    {
-        t44 += t66;
-    }
-
-    t55 <<= 10;
-    t22 &= 0x7C00;
-
-    t22 += *t3;
-    t44 += *t7;
-    t55 += *s7;
-
-    ((short*)s1)[396] = t22;
-    ((short*)s1)[397] = t44;
-    ((short*)s1)[398] = t55;
-
-    return (int*)gpp;
-}
-
 
 void InitPrimRL3(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
 {
@@ -701,7 +200,7 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
     int gp;
 	char* t00 = NULL;
 	struct MMTEXTURE* a22 = NULL;
-
+    
 	sp2 = &sp2[-14];
     a2 = &sp[0];
     s0 = &LOffset[0];
@@ -888,6 +387,12 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
         }
 
         t0 = SZ3;
+
+        if (MAC3 < 0)///@GBA
+        {
+            t0 = -3;//Skip negative auto
+        }
+
         v1 = 0;
         t6 = t0 - 0x3000;
 
@@ -994,23 +499,12 @@ loc_15A8:
                 t5 >>= 3;
             }
 
-            if (t5 < 0x9E0)
+            if (t5 < FAR_CLIP)
             {
                 t7 = MAC0;
                 t9 = t5 << 2;
-                at = t5 < 0x200 ? 1 : 0;
-                if (t5 >= 0x200)
-                {
-                    if (t7 < 0)
-                    {
-                        goto loc_1724;
-                    }
-
-                    if ((unsigned)t9 >= 0x1000)
-                    {
-                        s77 = 0x10;
-                    }
-                }//loc_1678
+                at = 0;
+                
 
                 LB1 = t7 & 0xFFFF;
                 LB2 = (t7 >> 16) & 0xFFFF;
@@ -1039,38 +533,9 @@ loc_15A8:
                 ((int*)a3)[9] = t7;
 #endif
 
-                if (at != 0)
-                {
-                    at = ((int*)t0)[3];
-                    DQA = t9;
-                    BFC = at;
-                    LG2 = (a3 & 0xFFFF);
-                    LG3 = (a3 >> 16) & 0xFFFF;
-                    a3 += sizeof(POLY_GT3);
-
-                    InitSubdivisionRL3((int*)s1, t1, s44, &fpp, t5, t2, s55, gp, t6, &t3, s66, s3, &t7, &s77);
-
-                    s3 = 0;
-                    a3 = (int)SubPolyGT3RL3((int*)&TriVertTableRL3, (int*)&s1[804], (int*)s1, (int*)a3, s3, fpp, (int)s0);
-                    at = BFC;
-                    t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
-                    t9 = DQA;
-                    t0 |= at;
-
-                    if (t0 >= 0 && t9 >= 0x600)
-                    {
-                        t3 = a3;
-                        a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
-                        MyAddPrimRL3(0x9000000, &t9, (int*)&s0, (int*)a3);
-                        a3 = t3;
-                    }
-                }
-                else
-                {
-                    //loc_1718
-                    MyAddPrimRL3(0x9000000, &t9, (int*)&s0, (int*)a3);
-                    a3 += sizeof(POLY_GT3);
-                }
+                //loc_1718
+                MyAddPrimRL3(0x9000000, &t9, (int*)&s0, (int*)a3);
+                a3 += sizeof(POLY_GT3);
             }//loc_1724
         }
     loc_1724:
@@ -1153,7 +618,7 @@ loc_172C:
             t7 = MAC0;
             t5 >>= 3;
 
-            if (t5 < 0x9E0)
+            if (t5 < FAR_CLIP)
             {
                 t9 = t5 << 2;
                 at = t5 < 0x200 ? 1 : 0;
@@ -1210,74 +675,9 @@ loc_172C:
                 ((int*)a3)[11] = t4;
                 ((int*)a3)[12] = t0;
 #endif
-                if (at != 0)
-                {
-                    BFC = t0;
-                    DQA = (int)(short)t9;
-                    LG2 = (a3 & 0xFFFF);
-                    LG3 = (a3 >> 16) & 0xFFFF;
-                    a3 += sizeof(POLY_GT4);
-
-                    ((int*)s1)[201] = t4;
-                    ((short*)s1)[404] = s777;
-                    ((int*)s1)[205] = t7;
-                    ((short*)s1)[409] = t0;
-
-                    t7 = t8;
-
-                    gp = (int)InitSubdivisionRL3((int*)s1, t1, s444, &fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
-
-                    t0 = DQB;
-                    t5 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
-                    at = (t0 >> 19) & 0x1FC;
-                    s666 = gp + at;
-                    at += t5;
-                    at = ((int*)at)[0];
-                    s3 = 0;
-                    t6 = ((int*)s666)[0];
-                    t4 = at & 0x3E0;
-                    t4 <<= 3;
-                    t5 = at & 0x1F;
-                    if (at <= 0)
-                    {
-                        t4 += t6;
-                    }
-
-                    t5 <<= 10;
-
-                    at &= 0x7C00;
-                    at += t3;
-                    t4 += t7;
-                    t5 += s777;
-
-                    ((short*)s1)[406] = at;
-                    ((short*)s1)[407] = t4;
-                    ((short*)s1)[408] = t5;
-
-                    a3 = (int)SubPolyGT4RL3((int*)&QuadVertTableRL3, (int*)&s1[824], (int*)s1, (int*)a3, (int)s0, s3, fpp);
-                    t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
-                    at = BFC;
-                    t9 = DQA;
-
-                    t0 |= at;
-
-                    if (t0 >= 0)
-                    {
-                        t3 = a3;
-                        if (t9 >= 0x600)
-                        {
-                            a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
-                            MyAddPrimRL3(0xC000000, &t9, (int*)&s0, (int*)a3);
-                            a3 = t3;
-                        }
-                    }//loc_76410
-                }
-                else
-                {
-                    //loc_76404
-                    MyAddPrimRL3(0xC000000, &t9, (int*)&s0, (int*)a3);
-                    a3 += sizeof(POLY_GT4);
-                }
+                //loc_76404
+                MyAddPrimRL3(0xC000000, &t9, (int*)&s0, (int*)a3);
+                a3 += sizeof(POLY_GT4);
             }
         loc_1884:;
         }
@@ -1363,17 +763,17 @@ void GetBoundsRL3(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* v0,
         *a3 = *t8;
     }
 
-    if ((unsigned)*t1 >= 0x5000)
+    if ((unsigned)*t1 >= CLIP_Z)
     {
         *v0 += 1;
     }
 
-    if ((unsigned)*t7 >= 0x5000)
+    if ((unsigned)*t7 >= CLIP_Z)
     {
         *v0 += 1;
     }
 
-    if ((unsigned)*t9 >= 0x5000)
+    if ((unsigned)*t9 >= CLIP_Z)
     {
         *v0 += 1;
     }

@@ -10,9 +10,12 @@
 #include "MATHS.H"
 #include "MISC.H"
 #include "LIGHT.H"
+#include "GPU.H"
 
 #include "GTEREG.H"
 #include <assert.h>
+
+#define CLIP_Z 0x1500
 
 void GetBounds_AI(int* t0, int* a2, int* a3, int* t1, int* t2, int* v0, int* a0, int* a1, int* t3, int* t4, int* t5)//8139C
 {
@@ -85,17 +88,17 @@ void GetBounds_AI(int* t0, int* a2, int* a3, int* t1, int* t2, int* v0, int* a0,
 		*a1 = *t2;
 	}
 
-	if (*t3 < 0x5000)
+	if (*t3 < CLIP_Z)
 	{
 		v0[0]++;
 	}
 
-	if (*t4 < 0x5000)
+	if (*t4 < CLIP_Z)
 	{
 		v0[0]++;
 	}
 
-	if (*t5 < 0x5000)
+	if (*t5 < CLIP_Z)
 	{
 		v0[0]++;
 	}
@@ -865,7 +868,7 @@ void calc_animating_item_clip_window(struct ITEM_INFO* item /*s3*/, unsigned sho
 
 int mClipBoundingBox_AI(unsigned short* a0, int* fp)//811FC
 {
-	int t0 = TRZ - 20480;
+	int t0 = TRZ - CLIP_Z;
 	int v0 = 0;
 	int t5 = 0;
 	int a00 = 0;
@@ -1860,8 +1863,8 @@ void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, struct object_info* ob
 
 	//v0 = 0x1FF0000
 	//v1 = 0xEF0000
-	fp[36] = 0x1FF0000;
-	fp[37] = 0xEF0000;
+	fp[36] = ((SCREEN_WIDTH-1) << 16);
+	fp[37] = ((SCREEN_HEIGHT-1) << 16);
 
 	frames = GetFrames_AI(item, fp);
 	mmPushMatrix_AI(fp);
@@ -2279,7 +2282,7 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 	}
 	//loc_829E8
 	phd_left = 0;
-	phd_right = 0x1FF;
+	phd_right = SCREEN_WIDTH-1;
 	phd_top = 0;
-	phd_bottom = 0xEF;
+	phd_bottom = SCREEN_HEIGHT-1;
 }

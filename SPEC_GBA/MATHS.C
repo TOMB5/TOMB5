@@ -12,6 +12,8 @@
 #include "DRAWSPKS.H"
 #include "MISC.H"
 
+#define CLIP_Z 0x1500
+
 void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 {
 	MatrixSP = 0;
@@ -1299,8 +1301,8 @@ void GetRoomBoundsAsm(short room_number)//77E70(<), 79EB4(<) ///@TODO check if i
 	((char*)&scratchPad)[0] = room_number;
 	r = &room[room_number];
 
-	((int*)&r->test_left)[0] = 0x1FF0000;
-	((int*)&r->test_top)[0] = 0xEF0000;
+	((int*)&r->test_left)[0] = ((SCREEN_WIDTH-1) << 16);
+	((int*)&r->test_top)[0] = ((SCREEN_HEIGHT-1) << 16);
 	r->bound_active = 2;
 
 	//t6 = &CamPos
@@ -1640,7 +1642,7 @@ loc_77F18:
 									t7 = SXY2;
 									t8 = t7 >> 16;
 
-									if (t9 >= 0x5000)
+									if (t9 >= CLIP_Z)
 									{
 										t6++;
 									}
@@ -1709,7 +1711,7 @@ loc_77F18:
 													{
 														//loc_78328
 														t8 = ((0 < t6) ? 1 : 0) & ((0 < t7) ? 1 : 0);
-														t1 = 0x1FF;
+														t1 = SCREEN_WIDTH-1;
 														if (t8 == 0)
 														{
 															t0 = 0;
@@ -1728,7 +1730,7 @@ loc_77F18:
 														{
 															//loc_78360
 															t8 = ((0 < t6) ? 1 : 0) & ((0 < t7) ? 1 : 0);
-															t3 = 239;
+															t3 = SCREEN_HEIGHT-1;
 															if (t8 == 0)
 															{
 																t2 = 0;

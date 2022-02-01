@@ -239,11 +239,11 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	r->test_top = 0;
 	phd_top = 0;
 
-	r->test_right = 511;
-	phd_right = 511;
+	r->test_right = SCREEN_WIDTH-1;
+	phd_right = SCREEN_WIDTH-1;
 
-	r->test_bottom = 239;
-	phd_bottom = 239;
+	r->test_bottom = SCREEN_HEIGHT-1;
+	phd_bottom = SCREEN_HEIGHT-1;
 
 	outside = r->flags & 8;
 
@@ -317,11 +317,11 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 			{
 				if (gfCurrentLevel == LVL5_TITLE && jobyfrigger != 0)
 				{
-					DrawSkyMesh(meshes[objects[CHEF_MIP].mesh_index]);
+					//DrawSkyMesh(meshes[objects[CHEF_MIP].mesh_index]);
 				}
 				else
 				{
-					DrawSkyMesh(meshes[objects[HORIZON].mesh_index]);
+					//DrawSkyMesh(meshes[objects[HORIZON].mesh_index]);
 				}
 			}//loc_64728
 
@@ -342,12 +342,12 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 					rgb.g = LightningRGB[1];
 					rgb.b = LightningRGB[0];
 					((int*)&rgb)[0] = 0x2C000000;
-					DrawFlatSky_ASM(rgb, SkyPos, 0xFFFFFA00);
+					//DrawFlatSky_ASM(rgb, SkyPos, 0xFFFFFA00);
 				}
 				else
 				{
 					//loc_647D4
-					DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
+					//DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
 				}
 
 			}//loc_647F0
@@ -387,7 +387,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 			ProfileRGB(0, 255, 0);
 #endif
 
-#if !AUG_VERSION && !JULY_VERSION
+#if !AUG_VERSION && !JULY_VERSION //&&!GBA_VERSION
 			switch (LaraDrawType)
 			{
 			case 1:
@@ -501,21 +501,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
-		switch (RoomDrawType-1)///@FIXME this is wrong clearly
-		{
-		case 0:
-			DrawRoomletListAsmRL1();
-			break;
-		case 1:
-			DrawRoomletListAsmRL2();
-			break;
-		case 2:
-			DrawRoomletListAsmRL3();
-			break;
-		case 3:
-			DrawRoomletListAsmRL4();
-			break;
-		}
+		DrawRoomletListAsmRL3();
 	}
 
 	//loc_64BBC

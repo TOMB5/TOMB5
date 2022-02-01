@@ -233,7 +233,7 @@ void DrawGameInfo(int timed)//3AD68(<), 3B268(<)
 (SCREEN_WIDTH / 2, 24, 0, &sbuf[0], FF_CENTER);
 #endif
 
-#if 1//GH0ST_TESTING
+#if 0//GH0ST_TESTING
 	sprintf(&buf[0], "Camera X: %d Y: %d Z: %d", camera.pos.x, camera.pos.y, camera.pos.z);
 	PrintString(SCREEN_WIDTH / 2, 32, 0, &buf[0], FF_CENTER);
 #endif

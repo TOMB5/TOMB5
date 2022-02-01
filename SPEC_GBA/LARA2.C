@@ -827,7 +827,7 @@ int* sub_658L2(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)//(F)
             t2 = SXY1;
             t3 = SXY2;
 
-            if (!(t1 & 0xFE00) || !(t2 & 0xFE00) || !(t3 & 0xFE00))
+            if (!(t1 & 0x7600) || !(t2 & 0x7600) || !(t3 & 0x7600))
             {
                 //loc_92C
                 at = t1 & t2;
@@ -835,7 +835,7 @@ int* sub_658L2(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)//(F)
 
                 if (at >= 0)
                 {
-                    if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0)
+                    if ((t1 >> 16) < SCREEN_HEIGHT || (t2 >> 16) < SCREEN_HEIGHT || (t3 >> 16) < SCREEN_HEIGHT)
                     {
                         t1 = OTZ;
                         if (t1 < 0xA01)
@@ -951,7 +951,7 @@ int* sub_658L2(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)//(F)
             t2 = SXY1;
             t3 = SXY2;
 
-            if (!(t1 & 0xFE00) || !(t2 & 0xFE00) || !(t3 & 0xFE00) || !(t4 & 0xFE00))
+            if (!(t1 & 0x7600) || !(t2 & 0x7600) || !(t3 & 0x7600) || !(t4 & 0x7600))
             {
                 //loc_AAC
                 at = t1 & t2;
@@ -960,7 +960,7 @@ int* sub_658L2(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)//(F)
 
                 if (at >= 0)
                 {
-                    if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0 || (t4 >> 16) < 0xF0)
+                    if ((t1 >> 16) < SCREEN_HEIGHT || (t2 >> 16) < SCREEN_HEIGHT || (t3 >> 16) < SCREEN_HEIGHT || (t4 >> 16) < SCREEN_HEIGHT)
                     {
                         //loc_AEC
                         t5 += (int)a22;

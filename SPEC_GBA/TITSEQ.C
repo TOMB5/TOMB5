@@ -340,11 +340,11 @@ int TitleOptions(int Name)
 #else
 				if (byte_46 == s1)
 				{
-					PrintString(256, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], FF_CENTER);
+					PrintString(SCREEN_WIDTH/2, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], FF_CENTER);
 				}
 				else
 				{
-					PrintString(256, y & 0xFFFF, 5, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], FF_CENTER);
+					PrintString(SCREEN_WIDTH/2, y & 0xFFFF, 5, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], FF_CENTER);
 				}
 				y += 18;
 				//v0 = s0
@@ -517,11 +517,11 @@ int TitleOptions(int Name)
 			//loc_658
 			if (byte_46 == 1)
 			{
-				PrintString(256, 192, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], FF_CENTER);
+				PrintString(SCREEN_WIDTH/2, SCREEN_HEIGHT-48, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], FF_CENTER);
 			}
 			else
 			{
-				PrintString(256, 192, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], FF_CENTER);
+				PrintString(SCREEN_WIDTH/2, SCREEN_HEIGHT-48, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], FF_CENTER);
 			}
 		}
 		else
@@ -539,30 +539,30 @@ int TitleOptions(int Name)
 	//loc_6D8
 	if (byte_46 == 0)
 	{
-		PrintString(256, 176, 1, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], FF_CENTER);
+		PrintString(SCREEN_WIDTH/2, SCREEN_HEIGHT-80, 1, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], FF_CENTER);
 	}
 	else
 	{
-		PrintString(256, 176, 2, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], FF_CENTER);
+		PrintString(SCREEN_WIDTH/2, SCREEN_HEIGHT - 80, 2, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], FF_CENTER);
 	}
 
 	if (s0)
 	{
 		if (byte_46 == 2)
 		{
-			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
+			PrintString(SCREEN_WIDTH / 2, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
 		}
 		else if (byte_46 != 1)
 		{
-			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
+			PrintString(SCREEN_WIDTH / 2, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
 		}
 		else if (CanLoad != 0)
 		{
-			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
+			PrintString(SCREEN_WIDTH / 2, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
 		}
 		else
 		{
-			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
+			PrintString(SCREEN_WIDTH / 2, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
 		}
 	}//loc_764
 
@@ -685,9 +685,9 @@ void TITSEQ_DrawLogo()//2B0(<) 29C(<) (F)
 
 		setXY4(ptr,
 			56, 24,
-			440, 24,
+			SCREEN_WIDTH-(512-440), 24,
 			56, 80,
-			440, 80);
+			SCREEN_WIDTH-(512-440), 80);
 
 		setClut(ptr, 576, 124);
 		setTPage(ptr, 0, 1, 576, 0);

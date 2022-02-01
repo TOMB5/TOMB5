@@ -251,7 +251,7 @@ void GPU_BeginScene() //5F0F0(<), 5FDD0(<)
 	db.ot = db.order_table[db.current_buffer];
 	db.polyptr = (char*)db.poly_buffer[db.current_buffer];
 	db.curpolybuf = (char*)db.poly_buffer[db.current_buffer];
-	db.polybuf_limit = (char*)(db.poly_buffer[db.current_buffer] + (26000 * POLYGON_BUFFER_MULT));
+	db.polybuf_limit = (char*)(db.poly_buffer[db.current_buffer] + (26000/2 * POLYGON_BUFFER_MULT));
 	db.pickup_ot = db.pickup_order_table[db.current_buffer];
 	ClearOTagR(db.order_table[db.current_buffer], db.nOTSize);
 }
@@ -330,16 +330,16 @@ void GPU_ClearVRAM() //5F2D0(<), 5FFB0(<) (F) (D) (ND)
 	//Clear TL
 	r.x = 0;
 	r.y = 0;
-	r.w = 512;
-	r.h = 256;
+	r.w = SCREEN_WIDTH;
+	r.h = SCREEN_HEIGHT;
 	clear_a_rect(&r);
 
 	//Clear BL
-	r.y = 256;
+	r.y = SCREEN_HEIGHT;
 	clear_a_rect(&r);
 
 	//Clear BR
-	r.x = 512;
+	r.x = SCREEN_WIDTH;
 	clear_a_rect(&r);
 
 	//Clear TR

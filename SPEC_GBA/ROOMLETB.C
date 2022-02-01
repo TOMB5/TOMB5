@@ -106,7 +106,7 @@ int ClipToScreen(int t2)
 	t8 = SXY1;
 	s2 = SXY2;
 
-	if (!(t7 & 0xFE00) || !(t8 & 0xFE00) || !(t2 & 0xFE00) || !(s2 & 0xFE00))
+	if (!(t7 & 0x7600) || !(t8 & 0x7600) || !(t2 & 0x7600) || !(s2 & 0x7600))
 	{
 		//loc_75CF4
 		at = t7 & t8;
@@ -120,7 +120,7 @@ int ClipToScreen(int t2)
 			s2 >>= 16;
 			t2 >>= 16;
 
-			if ((t7 < 0xF0) || (t8 < 0xF0) || (t2 < 0xF0) || (s2 < 0xF0))
+			if ((t7 < SCREEN_HEIGHT) || (t8 < SCREEN_HEIGHT) || (t2 < SCREEN_HEIGHT) || (s2 < SCREEN_HEIGHT))
 			{
 				return 0;
 			}

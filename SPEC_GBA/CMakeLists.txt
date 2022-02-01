@@ -12,6 +12,7 @@ OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" OFF)
 
 #Required to build platform specific code properly
 OPTIONAL_DEFINE(PSX_VERSION "Enable PSX code building" ON)
+OPTIONAL_DEFINE(GBA_VERSION "Enable GBA code building" ON)
 
 #Will make use of CD io if set.
 OPTIONAL_DEFINE(DISC_VERSION "Enable/Disable CD code" OFF)

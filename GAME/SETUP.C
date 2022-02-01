@@ -1247,6 +1247,11 @@ void LoadLevel(FILE* nHandle)
 			size = (uintptr_t)room[i].mesh;
 			room[i].mesh = (struct MESH_INFO*)ptr;
 			ptr += size;
+
+#if GBA_VERSION && 0
+			room[i].top = SCREEN_HEIGHT - 1;
+			room[i].left = SCREEN_WIDTH - 1;
+#endif
 		}
 	}//loc_570
 

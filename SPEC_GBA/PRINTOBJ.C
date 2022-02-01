@@ -13,6 +13,7 @@
 #include "CONTROL.H"
 #include "ANIMITEM.H"
 #include "LIGHT.H"
+#include "GPU.H"
 
 #include <GTEREG.H>
 
@@ -55,8 +56,8 @@ void PrintAllOtherObjects_ASM(short room_num /*s3*/)//(F)
 	mPushMatrix();
 	mTranslateAbsXYZ(r->x, r->y, r->z);
 
-	phd_right = 512;
-	phd_bottom = 240;
+	phd_right = SCREEN_WIDTH;
+	phd_bottom = SCREEN_HEIGHT;
 	phd_left = 0;
 	phd_top = 0;
 
@@ -139,8 +140,8 @@ void PrintAllOtherObjects_ASM(short room_num /*s3*/)//(F)
 	}//loc_8F6EC
 
 	mPopMatrix();
-	((int*)&r->left)[0] = 511;
-	((int*)&r->top)[0] = 239;
+	((int*)&r->left)[0] = SCREEN_WIDTH-1;
+	((int*)&r->top)[0] = SCREEN_HEIGHT-1;
 }
 
 void print_all_object_NOW()//8F474(<), 914B8(<) (F)

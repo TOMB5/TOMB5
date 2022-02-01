@@ -8,6 +8,7 @@
 #include "GTEREG.H"
 #include "MISC.H"
 #include "ROOMLOAD.H"
+#include "ROOMLET3.H"
 #include <assert.h>
 
 unsigned char div3tab[] = { 0x00,0x14,0x14,0x28,0x28,0x00,0x00,0x00,0x00,0x3C,0x64,0x00,0x3C,0x14,0x50,0x00,0x3C,0x50,0x64,0x00,0x64,0x50,0x28,0x00 };
@@ -599,13 +600,13 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 {
 	int at;
 
-	if (!(s4 & 0xFE00) || !(s5 & 0xFE00) || !(s6 & 0xFE00) || !(s7 & 0xFE00))
+	if (!(s4 & 0x7600) || !(s5 & 0x7600) || !(s6 & 0x7600) || !(s7 & 0x7600))
 	{
 		at = s4 & s5;
 		at &= s6;
 		at &= s7;
 
-		if(at >= 0 && (s4 >> 16) < 0xF0 || (s5 >> 16) < 0xF0 || (s6 >> 16) < 0xF0 || (s7 >> 16) < 0xF0)
+		if(at >= 0 && (s4 >> 16) < SCREEN_HEIGHT || (s5 >> 16) < SCREEN_HEIGHT || (s6 >> 16) < SCREEN_HEIGHT || (s7 >> 16) < SCREEN_HEIGHT)
 		{
 			return 0;
 		}
@@ -1079,7 +1080,7 @@ loc_7E420:
 		else
 		{
 			//loc_7E64C///@todo goto loc_7E64C;
-			assert(FALSE);//unimplemented case
+			//assert(FALSE);//unimplemented case
 			printf("Warning (DrawSubDivMesh): Polygon buffer is full!\n");
 		}
 
@@ -1309,6 +1310,7 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 						setlen(s0, 9);
 						addPrim(t1, s0);
 						s0 += sizeof(POLY_GT3);
+
 #else
 						t1 += (int)a3;
 						t2 = ((int*)t1)[0];
@@ -1427,6 +1429,7 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 						setlen(s0, 12);
 						addPrim(t1, s0);
 						s0 += sizeof(POLY_GT4);
+
 #else
 						t1 += (int)a3;
 						t2 = ((int*)t1)[0];
@@ -1578,6 +1581,7 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 						setlen(s0, 9);
 						addPrim(t1, s0);
 						s0 += sizeof(POLY_GT3) / sizeof(unsigned int);
+
 #else
 						((int*)t1)[0] = (int)s0;
 						t2 |= gp;
@@ -1716,6 +1720,7 @@ loc_7F4BC:
 					setlen(s0, 12);
 					addPrim(t1, s0);
 					s0 += sizeof(POLY_GT4) / sizeof(unsigned int);
+
 #else
 					((int*)t1)[0] = (int)s0;
 					t2 |= gp;
@@ -2544,7 +2549,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 
 	if (s6 && s4 < 0)
 	{
-		DrawSubDivMesh(v0, (int*)a1, s0, s1, a0, (int)a2, t2, fp, a3);
+		//DrawSubDivMesh(v0, (int*)a1, s0, s1, a0, (int)a2, t2, fp, a3);
 		return;
 	}
 
@@ -2554,7 +2559,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 		DrawClippedMesh(v0, (int*)a1, s0, s1, (int)a0, (int)s7, (int)a2, t2, fp, t3, a3);
 		return;///@TODO verify
 	}
-
+	
 	gp = 0x9000000;
 	a1 += 4;
 
@@ -2793,7 +2798,9 @@ void phd_PutPolygons_train(short* mesh, long shade)
 
 void phd_PutPolygons(short* mesh, long clip)
 {
+#if !GBA_VERSION
 	phd_PutPolygons_normal(mesh, clip);
+#endif
 }
 
 void phd_PutPolygons_pickup(short* mesh, long shade)

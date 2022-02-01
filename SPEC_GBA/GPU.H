@@ -7,7 +7,7 @@
 #include <LIBGPU.H>
 
 #if defined(USE_32_BIT_ADDR)
-#define POLYGON_BUFFER_MULT (2)
+#define POLYGON_BUFFER_MULT (1)
 #else
 #define POLYGON_BUFFER_MULT (1)
 #endif
@@ -31,10 +31,10 @@ extern int GPU_FlipNoIdle();
 extern void do_gfx_debug_mode(unsigned long* otstart);
 extern void GPU_FlipStory(unsigned long* gfx);
 
-#define SCREEN_WIDTH 512
+#define SCREEN_WIDTH 240
 
 #if NTSC_VERSION
-#define SCREEN_HEIGHT 240
+#define SCREEN_HEIGHT 160
 #else
 #define SCREEN_HEIGHT 256
 #endif

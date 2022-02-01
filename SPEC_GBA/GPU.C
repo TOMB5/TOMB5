@@ -72,7 +72,11 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 
 #if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
-	//do_gfx_debug_mode(&db.ot[db.nOTSize - 1]);
+#if USE_32_BIT_ADDR
+	do_gfx_debug_mode(&db.ot[db.nOTSize * 2 - 2]);
+#else
+	do_gfx_debug_mode(&db.ot[db.nOTSize - 1]);
+#endif
 	ProfileRGB(0, 255, 255);
 #endif
 
@@ -82,7 +86,7 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 int GPU_FlipNoIdle()//5E078(<), 5F264(<) (F)
 {
 #if DEBUG_VERSION
-	if (ProfileDraw)
+	if (0)//ProfileDraw)
 	{
 		ProfileRGB(255, 255, 255);
 		ProfileAddOT(&db.ot[0]);
@@ -93,7 +97,7 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<) (F)
 	DrawSync(0);
 
 #if DEBUG_VERSION
-	if (ProfileDraw)
+	if (0)//ProfileDraw)
 	{
 		ProfileAddDrawOT(&db.ot[0]);
 	}
@@ -137,6 +141,79 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<) (F)
 
 void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 {
+#if USE_32_BIT_ADDR
+	unsigned long* data;
+	unsigned char code;
+	int ntri;
+	int nquad;
+	unsigned short x0;
+	unsigned short y0;
+	unsigned short x1;
+	unsigned short y1;
+	unsigned short x2;
+	unsigned short y2;
+	LINE_F2* line2;
+	char txbuf[64];
+
+	if (RawEdge & IN_UNK8)
+	{
+		gfx_debugging_mode++;
+	}
+
+	//loc_5E1E0
+	nquad = 0;
+
+	if (gfx_debugging_mode > 2)
+	{
+		gfx_debugging_mode = 0;
+	}
+
+	//TEMP
+	gfx_debugging_mode = 2;
+
+	//loc_5E1F8
+	data = (unsigned long*)otstart[0];
+	ntri = 0;
+
+	if ((unsigned long)data != (unsigned long)0xFFFFFFFF)
+	{
+		do
+		{
+			if (data[1] != 0)
+			{
+				code = ((char*)data)[11];//getcode
+
+				if (code == 0x34 || code == 0x30 || code == 0x24 || code == 0x20)
+				{
+					ntri++;
+				}
+				if (code == 0x28 || code == 0x2C || code == 0x38 || code == 0x3C)
+				{
+					nquad++;
+				}
+			}
+
+			data = (unsigned long*)(data[0]);
+		} while ((unsigned long)data != (unsigned long)0xFFFFFFFF);
+		//loc_5E3C4
+	}
+
+	//loc_5E3D8
+	if (gfx_debugging_mode == 0)
+	{
+		return;
+	}
+
+	sprintf(&txbuf[0], "%d", ntri+nquad);
+	PrintString(0, SCREEN_HEIGHT-38, 3, &txbuf[0], FF_NONE);
+
+	sprintf(&txbuf[0], "%d", ntri);
+	PrintString(0, SCREEN_HEIGHT-24, 3, &txbuf[0], FF_NONE);
+
+	sprintf(&txbuf[0], "%d", nquad);
+	PrintString(0, SCREEN_HEIGHT-8, 3, &txbuf[0], FF_NONE);
+#else
+
 	unsigned long* data;
 	unsigned char code;
 	int ntri;
@@ -284,7 +361,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 			}
 
 			data = (unsigned long*)(data[0] & 0xFFFFFF);
-		}while ((unsigned long)data != 0xFFFFFF);
+		} while ((unsigned long)data != 0xFFFFFF);
 		//loc_5E3C4
 	}
 
@@ -299,6 +376,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 
 	sprintf(&txbuf[0], "QUAD %d", nquad);
 	PrintString(34, 232, 3, &txbuf[0], FF_NONE);
+#endif
 }
 
 void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)

@@ -1142,6 +1142,9 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 #if PC_VERSION || PSXPC_TEST
 void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 {
+#if GBA_VERSION
+	//fov = ANGLE(125);
+#endif
 	CurrentFov = fov;
 
 #if PC_VERSION

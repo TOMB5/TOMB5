@@ -13,6 +13,8 @@
 #include <string.h>
 #include <assert.h>
 
+#define DEBUG_POLY_COUNT
+
 DISPENV activeDispEnv;
 DRAWENV activeDrawEnv;	// word_33BC
 DRAWENV byte_9CCA4;
@@ -428,6 +430,9 @@ void DrawAggregatedSplits()
 {
 	if (g_emulatorPaused)
 	{
+		eprintf("==========================================\n");
+		eprintf("POLYGON: %d\n", g_polygonSelected);
+
 		for (int i = 0; i < 3; i++)
 		{
 			struct Vertex* vert = &g_vertexBuffer[g_polygonSelected + i];
@@ -435,13 +440,12 @@ void DrawAggregatedSplits()
 			vert->g = 0;
 			vert->b = 0;
 
-			eprintf("==========================================\n");
-			eprintf("POLYGON: %d\n", i);
-			eprintf("X: %d Y: %d\n", vert->x, vert->y);
-			eprintf("U: %d V: %d\n", vert->u, vert->v);
-			eprintf("TP: %d CLT: %d\n", vert->page, vert->clut);
-			eprintf("==========================================\n");
+			eprintf("X%d: %d Y%d: %d\n", i, vert->x, i, vert->y);
+			eprintf("U%d: %d V%d: %d\n", i, vert->u, i, vert->v);
+			eprintf("TP%d: %d CLT%d: %d\n", i, vert->page, i, vert->clut);
 		}
+		eprintf("==========================================\n");
+
 		
 		Emulator_UpdateInput();
 	}
@@ -484,6 +488,7 @@ void AggregatePTAGsToSplits(u_long* p, bool singlePrimitive)
 				if (lastSize == -1)
 					break; // safe bailout
 			}
+
 			pTag = (P_TAG*)pTag->addr;
 		}
 	}
@@ -539,6 +544,11 @@ void DrawOTag(u_long* p)
 
 	DrawAggregatedSplits();
 	Emulator_EndScene();
+
+
+#if defined(DEBUG_POLY_COUNT)
+	eprintf("Polygon Count: %d\n", polygon_count);
+#endif
 
 #if defined(PGXP)
 	/* Reset the ztable */
@@ -632,9 +642,11 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 3;
 
 			primitive_size = sizeof(POLY_F3);
-	#if defined(DEBUG_POLY_COUNT)
+
+#ifdef DEBUG_POLY_COUNT
 			polygon_count++;
-	#endif
+#endif
+
 			break;
 		}
 		case 0x24:
@@ -651,9 +663,10 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 3;
 
 			primitive_size = sizeof(POLY_FT3);
-	#if defined(DEBUG_POLY_COUNT)
+
+#ifdef DEBUG_POLY_COUNT
 			polygon_count++;
-	#endif
+#endif
 			break;
 		}
 		case 0x28:
@@ -670,9 +683,10 @@ int ParsePrimitive(uintptr_t primPtr)
 
 			g_vertexIndex += 6;
 			primitive_size = sizeof(POLY_F4);
-	#if defined(DEBUG_POLY_COUNT)
+
+#ifdef DEBUG_POLY_COUNT
 			polygon_count++;
-	#endif
+#endif
 			break;
 		}
 		case 0x2C:
@@ -691,9 +705,10 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(POLY_FT4);
-	#if defined(DEBUG_POLY_COUNT)
+
+#ifdef DEBUG_POLY_COUNT
 			polygon_count++;
-	#endif
+#endif
 			break;
 		}
 		case 0x30:
@@ -709,9 +724,10 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 3;
 
 			primitive_size = sizeof(POLY_G3);
-	#if defined(DEBUG_POLY_COUNT)
+
+#ifdef DEBUG_POLY_COUNT
 			polygon_count++;
-	#endif
+#endif
 			break;
 		}
 		case 0x34:
@@ -728,9 +744,9 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 3;
 
 			primitive_size = sizeof(POLY_GT3);
-	#if defined(DEBUG_POLY_COUNT)
+#ifdef DEBUG_POLY_COUNT
 			polygon_count++;
-	#endif
+#endif
 			break;
 		}
 		case 0x38:
@@ -748,9 +764,10 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(POLY_G4);
-	#if defined(DEBUG_POLY_COUNT)
+
+#ifdef DEBUG_POLY_COUNT
 			polygon_count++;
-	#endif
+#endif
 			break;
 		}
 		case 0x3C:
@@ -769,9 +786,10 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(POLY_GT4);
-	#if defined(DEBUG_POLY_COUNT)
+
+#ifdef DEBUG_POLY_COUNT
 			polygon_count++;
-	#endif
+#endif
 			break;
 		}
 		case 0x40:
@@ -789,9 +807,6 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(LINE_F2);
-	#if defined(DEBUG_POLY_COUNT)
-			polygon_count++;
-	#endif
 			break;
 		}
 		case 0x48: // TODO (unused)
@@ -816,9 +831,6 @@ int ParsePrimitive(uintptr_t primPtr)
 								Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 								g_vertexIndex += 2;
 							}
-			#if defined(DEBUG_POLY_COUNT)
-							polygon_count++;
-			#endif
 						}
 			*/
 
@@ -840,9 +852,6 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(LINE_G2);
-	#if defined(DEBUG_POLY_COUNT)
-			polygon_count++;
-	#endif
 			break;
 		}
 		case 0x60:
@@ -860,9 +869,6 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(TILE);
-	#if defined(DEBUG_POLY_COUNT)
-			polygon_count++;
-	#endif
 
 			break;
 		}
@@ -881,9 +887,6 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(SPRT);
-	#if defined(DEBUG_POLY_COUNT)
-			polygon_count++;
-	#endif
 			break;
 		}
 		case 0x68:
@@ -901,9 +904,6 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(TILE_1);
-	#if defined(DEBUG_POLY_COUNT)
-			polygon_count++;
-	#endif
 			break;
 		}
 		case 0x70:
@@ -921,9 +921,6 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(TILE_8);
-	#if defined(DEBUG_POLY_COUNT)
-			polygon_count++;
-	#endif
 			break;
 		}
 		case 0x74:
@@ -941,9 +938,6 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(SPRT_8);
-	#if defined(DEBUG_POLY_COUNT)
-			polygon_count++;
-	#endif
 			break;
 		}
 		case 0x78:
@@ -961,9 +955,6 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(TILE_16);
-	#if defined(DEBUG_POLY_COUNT)
-			polygon_count++;
-	#endif
 			break;
 		}
 		case 0x7C:
@@ -981,9 +972,6 @@ int ParsePrimitive(uintptr_t primPtr)
 			g_vertexIndex += 6;
 
 			primitive_size = sizeof(SPRT_16);
-	#if defined(DEBUG_POLY_COUNT)
-			polygon_count++;
-	#endif
 			break;
 		}
 		case 0xE0:
@@ -1003,9 +991,6 @@ int ParsePrimitive(uintptr_t primPtr)
 					}
 
 					primitive_size = sizeof(DR_TPAGE);
-		#if defined(DEBUG_POLY_COUNT)
-					polygon_count++;
-		#endif
 
 					break;
 				}

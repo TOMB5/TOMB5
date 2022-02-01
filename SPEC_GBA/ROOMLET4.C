@@ -24,7 +24,7 @@ int ClipToScreenRL4(int t2)
     t8 = SXY1;
     s2 = SXY2;
 
-    if ((t7 & 0xFE00) == 0 || (t8 & 0xFE00) == 0 || (t2 & 0xFE00) == 0 || (s2 & 0xFE00) == 0)
+    if ((t7 & 0x7600) == 0 || (t8 & 0x7600) == 0 || (t2 & 0x7600) == 0 || (s2 & 0x7600) == 0)
     {
         at = t7 & t8;
         at &= s2;
@@ -37,7 +37,7 @@ int ClipToScreenRL4(int t2)
             s2 >>= 16;
             t2 >>= 16;
 
-            if (t7 < 0xF0 || t8 < 0xF0 || t2 < 0xF0 || s2 < 0xF0)
+            if (t7 < SCREEN_HEIGHT || t8 < SCREEN_HEIGHT || t2 < SCREEN_HEIGHT || s2 < SCREEN_HEIGHT)
             {
                 return 0;
             }
