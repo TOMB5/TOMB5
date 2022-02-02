@@ -11,6 +11,7 @@
 #include "GTEREG.H"
 #include "DRAWSPKS.H"
 #include "MISC.H"
+#include "GTEMATH.H"
 
 #define CLIP_Z 0x1500
 
@@ -1291,8 +1292,6 @@ void GetRoomBoundsAsm(short room_number)//77E70(<), 79EB4(<) ///@TODO check if i
 	int* t55;
 	short* t00;
 
-	S_MemSet((char*)&scratchPad[0], 0, 1024);
-
 	s2 = 0;
 	s3 = 1;
 	s4 = (short*)&scratchPad[63];
@@ -1301,86 +1300,40 @@ void GetRoomBoundsAsm(short room_number)//77E70(<), 79EB4(<) ///@TODO check if i
 	((char*)&scratchPad)[0] = room_number;
 	r = &room[room_number];
 
-	((int*)&r->test_left)[0] = ((SCREEN_WIDTH-1) << 16);
-	((int*)&r->test_top)[0] = ((SCREEN_HEIGHT-1) << 16);
+	r->test_left = 0;
+	r->test_right = SCREEN_WIDTH - 1;
+	r->test_bottom = SCREEN_HEIGHT-1;
+	r->test_top = 0;
 	r->bound_active = 2;
 
-	//t6 = &CamPos
-	t1 = TRX;///@BEGIN OPT1
-	t2 = TRY;
-	t3 = TRZ;
+	scratchPad[44] = Matrix->tx;//REMOVE ME?
+	scratchPad[45] = Matrix->ty;
+	scratchPad[46] = Matrix->tz;
 
-	scratchPad[44] = t1;
-	scratchPad[45] = t2;
-	scratchPad[46] = t3;///@END OPT1
-
-	t1 = CamPos.x;
-	t2 = CamPos.y;
-	t3 = CamPos.z;
-
-	scratchPad[47] = t1;
-	scratchPad[48] = t2;
-	scratchPad[49] = t3;
+	scratchPad[47] = CamPos.x;
+	scratchPad[48] = CamPos.y;
+	scratchPad[49] = CamPos.z;
 
 loc_77F18:
 	if (s2 != s3)
 	{
-		//t0 = ((char*)&scratchPad)[s2]
 		s6 = ((unsigned char*)&scratchPad)[s2];
 		s2++;
 		s2 &= 0x7F;
 
 		r = &room[s6];
 
-		v0 = r->bound_active - 2;
+		t1 = r->test_right < r->right ? r->test_right : r->right;
+		t2 = r->test_left >= r->left ? r->test_left : r->left;
+		t3 = r->test_bottom < r->bottom ? r->test_bottom : r->bottom;
+		t4 = r->test_top >= r->top ? r->test_top : r->top;
 
-		t1 = ((int*)&r->left)[0];
-		t3 = ((int*)&r->top)[0];
-		t5 = ((int*)&r->test_left)[0];
-		t7 = ((int*)&r->test_top)[0];
+		r->left = t1;
+		r->right = t2;
+		r->top = t3;
+		r->bottom = t4;
 
-		t2 = t1 >> 16;
-		t1 &= 0xFFFF;
-
-		t4 = t3 >> 16;
-		t3 &= 0xFFFF;
-
-		t6 = t5 >> 16;
-		t5 &= 0xFFFF;
-
-		t8 = t7 >> 16;
-		t7 &= 0xFFFF;
-
-		if (t5 < t1)
-		{
-			t1 = t5;
-		}
-
-		//loc_77F84
-		if (t6 >= t2)
-		{
-			t2 = t6;
-		}//loc_77F90
-
-		if (t7 < t3)
-		{
-			t3 = t7;
-		}//loc_77F9C
-
-		t6 = t2 << 16;
-		if (t8 >= t4)
-		{
-			t4 = t8;
-		}//loc_77FA8
-
-		t5 = t1 | t6;
-		t6 = t4 << 16;
-		t6 |= t3;
-
-		((int*)&r->left)[0] = t5;
-		((int*)&r->top)[0] = t6;
-
-		if (!((r->bound_active - 2) & 1))
+		if (!((r->bound_active - 2) & 0x1))
 		{
 			*s4++ = s6;
 			s5++;
@@ -1449,25 +1402,23 @@ loc_77F18:
 		IR2 = t4;
 		IR3 = t5;
 
+		SVECTOR vec0 = MVMVA(t3, t4, t5, 0);
 		docop2(0x41E012);
 
-		t3 = ((int*)&scratchPad)[44];
-		t4 = ((int*)&scratchPad)[45];
-		t5 = ((int*)&scratchPad)[46];
+		TRX = Matrix->tx;
+		TRY = Matrix->ty;
+		TRZ = Matrix->tz;
 
-		TRX = t3;
-		TRY = t4;
-		TRZ = t5;
-
-		t3 = MAC1;
-		t4 = MAC2;
-		t5 = MAC3;
+		t3 = MAC1;//vec0.vx
+		t4 = MAC2;//vec0.vy
+		t5 = MAC3;//vec0.vz
 
 		IR1 = t0;
 		IR2 = t1;
 		IR3 = t2;
 
 		docop2(0x498012);
+		SVECTOR vec1 = MVMVA(t0, t1, t2);
 
 		t0 = t3 << 3;
 		if (t3 < 0)
@@ -1494,9 +1445,9 @@ loc_77F18:
 		}
 
 		//loc_780E8
-		t3 = MAC1;
-		t4 = MAC2;
-		t5 = MAC3;
+		t3 = MAC1;//vec1.vx
+		t4 = MAC2;//vec1.vy
+		t5 = MAC3;//vec1.vz
 
 		t0 += t3;
 		t1 += t4;

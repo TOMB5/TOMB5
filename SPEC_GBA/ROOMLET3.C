@@ -12,6 +12,7 @@
 #include "EMULATOR_PRIVATE.H"
 #include "MISC.H"
 #include "TEXT_S.H"
+#include "GTEMATH.H"
 
 #include <stdio.h>
 
@@ -23,18 +24,13 @@ unsigned short* TriVertTableRL3 = &TriVertTable[0];
 
 int ClipToScreenRL3(int t2)
 {
-    int t7;
-    int t8;
-    int s2;
-    int at;
-
-    t7 = SXY0;
-    t8 = SXY1;
-    s2 = SXY2;
+    int t7 = SXY0;
+    int t8 = SXY1;
+    int s2 = SXY2;
 
     if ((t7 & 0x7600) == 0 || (t8 & 0x7600) == 0 || (t2 & 0x7600) == 0 || (s2 & 0x7600) == 0)
     {
-        at = t7 & t8;
+        int at = t7 & t8;
         at &= s2;
         at &= t2;
 
@@ -49,8 +45,8 @@ int ClipToScreenRL3(int t2)
             {
                 return 0;
             }
-        }//locret_1268
-    }//locret_1268
+        }
+    }
 
     return 1;
 }
@@ -159,9 +155,9 @@ long ClipXYRL3(int t1, int t2, int t3, int t4)
                 {
                     return 0;
                 }
-            }//locret_B28
-        }//locret_B28
-    }//locret_B28
+            }
+        }
+    }
     return 1;
 }
 
@@ -803,15 +799,13 @@ void sub_158RL3(long underwater, struct room_info* r)
     int t2;
     int t3;
     int t4;
+    int t5;
     int at;
     struct room_info* fp;
     struct WATERTAB* t11;
     int* s2;
     int* s1;
     struct room_info* s5;
-    int t5;
-    int t6;
-    int t7;
     int t8;
     int s6;
     int fpp;
@@ -833,8 +827,6 @@ void sub_158RL3(long underwater, struct room_info* r)
     int* sp = &scratchPad[0];
     int* sp2 = &scratchPad2[0];
 
-    S_MemSet((char*)&scratchPad[0], 0, 1024);
-    S_MemSet((char*)&scratchPad2[0], 0, 2048);
     RFC = (unsigned int)underwater;
     RGB0 = (unsigned int)r;
 
@@ -863,9 +855,9 @@ void sub_158RL3(long underwater, struct room_info* r)
     //t5 = s5->z
     s5 = (struct room_info*)RGB0;
 
-    t6 = s5->x - fp->x;
-    t7 = s5->y - fp->y;
-    t8 = s5->z - fp->z;
+    int t6 = s5->x - fp->x;
+    int t7 = s5->y - fp->y;
+    int t8 = s5->z - fp->z;
 
     if (t6 >= -31744 && t6 < 31744 &&
         t7 >= -31744 && t7 < 31744 &&
@@ -972,21 +964,13 @@ void sub_158RL3(long underwater, struct room_info* r)
         t2 &= 0x7FFF;
     }
 
-    IR1 = t3;
-    IR2 = t4;
-    IR3 = t5;
-
-    docop2(0x41E012);
-
-    t3 = MAC1;
-    t4 = MAC2;
-    t5 = MAC3;
-
     IR1 = t0;
     IR2 = t1;
     IR3 = t2;
 
     docop2(0x49E012);
+
+    SVECTOR rv = MVMVA(t0, t1, t2, 12);
 
     t0 = t3 << 3;
     if (t3 < 0)
@@ -1012,17 +996,17 @@ void sub_158RL3(long underwater, struct room_info* r)
         t2 = -t5;
     }
 
-    t3 = MAC1;
-    t4 = MAC2;
-    t5 = MAC3;
-
-    t0 = (unsigned int)t0 + (unsigned int)t3;
-    t1 = (unsigned int)t1 + (unsigned int)t4;
-    t2 = (unsigned int)t2 + (unsigned int)t5;
+    t0 = (unsigned int)t0 + (unsigned int)rv.vx;
+    t1 = (unsigned int)t1 + (unsigned int)rv.vy;
+    t2 = (unsigned int)t2 + (unsigned int)rv.vz;
 
     TRX = t0;
     TRY = t1;
     TRZ = t2;
+
+    int tx = t0;
+    int ty = t1;
+    int tz = t2;
 
     s2[2] = t0;
     s2[3] = t1;
@@ -1081,14 +1065,11 @@ loc_4A0:
         t3 &= 0xFFF8;
         t3 += (int)s3;
 
-        at = ((short*)t3)[0];
-        t2 = ((short*)t3)[1];
-        t3 = ((short*)t3)[2];
+        at = ((short*)t3)[0] + t6;
+        t2 = ((short*)t3)[1] + fpp;
+        t3 = ((short*)t3)[2] + s7;
 
-        at += t6;
         at &= 0xFFFF;
-        t2 += fpp;
-        t3 += s7;
         t2 <<= 16;
         t2 |= at;
 
@@ -1102,8 +1083,22 @@ loc_4A0:
         VY2 = (t2 >> 16) & 0xFFFF;
         VZ2 = t3;
 
-        t4 = t0 & 0xFFFF;
+        SVECTOR v[3];
+        v[0].vx = t0 & 0xFFFF;
+        v[0].vy = (t0 >> 16) & 0xFFFF;
+        v[0].vz = t1;
+        v[1].vx = t2 & 0xFFFF;
+        v[1].vy = (t2 >> 16) & 0xFFFF;
+        v[1].vz = t1;
+        v[2].vx = t2 & 0xFFFF;
+        v[2].vy = (t2 >> 16) & 0xFFFF;
+        v[2].vz = t3;
+
         docop2(0x280030);
+
+        RTPT(tx, ty, tz, &v[0]);
+
+        t4 = t0 & 0xFFFF;
         t6 = t2 & 0xFFFF;
         t7 = 0xFFFF0000;
         t5 = t0 & t7;
@@ -1118,6 +1113,7 @@ loc_4A0:
 
         s55 = 0;
 
+        //TODO plugin RTPT values here!
         t1 = SZ0;
         t6 = SXY1;
         t7 = SZ1;
@@ -1243,7 +1239,7 @@ loc_6DC:
             goto loc_64C;
         }
         t5 = ((int*)a0)[0];
-        t6 = 0;
+        int t6 = 0;
         t0 = (t5 << 3) & 0xFFF8;
         t0 += (int)s3;
         t2 = ((short*)t0)[2];
@@ -1258,7 +1254,7 @@ loc_6DC:
         t4 = t3 >> 16;
         t3 &= 0xFFFF;
 
-        t7 = sp2[11];
+        int t7 = sp2[11];
         t8 = sp2[12];
         t9 = sp2[13];
 
@@ -1285,20 +1281,10 @@ loc_6DC:
 
             if (dyn->on)
             {
-                //a2 = dyn->falloff >> 9
-                //v0 = dyn->x - (dyn->falloff >> 2);
-                //v1 = dyn->x + (dyn->falloff >> 2);
-
                 if ((dyn->falloff >> 2) >= t0 && dyn->x - (dyn->falloff >> 2) < t3)
                 {
-                    //v0 = dyn->y - (dyn->falloff >> 2)
-                    //v1 = dyn->y + (dyn->falloff >> 2)
-
                     if (dyn->y + (dyn->falloff >> 2) >= t1 && dyn->y - (dyn->falloff >> 2) < t4)
                     {
-                        //v0 = dyn->z - (dyn->falloff >> 2)
-                        //v1 = dyn->z + (dyn->falloff >> 2)
-
                         if (dyn->z + (dyn->falloff >> 2) >= t2 && dyn->z - (dyn->falloff >> 2) < t5)
                         {
                             dyn->used = TRUE;

@@ -2540,8 +2540,8 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 
 	if (at)
 	{
-		DrawMesh_Env(gp, at, v0, a1, (int*)s0, (int*)s1, a0, (int)a2, t2, fp, t3, (int)a3, (int)s3);
-		return;///@TODO verify
+		//DrawMesh_Env(gp, at, v0, a1, (int*)s0, (int*)s1, a0, (int)a2, t2, fp, t3, (int)a3, (int)s3);
+		//return;///@TODO verify
 	}
 
 	s4 -= 0xC00;
@@ -2550,14 +2550,14 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 	if (s6 && s4 < 0)
 	{
 		//DrawSubDivMesh(v0, (int*)a1, s0, s1, a0, (int)a2, t2, fp, a3);
-		return;
+		//return;
 	}
 
 	//loc_7F0A8
-	if (s5 < 0)
+	//if (s5 < 0)
 	{
-		DrawClippedMesh(v0, (int*)a1, s0, s1, (int)a0, (int)s7, (int)a2, t2, fp, t3, a3);
-		return;///@TODO verify
+		//DrawClippedMesh(v0, (int*)a1, s0, s1, (int)a0, (int)s7, (int)a2, t2, fp, t3, a3);
+		//return;///@TODO verify
 	}
 	
 	gp = 0x9000000;

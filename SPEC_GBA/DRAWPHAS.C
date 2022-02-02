@@ -427,7 +427,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			mPopMatrix();
 
-	}//loc_64980
+		}//loc_64980
 
 		old_anim = 0;
 		old_frame = 0;
@@ -487,7 +487,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 				}
 			}//loc_64B40
 		}//loc_64B40
-}//loc_64B40
+	}//loc_64B40
 
 	mPushMatrix();
 
