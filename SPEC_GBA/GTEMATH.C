@@ -110,8 +110,8 @@ SVECTOR MVMVA(SVECTOR* v0, int tx, int ty, int tz)//cop2 0x480012
     return rv;
 }
 
-unsigned int SXY[3];
-unsigned short SZ[4];
+int SXY[3];
+short SZ[4];
 
 void RTPT(int tx, int ty, int tz, SVECTOR* v)//cop2 0x280030
 {
