@@ -113,7 +113,7 @@ SVECTOR MVMVA(SVECTOR* v0, int tx, int ty, int tz)//cop2 0x480012
 unsigned int SXY[3];
 unsigned short SZ[4];
 
-void RTPT(int tx, int ty, int tz, SVECTOR* v)
+void RTPT(int tx, int ty, int tz, SVECTOR* v)//cop2 0x280030
 {
     for (int i = 0; i < 3; i++)
     {
@@ -205,7 +205,7 @@ void RTPT(int tx, int ty, int tz, SVECTOR* v)
             SY = -0x400;
         }
 
-        SXY[2] = SX | (SY << 16);
+        SXY[2] = (SX & 0xFFFF) | (SY << 16);
     }
 }
 
