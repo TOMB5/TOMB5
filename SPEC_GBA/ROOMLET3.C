@@ -1073,16 +1073,6 @@ loc_4A0:
         t2 <<= 16;
         t2 |= at;
 
-        VX0 = t0 & 0xFFFF;
-        VY0 = (t0 >> 16) & 0xFFFF;
-        VZ0 = t1;
-        VX1 = t2 & 0xFFFF;
-        VY1 = (t2 >> 16) & 0xFFFF;
-        VZ1 = t1;
-        VX2 = t2 & 0xFFFF;
-        VY2 = (t2 >> 16) & 0xFFFF;
-        VZ2 = t3;
-
         SVECTOR v[3];
         v[0].vx = t0 & 0xFFFF;
         v[0].vy = (t0 >> 16) & 0xFFFF;
@@ -1093,8 +1083,6 @@ loc_4A0:
         v[2].vx = t2 & 0xFFFF;
         v[2].vy = (t2 >> 16) & 0xFFFF;
         v[2].vz = t3;
-
-        docop2(0x280030);
 
         RTPT(tx, ty, tz, &v[0]);
 
@@ -1113,46 +1101,41 @@ loc_4A0:
 
         s55 = 0;
 
-        //TODO plugin RTPT values here!
-        t1 = SZ0;
-        t6 = SXY1;
-        t7 = SZ1;
-        t8 = SXY2;
-        t9 = SZ2;
+        t1 = SZ[0];
+        t6 = SXY[1];
+        t7 = SZ[1];
+        t8 = SXY[2];
+        t9 = SZ[2];
+        t0 = SXY[0];
 
-        VX0 = t4 & 0xFFFF;
-        VY0 = (t4 >> 16) & 0xFFFF;
-        VX1 = t5 & 0xFFFF;
-        VY1 = (t5 >> 16) & 0xFFFF;
-        VX2 = t0 & 0xFFFF;
-        VY2 = (t0 >> 16) & 0xFFFF;
-        t0 = SXY0;
-
-        docop2(0x280030);
-
+        v[0].vx = t4 & 0xFFFF;
+        v[0].vy = (t4 >> 16) & 0xFFFF;
+        v[1].vx = t5 & 0xFFFF;
+        v[1].vy = (t5 >> 16) & 0xFFFF;
+        v[2].vx = t0 & 0xFFFF;
+        v[2].vy = (t0 >> 16) & 0xFFFF;
+        RTPT(tx, ty, tz, &v[0]);
         v0 = 0;
         GetBoundsRL3(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
 
-        t0 = SXY0;
-        t1 = SZ0;
-        t6 = SXY1;
-        t7 = SZ1;
-        t8 = SXY2;
-        t9 = SZ2;
+        t0 = SXY[0];
+        t1 = SZ[0];
+        t6 = SXY[1];
+        t7 = SZ[1];
+        t8 = SXY[2];
+        t9 = SZ[2];
 
-        VZ0 = t3;
-        VZ1 = t3;
-
-        docop2(0x280030);
+        v[0].vz = t3;
+        v[1].vz = t3;
+        RTPT(tx, ty, tz, &v[0]);
         GetBoundsRL3(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
 
-        t0 = SXY0;
-        t1 = SZ0;
-        t6 = SXY1;
-        t7 = SZ1;
+        t0 = SXY[0];
+        t1 = SZ[0];
+        t6 = SXY[1];
+        t7 = SZ[1];
         t8 = t6;
         t9 = t7;
-
         GetBoundsRL3(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
 
         if ((unsigned)v0 < 9 && (unsigned)s55 < 9)
