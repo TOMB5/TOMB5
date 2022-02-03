@@ -1343,18 +1343,17 @@ loc_77F18:
 		fp |= (r->flags & 8);
 
 		s7 = r->door;
-
-		t0 = r->x;
-		t1 = r->y;
 		if (s7 == NULL)
 		{
 			goto loc_77F18;
 		}
 
+		t0 = r->x;
+		t1 = r->y;
 		t2 = r->z;
 
-		t3 = t0 >> 15;
-		if (t0 < 0)
+		t3 = r->x >> 15;
+		if (r->x < 0)
 		{
 			t0 = -t0;
 			t3 = t0 >> 15;
@@ -1398,64 +1397,41 @@ loc_77F18:
 		}
 
 		//loc_78064
-		IR1 = t3;
-		IR2 = t4;
-		IR3 = t5;
+		VECTOR vec0 = MVMVA(t3, t4, t5, 0);
+		VECTOR vec1 = MVMVA(t0, t1, t2);
 
-		SVECTOR vec0 = MVMVA(t3, t4, t5, 0);
-		docop2(0x41E012);
-
-		TRX = Matrix->tx;
-		TRY = Matrix->ty;
-		TRZ = Matrix->tz;
-
-		t3 = MAC1;//vec0.vx
-		t4 = MAC2;//vec0.vy
-		t5 = MAC3;//vec0.vz
-
-		IR1 = t0;
-		IR2 = t1;
-		IR3 = t2;
-
-		docop2(0x498012);
-		SVECTOR vec1 = MVMVA(t0, t1, t2);
-
-		t0 = t3 << 3;
-		if (t3 < 0)
+		t0 = vec0.vx << 3;
+		if (vec0.vx < 0)
 		{
-			t3 = -t3;
-			t3 <<= 3;
-			t0 = -t3;
+			vec0.vx = -vec0.vx;
+			vec0.vx <<= 3;
+			t0 = -vec0.vx;
 		}
 
-		t1 = t4 << 3;
-		if (t4 < 0)
+		t1 = vec0.vy << 3;
+		if (vec0.vy < 0)
 		{
-			t4 = -t4;
-			t4 <<= 3;
-			t1 = -t4;
+			vec0.vy = -vec0.vy;
+			vec0.vy <<= 3;
+			t1 = -vec0.vy;
 		}
 
-		t2 = t5 << 3;
-		if (t5 < 0)
+		t2 = vec0.vz << 3;
+		if (vec0.vz < 0)
 		{
-			t5 = -t5;
-			t5 <<= 3;
-			t2 = -t5;
+			vec0.vz = -vec0.vz;
+			vec0.vz <<= 3;
+			t2 = -vec0.vz;
 		}
 
 		//loc_780E8
-		t3 = MAC1;//vec1.vx
-		t4 = MAC2;//vec1.vy
-		t5 = MAC3;//vec1.vz
+		TRX = t0 + vec1.vx;
+		TRY = t1 + vec1.vy;
+		TRZ = t2 + vec1.vz;
 
-		t0 += t3;
-		t1 += t4;
-		t2 += t5;
-
-		TRX = t0;
-		TRY = t1;
-		TRZ = t2;
+		int RTX = t0 + vec1.vx;
+		int RTY = t1 + vec1.vy;
+		int RTZ = t2 + vec1.vz;
 
 		v0 = *s7++;
 
@@ -1530,30 +1506,14 @@ loc_77F18:
 							{
 							loc_781A8:
 								a33 = &room[a1];
-								t0 = ((int*)&a33->left)[0];
-								t2 = ((int*)&r->test_left)[0];
-								t4 = ((int*)&a33->top)[0];
-								t6 = ((int*)&r->test_top)[0];
 
-								t1 = t0 >> 16;
-								t0 &= 0xFFFF;
-
-								t3 = t2 >> 16;
-								t2 &= 0xFFFF;
-
-								t5 = t4 >> 16;
-								t4 &= 0xFFFF;
-
-								t7 = t6 >> 16;
-								t6 &= 0xFFFF;
-
-								if (t0 >= t2 || t1 < t3 || t4 >= t6 || t5 < t7)
+								if (a33->left >= r->test_left || a33->right < r->test_right || a33->top >= r->test_top || a33->bottom < r->test_bottom)
 								{
 									//loc_78208
-									t0 = t3;
-									t1 = t2;
-									t2 = t7;
-									t3 = t6;
+									t0 = r->test_right;
+									t1 = r->test_left;
+									t2 = r->test_bottom;
+									t3 = r->test_top;
 									t44 = &scratchPad[32];
 									t5 = 0;
 									t6 = 0;
@@ -1563,6 +1523,12 @@ loc_77F18:
 									t7 = ((unsigned short*)a2)[3];
 									t9 = ((unsigned short*)a2)[4];
 									t8 = ((unsigned short*)a2)[5];
+
+									SVECTOR v0;
+									v0.vx = t7;
+									v0.vy = t9;
+									v0.vz = t8;
+
 									t9 <<= 16;
 									t7 |= t9;
 
@@ -1571,6 +1537,8 @@ loc_77F18:
 									VZ0 = t8;
 									a2 += 3;
 
+									SVECTOR vec2 = MVMVA(&v0, RTX, RTY, RTZ);
+
 									docop2(0x480012);
 
 									t7 = IR1;
@@ -1578,9 +1546,11 @@ loc_77F18:
 									t9 = IR3;
 
 									docop2(0x180001);
-									t44[0] = t7;
-									t44[1] = t8;
-									t44[2] = t9;
+									RTPS(RTX, RTY, RTZ, &v0);
+
+									t44[0] = vec2.vx;
+									t44[1] = vec2.vy;
+									t44[2] = vec2.vz;
 									t44 += 3;
 
 									if (t9 <= 0)
@@ -1590,7 +1560,7 @@ loc_77F18:
 									}
 
 									//loc_78278
-									t7 = SXY2;
+									t7 = SXY[2];
 									t8 = t7 >> 16;
 
 									if (t9 >= CLIP_Z)
@@ -1629,7 +1599,6 @@ loc_77F18:
 										goto loc_78228;
 									}
 
-
 									t44 = &scratchPad[32];
 									v1 = 3;
 									if (t5 != 4 && t6 != 4)
@@ -1652,7 +1621,6 @@ loc_77F18:
 													t7 = t55[0];
 													t8 = ((t6 < 0) ? 1 : 0) & ((t7 < 0) ? 1 : 0);
 
-													//t8 = 0 < t6 ? 1 : 0
 													if (t8 != 0)
 													{
 														t0 = 0;
@@ -1672,7 +1640,6 @@ loc_77F18:
 														t7 = t55[1];
 														t8 = ((t6 < 0) ? 1 : 0) & ((t7 < 0) ? 1 : 0);
 
-														//t8 = 0 < t6 ? 1 : 0
 														if (t8 != 0)
 														{
 															t2 = 0;
@@ -1696,14 +1663,11 @@ loc_77F18:
 											} while (v1--);
 										}
 										//loc_78384
-										t4 = ((int*)&r->test_left)[0];
-										t6 = ((int*)&r->test_top)[0];
+										t5 = r->test_right;
+										t4 = r->test_left;
 
-										t5 = t4 >> 16;
-										t4 &= 0xFFFF;
-
-										t7 = t6 >> 16;
-										t6 &= 0xFFFF;
+										t7 = r->test_bottom;
+										t6 = r->test_top;
 
 										if (t0 < t4)
 										{
@@ -1729,34 +1693,26 @@ loc_77F18:
 										//loc_783D0
 										if (at < 0)
 										{
-											at = t2 - t3;
-											v1 = a33->bound_active;
-											if (at < 0)
+											if (t2 - t3 < 0)
 											{
-												at = v1 & 2;
-												v1 |= 2;
-												if (at == 0)
+												if ((a33->bound_active & 0x2) == 0)
 												{
 													((char*)&scratchPad)[s3] = a1;
 													s3++;
 													s3 &= 0x7F;
-													t1 <<= 16;
-													t0 |= t1;
-													t3 <<= 16;
-													t2 |= t3;
-													((int*)&a33->test_left)[0] = t0;
-													((int*)&a33->test_top)[0] = t2;
-													a33->bound_active = v1;
+													a33->test_left = t0;
+													a33->test_right = t1;
+													a33->test_top = t2;
+													a33->test_bottom = t3;
+													a33->bound_active |= 0x2;
 												}
 												else
 												{
 													//loc_7841C
-													t4 = ((int*)&a33->test_left)[0];
-													t6 = ((int*)&a33->test_top)[0];
-													t5 = t4 >> 16;
-													t4 &= 0xFFFF;
-													t7 = t6 >> 16;
-													t6 &= 0xFFFF;
+													t5 = a33->test_right;
+													t4 = a33->test_left;
+													t7 = a33->test_bottom;
+													t6 = a33->test_top;
 
 													if (t0 < t4)
 													{
@@ -1774,18 +1730,15 @@ loc_77F18:
 													}
 
 													//loc_7845C
-													t5 <<= 16;
 													if (t7 < t3)
 													{
 														t7 = t3;
 													}
 													//loc_78468
-													t4 |= t5;
-													t7 <<= 16;
-													t6 |= t7;
-
-													((int*)&a33->test_left)[0] = t4;
-													((int*)&a33->test_top)[0] = t6;
+													a33->test_left = t4;
+													a33->test_right = t5;
+													a33->test_top = t6;
+													a33->test_bottom = t7;
 												}
 											}//loc_7847C
 										}//loc_7847C
@@ -1805,6 +1758,7 @@ loc_77F18:
 
 	}//loc_78490
 
+	//Can be optimised out if room draw list is on scratch pad
 	t00 = &draw_rooms[0];
 	s4 = (short*)&scratchPad[63];
 	v0 = s5 - 1;

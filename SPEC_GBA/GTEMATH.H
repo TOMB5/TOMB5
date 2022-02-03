@@ -3,9 +3,11 @@
 
 #include "STYPES.H"
 
-extern SVECTOR MVMVA(int x, int y, int z, char shift);
-extern SVECTOR MVMVA(int x, int y, int z);
+extern VECTOR MVMVA(int x, int y, int z, char shift);
+extern VECTOR MVMVA(int x, int y, int z);
+extern SVECTOR MVMVA(SVECTOR* v0, int tx, int ty, int tz);
 extern void RTPT(int tx, int ty, int tz, SVECTOR* v);
+extern void RTPS(int tx, int ty, int tz, SVECTOR* v);
 extern unsigned int SXY[3];
 extern unsigned short SZ[4];
 

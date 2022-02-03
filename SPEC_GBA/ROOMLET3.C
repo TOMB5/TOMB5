@@ -970,7 +970,7 @@ void sub_158RL3(long underwater, struct room_info* r)
 
     docop2(0x49E012);
 
-    SVECTOR rv = MVMVA(t0, t1, t2, 12);
+    VECTOR rv = MVMVA(t0, t1, t2, 12);
 
     t0 = t3 << 3;
     if (t3 < 0)

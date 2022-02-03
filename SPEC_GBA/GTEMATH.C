@@ -55,21 +55,58 @@ unsigned int gte_divide(unsigned short numerator, unsigned short denominator)
     return 0xffffffff;
 }
 
-SVECTOR MVMVA(int x, int y, int z, char shift)//cop2 0x49E012
+VECTOR MVMVA(int x, int y, int z, char shift)//cop2 0x49E012
 {
-    SVECTOR rv;
+    VECTOR rv;
     rv.vx = (Matrix->m00 * x) + (Matrix->m01 * y) + (Matrix->m02 * z) >> shift;
     rv.vy = (Matrix->m10 * x) + (Matrix->m11 * y) + (Matrix->m12 * z) >> shift;
     rv.vz = (Matrix->m20 * x) + (Matrix->m21 * y) + (Matrix->m22 * z) >> shift;
     return rv;
 }
 
-SVECTOR MVMVA(int x, int y, int z)//cop2 0x498012
+VECTOR MVMVA(int x, int y, int z)//cop2 0x498012
 {
-    SVECTOR rv;
+    VECTOR rv;
     rv.vx = (Matrix->tx << 12) + (Matrix->m00 * x) + (Matrix->m01 * y) + (Matrix->m02 * z) >> 12;
     rv.vy = (Matrix->ty << 12) + (Matrix->m10 * x) + (Matrix->m11 * y) + (Matrix->m12 * z) >> 12;
     rv.vz = (Matrix->tz << 12) + (Matrix->m20 * x) + (Matrix->m21 * y) + (Matrix->m22 * z) >> 12;
+    return rv;
+}
+
+SVECTOR MVMVA(SVECTOR* v0, int tx, int ty, int tz)//cop2 0x480012
+{
+    SVECTOR rv;
+    rv.vx = (tx << 12) + (Matrix->m00 * v0->vx) + (Matrix->m01 * v0->vy) + (Matrix->m02 * v0->vz) >> 12;
+    rv.vy = (ty << 12) + (Matrix->m10 * v0->vx) + (Matrix->m11 * v0->vy) + (Matrix->m12 * v0->vz) >> 12;
+    rv.vz = (tz << 12) + (Matrix->m20 * v0->vx) + (Matrix->m21 * v0->vy) + (Matrix->m22 * v0->vz) >> 12;
+    
+    if (rv.vx > 0x7FFF)
+    {
+        rv.vx = 0x7FFF;
+    }
+    else if (rv.vx < -0x8000)
+    {
+        rv.vx = -0x8000;
+    }
+
+    if (rv.vy > 0x7FFF)
+    {
+        rv.vy = 0x7FFF;
+    }
+    else if (rv.vy < -0x8000)
+    {
+        rv.vy = -0x8000;
+    }
+
+    if (rv.vz > 0x7FFF)
+    {
+        rv.vz = 0x7FFF;
+    }
+    else if (rv.vz < -0x8000)
+    {
+        rv.vz = -0x8000;
+    }
+    
     return rv;
 }
 
@@ -84,7 +121,7 @@ void RTPT(int tx, int ty, int tz, SVECTOR* v)
         int MAC2 = (ty << 12) + (Matrix->m10 * v[i].vx) + (Matrix->m11 * v[i].vy) + (Matrix->m12 * v[i].vz) >> 12;
         int MAC3 = (tz << 12) + (Matrix->m20 * v[i].vx) + (Matrix->m21 * v[i].vy) + (Matrix->m22 * v[i].vz) >> 12;
 
-        short IR1;
+        short IR1 = MAC1;
         if (MAC1 > 0x7FFF)
         {
             IR1 = 0x7FFF;
@@ -93,12 +130,8 @@ void RTPT(int tx, int ty, int tz, SVECTOR* v)
         {
             IR1 = -0x8000;
         }
-        else
-        {
-            IR1 = MAC1;
-        }
 
-        short IR2 = 0;
+        short IR2 = MAC2;
         if (MAC2 > 0x7FFF)
         {
             IR2 = 0x7FFF;
@@ -107,12 +140,8 @@ void RTPT(int tx, int ty, int tz, SVECTOR* v)
         {
             IR2 = -0x8000;
         }
-        else
-        {
-            IR2 = MAC2;
-        }
 
-        short IR3 = 0;
+        short IR3 = MAC3;
         if (MAC3 > 0x7FFF)
         {
             IR3 = 0x7FFF;
@@ -120,10 +149,6 @@ void RTPT(int tx, int ty, int tz, SVECTOR* v)
         else if (MAC3 < -0x8000)
         {
             IR3 = -0x8000;
-        }
-        else
-        {
-            IR3 = MAC3;
         }
 
         SZ[0] = SZ[1];
@@ -143,7 +168,7 @@ void RTPT(int tx, int ty, int tz, SVECTOR* v)
             SZ[3] = MAC3;
         }
 
-        int h_over_sz3 = gte_divide(phd_persp, SZ[i]);
+        int h_over_sz3 = gte_divide(phd_persp, SZ[3]);
         if (h_over_sz3 == 0xFFFFFFFF) 
         {
             h_over_sz3 =  0x1FFFF;
@@ -182,4 +207,97 @@ void RTPT(int tx, int ty, int tz, SVECTOR* v)
 
         SXY[2] = SX | (SY << 16);
     }
+}
+
+void RTPS(int tx, int ty, int tz, SVECTOR* v)//0x180001
+{
+    int MAC1 = (tx << 12) + (Matrix->m00 * v->vx) + (Matrix->m01 * v->vy) + (Matrix->m02 * v->vz) >> 12;
+    int MAC2 = (ty << 12) + (Matrix->m10 * v->vx) + (Matrix->m11 * v->vy) + (Matrix->m12 * v->vz) >> 12;
+    int MAC3 = (tz << 12) + (Matrix->m20 * v->vx) + (Matrix->m21 * v->vy) + (Matrix->m22 * v->vz) >> 12;
+
+    short IR1 = MAC1;
+    if (MAC1 > 0x7FFF)
+    {
+        IR1 = 0x7FFF;
+    }
+    else if (MAC1 < -0x8000)
+    {
+        IR1 = -0x8000;
+    }
+
+    short IR2 = MAC2;
+    if (MAC2 > 0x7FFF)
+    {
+        IR2 = 0x7FFF;
+    }
+    else if (MAC2 < -0x8000)
+    {
+        IR2 = -0x8000;
+    }
+
+    short IR3 = MAC3;
+    if (MAC3 > 0x7FFF)
+    {
+        IR3 = 0x7FFF;
+    }
+    else if (MAC3 < -0x8000)
+    {
+        IR3 = -0x8000;
+    }
+
+    SZ[0] = SZ[1];
+    SZ[1] = SZ[2];
+    SZ[2] = SZ[3];
+
+    if (MAC3 > 0xFFFF)
+    {
+        SZ[3] = 0xFFFF;
+    }
+    else if (MAC3 < 0x0000)
+    {
+        SZ[3] = 0x0000;
+    }
+    else
+    {
+        SZ[3] = MAC3;
+    }
+
+    int h_over_sz3 = gte_divide(phd_persp, SZ[3]);
+    if (h_over_sz3 == 0xFFFFFFFF)
+    {
+        h_over_sz3 = 0x1FFFF;
+    }
+    else if (h_over_sz3 > 0x1FFFF)
+    {
+        h_over_sz3 = 0x1FFFF;
+    }
+
+    int OFX = (SCREEN_WIDTH / 2) << 16;
+    int OFY = (SCREEN_HEIGHT / 2) << 16;
+
+    SXY[0] = SXY[1];
+    SXY[1] = SXY[2];
+
+    //Removed F();
+    int SX = (OFX + (IR1 * h_over_sz3)) >> 16;
+    if (SX > 0x3FF)
+    {
+        SX = 0x3FF;
+    }
+    else if (SX < -0x400)
+    {
+        SX = -0x400;
+    }
+
+    int SY = (OFY + (IR2 * h_over_sz3)) >> 16;
+    if (SY > 0x3FF)
+    {
+        SY = 0x3FF;
+    }
+    else if (SY < -0x400)
+    {
+        SY = -0x400;
+    }
+
+    SXY[2] = SX | (SY << 16);
 }
